@@ -6,3 +6,4 @@ wrangler.jsonc
 _headers.md
 node_modules
 .wrangler
+supabase
