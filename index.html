@@ -408,6 +408,7 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 /* avatar */
 .avatar { display: block; width: 100%; height: 100%; border-radius: 50%; overflow: hidden; position: relative; }
 .avatar img { position: absolute; left: 6%; top: 8%; width: 88%; height: 92%; object-fit: contain; object-position: bottom; -webkit-user-drag: none; }
+.avatar.framed img { inset: 0; width: 100%; height: 100%; }
 .avbox { width: 96px; height: 96px; border-radius: 50%; overflow: hidden; flex-shrink: 0; box-shadow: 0 0 0 4px var(--card), 0 5px 0 4px var(--edge); }
 .hero .avbox { width: 120px; height: 120px; }
 .profile { flex-direction: row; flex-wrap: wrap; align-items: center; }
@@ -1445,10 +1446,12 @@ function privacyInfo() {
 const AVATARS = [["entdecker", "Entdecker"], ["pilot", "Pilot"], ["astronaut", "Astronaut"], ["pirat", "Pirat"], ["koch", "Koch"], ["koenig", "König"],
   ["taucher", "Taucher"], ["cowboy", "Cowboy"], ["wikinger", "Wikinger"], ["ninja", "Ninja"], ["forscher", "Forscher"], ["dj", "DJ"],
   ["skifahrer", "Skifahrer"], ["kapitaen", "Kapitän"], ["detektiv", "Detektiv"], ["party", "Partyaffe"]];
+// new high-resolution avatars are already framed for the circle (face centred, clothes to the bottom edge)
+const AV_FRAMED = new Set(["entdecker", "pilot", "astronaut", "pirat", "koch"]);
 const AV_BG = ["#cfe6ff", "#ffd9c2", "#d7f5dc", "#e6dcff", "#fff1b8", "#ffd6e5", "#2a2a2e"];
 function avatarHtml(a) {
   const pick = AVATARS.some(x => x[0] === (a && a.pick)) ? a.pick : DEFAULT_AVATAR.pick;
-  return `<span class="avatar" style="background:${AV_BG[(a && a.bg) | 0] || AV_BG[0]}"><img src="avatars/${pick}.webp" alt="" draggable="false"></span>`;
+  return `<span class="avatar${AV_FRAMED.has(pick) ? " framed" : ""}" style="background:${AV_BG[(a && a.bg) | 0] || AV_BG[0]}"><img src="avatars/${pick}.webp" alt="" draggable="false"></span>`;
 }
 
 function avatarEditor() {
