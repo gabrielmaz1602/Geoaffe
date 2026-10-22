@@ -1,0 +1,9 @@
+// Cloudflare Workers: Geoaffe is a static site, every file in this folder is served as is.
+// Files listed in .assetsignore are not published.
+{
+  "name": "geoaffe",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "."
+  }
+}
