@@ -25,8 +25,8 @@ Die App läuft komplett im Browser, braucht kein Konto und lässt sich auf dem H
 | **Grenzgänger** | Finde einen Landweg von Land A nach Land B, nur über gemeinsame Landgrenzen. Land auf der Karte antippen oder eintippen. Weniger Länder bringen mehr Punkte. | 2 |
 | **Flaggen-Mix** | Zwei halbe Flaggen sind zu einer zusammengesetzt. Welche zwei Länder stecken drin? | 5 |
 | **Nördlicher?** | Zwei bekannte Orte. Welcher liegt weiter im Norden, Süden, Osten oder Westen? | 10 |
-| **Näher dran** | Was liegt näher an Stadt X: Stadt A oder Stadt B? | 10 |
-| **Tag & Nacht** | Live nach echter Uhrzeit: Wo geht gerade die Sonne auf oder unter, wo ist tiefe Nacht, wo steht die Sonne senkrecht? | 5 |
+| **Umriss** | Ein Land wird nur als Silhouette gezeigt. Welches ist es? Vier Antworten zur Auswahl. | 5 |
+| **Größer?** | Zwei Länder: Welches hat die größere Fläche? Danach siehst du beide Umrisse im selben Maßstab. | 10 |
 
 ## Funktionen
 
@@ -72,9 +72,10 @@ Den Ordnerinhalt auf einen beliebigen statischen Hoster legen, zum Beispiel Netl
 ## Daten und Genauigkeit
 
 - **Weltkarte und Ländergrenzen:** Natural Earth (1:50 Mio.). Die Nachbarschaften für den Grenzgänger sind aus den gemeinsamen Grenzlinien der Karte berechnet und von Hand gegengeprüft. Regeln: Überseegebiete zählen nicht (Frankreich grenzt also nicht an Brasilien). Der Kosovo ist als eigenes Land dabei, Somaliland zählt zu Somalia. Die rund 150 m lange Grenze Botswana–Sambia ist ergänzt.
-- **Städte:** Alle Koordinaten sind mit dem GeoNames-Datensatz abgeglichen. Für Nadelwurf, Nördlicher? und Näher dran werden nur bekannte Städte und Sehenswürdigkeiten verwendet.
+- **Städte:** Alle Koordinaten sind mit dem GeoNames-Datensatz abgeglichen. Für Nadelwurf und Nördlicher? werden nur bekannte Städte und Sehenswürdigkeiten verwendet.
 - **Entfernungen:** Luftlinie auf der Erdkugel (Haversine-Formel, mittlerer Erdradius 6.371 km)
-- **Sonnenstand (Tag & Nacht):** berechnet nach den Formeln des NOAA Solar Calculator, genau für den Moment der Antwort. Tiefe Nacht bedeutet: Sonne mehr als 18° unter dem Horizont.
+- **Umrisse (Umriss, Größer?):** flächentreue Projektion (Lambert azimutal), zentriert auf das jeweilige Land. Weit entfernte Überseegebiete fehlen (USA ohne Alaska und Hawaii, Norwegen ohne Spitzbergen), Inselketten wie Indonesien bleiben vollständig.
+- **Flächen (Größer?):** offizielle Gesamtfläche inklusive Binnengewässer. Im Spiel kommen nur Länder vor, bei denen der gezeichnete Umriss höchstens 10 % von dieser Fläche abweicht.
 
 ## Quellen und Lizenzen
 

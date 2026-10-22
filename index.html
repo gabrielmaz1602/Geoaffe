@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#ece5d6">
-<meta name="description" content="Tägliche Geografie-Spiele: Nadelwurf, Grenzgänger, Flaggen-Mix, Nördlicher?, Näher dran und Tag &amp; Nacht.">
+<meta name="theme-color" content="#eef5ff">
+<meta name="description" content="Tägliche Geografie-Spiele: Nadelwurf, Grenzgänger, Flaggen-Mix, Nördlicher?, Umriss und Größer?.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
 <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
@@ -16,206 +16,231 @@
 <meta name="apple-mobile-web-app-title" content="Geoaffe">
 <title>Geoaffe</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap">
 <style>
-/* Layout: modern app on warm beige paper. One column, crisp rounded cards, generous spacing, ink-black primary actions and a cobalt accent. Deliberately single-theme (always light beige, per the user's request). */
+/* Layout: playful and colourful. Light sky background, white cards with chunky "pressable" bottom edges, one bold colour per game, rounded type (Fredoka for headings and numbers, Nunito for text). Deliberately single-theme. */
 :root {
-  --paper: #ece5d6;
-  --paper-2: #e3dac7;
-  --card: #f8f4eb;
-  --card-hi: #fcfaf5;
-  --ink: #1c1a16;
-  --ink-2: #6e6656;
-  --ink-3: #9a917f;
-  --line: #ddd3c0;
-  --wax: #2b4ad6;          /* cobalt: primary accent, pins, start */
+  --paper: #eef5ff;        /* page background */
+  --paper-2: #dfe9f7;      /* tracks, empty dots */
+  --card: #ffffff;
+  --card-hi: #ffffff;
+  --ink: #1d2742;
+  --ink-2: #5a6885;
+  --ink-3: #97a3bb;
+  --line: #d9e3f1;
+  --edge: #c9d5e6;         /* chunky bottom edge under white cards */
+  --wax: #2f7bff;          /* blue: primary accent, pins, start */
+  --wax-dk: #1c5fd8;
   --wax-fg: #ffffff;
-  --navy: #df6532;         /* orange: target / second accent */
-  --moss: #2e8a5f;         /* green: your route */
-  --ochre: #dfa11c;
-  --sea: #cbd8d6;
-  --land: #f8f3e8;
-  --border: #ffffff;
-  --night: rgba(24, 28, 52, .26);
-  --good: #2e8a5f;
-  --good-soft: #dcebdd;
-  --bad: #c8412d;
-  --bad-soft: #f5ddd5;
-  --f-body: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --f-mono: "Geist Mono", ui-monospace, Menlo, monospace;
+  --navy: #ff8a1f;         /* orange: target / second accent */
+  --navy-dk: #db6d06;
+  --moss: #2dbf5c;         /* green: your route */
+  --moss-dk: #1f9a47;
+  --ochre: #ffc21a;
+  --ochre-dk: #dca200;
+  --pink: #ff4f8b;
+  --pink-dk: #d9346c;
+  --grape: #8d5cff;
+  --grape-dk: #6c3ee0;
+  --sea: #bfe3ff;
+  --land: #ffffff;
+  --border: #b9cbe2;
+  --good: #2dbf5c;
+  --good-soft: #dcf7e4;
+  --bad: #ff4b4b;
+  --bad-soft: #ffe3e3;
+  --f-body: "Nunito", ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "Fredoka", ui-rounded, system-ui, sans-serif;
+  --f-head: "Fredoka", ui-rounded, system-ui, sans-serif;
   color-scheme: light;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--paper); }
 body { margin: 0; min-height: 100vh; }
 img { max-width: 100%; }
 body {
-  color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.5; letter-spacing: -.005em;
-  background-color: var(--paper);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .33 0 0 0 0 .22 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.5; font-weight: 600;
+  background: var(--paper);
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 22px 64px; -webkit-tap-highlight-color: transparent;
+  padding-block: 18px 64px; -webkit-tap-highlight-color: transparent;
 }
 button, input { font: inherit; color: inherit; letter-spacing: inherit; }
-button:focus-visible, input:focus-visible { outline: 2px solid var(--wax); outline-offset: 2px; }
-.wrap { max-width: 540px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-.label { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
-.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--wax); outline-offset: 2px; }
+.wrap { max-width: 540px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+.label { font-family: var(--f-head); font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-2); }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 .muted { color: var(--ink-2); }
 .hand { font-family: var(--f-mono); }
+h1, h2, h3 { font-family: var(--f-head); }
 
 /* ---------- hub ---------- */
-.brand { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; }
-.brand .rose { width: 58px; height: 58px; object-fit: contain; margin: -6px -4px -6px -6px; }
-.brand h1 { margin: 0; font-weight: 800; font-size: 28px; letter-spacing: -.035em; line-height: 1; }
-.brand p { margin: 4px 0 0; color: var(--ink-2); font-size: 14px; }
-.total { text-align: right; }
-.total b { display: block; font-family: var(--f-mono); font-weight: 600; font-size: 26px; line-height: 1; letter-spacing: -.03em; }
-.total span { font-size: 12px; color: var(--ink-2); }
-.voyage { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--ink-2); font-weight: 500; }
-.voyage .trail { flex: 1; height: 6px; border-radius: 999px; background: var(--paper-2); overflow: hidden; }
-.voyage .trail i { display: block; height: 100%; border-radius: 999px; background: var(--ink); transition: width .5s cubic-bezier(.2,.8,.2,1); }
+.brand { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; }
+.brand .rose { width: 74px; height: 74px; object-fit: contain; margin: -8px -2px -8px -8px; animation: bob 3.2s ease-in-out infinite; transform-origin: 50% 90%; }
+@keyframes bob { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg) translateY(-2px); } }
+.brand h1 { margin: 0; font-weight: 700; font-size: 34px; line-height: 1; color: var(--wax); letter-spacing: -.01em; }
+.brand p { margin: 4px 0 0; color: var(--ink-2); font-size: 14px; font-weight: 700; }
+.total { text-align: center; background: var(--card); border: 2px solid var(--line); box-shadow: 0 4px 0 var(--edge); border-radius: 18px; padding: 8px 12px 6px; }
+.total b { display: block; font-family: var(--f-mono); font-weight: 700; font-size: 26px; line-height: 1; color: var(--navy); }
+.total span { font-size: 12px; color: var(--ink-2); font-weight: 700; }
+.voyage { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--ink-2); font-weight: 800; }
+.voyage .trail { flex: 1; height: 16px; border-radius: 999px; background: var(--paper-2); overflow: hidden; }
+.voyage .trail i { position: relative; display: block; height: 100%; min-width: 16px; border-radius: 999px; background: var(--moss); transition: width .5s cubic-bezier(.2,.8,.2,1); }
+.voyage .trail i::after { content: ""; position: absolute; left: 8px; right: 8px; top: 4px; height: 4px; border-radius: 999px; background: rgba(255,255,255,.35); }
 
-.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
 .gcard {
-  position: relative; border: 1px solid var(--line); background: var(--card); border-radius: 18px; padding: 0; cursor: pointer; text-align: left; min-width: 0;
-  box-shadow: 0 1px 0 rgba(255,255,255,.7) inset, 0 1px 2px rgba(60, 45, 20, .05);
-  transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s, border-color .18s;
+  --hue-dk: color-mix(in srgb, var(--hue) 78%, #000);
+  position: relative; border: 0; background: var(--hue); color: #fff; border-radius: 22px; padding: 0; cursor: pointer; text-align: left; min-width: 0;
+  box-shadow: 0 5px 0 var(--hue-dk); margin-bottom: 5px;
+  transition: transform .12s, box-shadow .12s;
 }
-.gcard:hover { transform: translateY(-2px); border-color: var(--line); box-shadow: 0 10px 24px -12px rgba(60, 45, 20, .25); }
-.gcard .in { padding: 14px; display: flex; flex-direction: column; gap: 8px; height: 100%; min-height: 172px; }
+.gcard:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--hue-dk); }
+.gcard:active { transform: translateY(5px); box-shadow: 0 0 0 var(--hue-dk); }
+.gcard.dark-text { color: var(--ink); }
+.gcard .in { padding: 14px; display: flex; flex-direction: column; gap: 6px; height: 100%; min-height: 176px; }
 .gcard .top { display: flex; justify-content: space-between; align-items: flex-start; }
-.gcard .ic { width: 42px; height: 42px; border-radius: 12px; padding: 8px; color: var(--hue, var(--wax)); background: color-mix(in srgb, var(--hue, var(--wax)) 13%, var(--card-hi)); }
+.gcard .ic { width: 46px; height: 46px; border-radius: 14px; padding: 8px; color: var(--hue-dk); background: #fff; }
 .gcard .ic svg { width: 100%; height: 100%; }
-.gcard .val { font-size: 12px; color: var(--ink-3); font-weight: 500; }
-.gcard h3 { margin: 4px 0 0; font-weight: 700; font-size: 17px; letter-spacing: -.02em; line-height: 1.15; }
-.gcard p { margin: 0; font-size: 13.5px; color: var(--ink-2); line-height: 1.35; }
-.gcard .st { margin-top: auto; font-size: 13px; color: var(--ink-2); font-weight: 500; display: flex; align-items: center; gap: 6px; }
-.gcard .st::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--hue, var(--wax)); }
-.gcard .st b { color: var(--ink); font-weight: 600; }
-.gcard.done { background: var(--card-hi); }
+.gcard .val { font-size: 12px; font-weight: 800; background: rgba(255,255,255,.25); border-radius: 999px; padding: 2px 9px; }
+.gcard h3 { margin: 6px 0 0; font-weight: 700; font-size: 20px; line-height: 1.1; }
+.gcard p { margin: 0; font-size: 13.5px; line-height: 1.3; opacity: .92; font-weight: 700; }
+.gcard .st { margin-top: auto; padding-top: 4px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; }
+.gcard .st::before { content: "▶"; font-size: 10px; }
+.gcard .st b { font-weight: 800; }
+.gcard.done { background: var(--card); color: var(--ink); box-shadow: 0 5px 0 var(--edge); border: 2px solid var(--line); }
+.gcard.done .ic { background: color-mix(in srgb, var(--hue) 16%, #fff); color: var(--hue-dk); }
+.gcard.done .val { background: var(--paper); color: var(--ink-2); }
+.gcard.done p { color: var(--ink-2); }
 .gcard.done .st { display: none; }
 .postmark {
   position: absolute; left: 14px; bottom: 12px; display: inline-flex; align-items: center; gap: 6px;
-  background: var(--good-soft); color: var(--good); border-radius: 999px; padding: 3px 10px 3px 8px; font-size: 12px; font-weight: 600; pointer-events: none;
+  background: var(--good); color: #fff; border-radius: 999px; padding: 3px 11px 3px 9px; font-size: 13px; font-weight: 800; pointer-events: none;
 }
-.postmark::before { content: "✓"; font-weight: 700; }
-.postmark b { font-family: var(--f-mono); font-weight: 600; color: var(--ink); font-size: 13px; }
+.postmark::before { content: "✓"; font-weight: 800; }
+.postmark b { font-family: var(--f-mono); font-weight: 700; font-size: 14px; }
 .postmark .d { display: none; }
 @media (max-width: 370px) { .grid { grid-template-columns: 1fr; } }
 
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-.card h2 { margin: 0; font-weight: 700; font-size: 17px; letter-spacing: -.02em; }
+.card { background: var(--card); border: 2px solid var(--line); box-shadow: 0 5px 0 var(--edge); border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.card h2 { margin: 0; font-weight: 700; font-size: 20px; }
 .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .between { justify-content: space-between; }
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.stats > div { background: var(--card-hi); border-radius: 12px; padding: 10px 8px; text-align: center; }
-.stats b { display: block; font-family: var(--f-mono); font-size: 20px; font-weight: 600; line-height: 1.2; letter-spacing: -.03em; }
-.stats span { font-size: 11.5px; color: var(--ink-2); line-height: 1.25; display: block; }
-details { font-size: 14px; color: var(--ink-2); background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; }
-details summary { cursor: pointer; color: var(--ink); font-weight: 600; }
+.stats > div { border-radius: 16px; padding: 10px 6px; text-align: center; background: color-mix(in srgb, var(--c) 14%, #fff); }
+.stats > div:nth-child(1) { --c: var(--wax); } .stats > div:nth-child(2) { --c: var(--navy); } .stats > div:nth-child(3) { --c: var(--moss); } .stats > div:nth-child(4) { --c: var(--grape); }
+.stats b { display: block; font-family: var(--f-mono); font-size: 22px; font-weight: 700; line-height: 1.2; color: color-mix(in srgb, var(--c) 80%, #000); }
+.stats span { font-size: 11.5px; color: var(--ink-2); line-height: 1.25; display: block; font-weight: 700; }
+details { font-size: 14px; color: var(--ink-2); background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 12px 16px; font-weight: 600; }
+details summary { cursor: pointer; color: var(--ink); font-weight: 800; }
 details ul { margin: 10px 0 2px; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
 
 /* ---------- game screen ---------- */
 .topbar { display: flex; align-items: center; gap: 12px; }
-.back { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 7px 14px 7px 10px; cursor: pointer; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
-.back:hover { background: var(--card-hi); }
+.back { border: 2px solid var(--line); background: var(--card); box-shadow: 0 3px 0 var(--edge); border-radius: 999px; padding: 6px 14px 6px 10px; cursor: pointer; font-size: 14px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; }
+.back:active { transform: translateY(3px); box-shadow: none; }
 .back svg { width: 16px; height: 16px; }
-.topbar h2 { margin: 0; font-weight: 700; font-size: 19px; letter-spacing: -.025em; flex: 1; min-width: 0; }
-.topbar .sc { font-family: var(--f-mono); font-weight: 600; font-size: 17px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; }
-.chip { font-size: 11px; font-weight: 600; color: var(--ink-2); background: var(--paper-2); border-radius: 999px; padding: 2px 8px; vertical-align: middle; }
+.topbar h2 { margin: 0; font-weight: 700; font-size: 22px; flex: 1; min-width: 0; }
+.topbar .sc { font-family: var(--f-mono); font-weight: 700; font-size: 18px; color: #fff; background: var(--navy); border-radius: 999px; padding: 3px 14px; }
+.chip { font-family: var(--f-body); font-size: 11px; font-weight: 800; color: var(--grape-dk); background: color-mix(in srgb, var(--grape) 15%, #fff); border-radius: 999px; padding: 2px 8px; vertical-align: middle; }
 .dots { display: flex; gap: 5px; }
-.dots i { flex: 1; height: 5px; border-radius: 999px; background: var(--paper-2); }
+.dots i { flex: 1; height: 10px; border-radius: 999px; background: var(--paper-2); }
 .dots i.cur { background: var(--ink-3); }
 .dots i.g3 { background: var(--good); }
 .dots i.g2 { background: var(--ochre); }
 .dots i.g1 { background: var(--bad); }
-.q { margin: 0; font-weight: 650; font-weight: 600; font-size: 23px; line-height: 1.22; letter-spacing: -.025em; text-wrap: balance; }
+.q { margin: 0; font-family: var(--f-head); font-weight: 600; font-size: 25px; line-height: 1.2; text-wrap: balance; }
 .q b { color: var(--wax); font-weight: 700; }
-.sub { margin: -8px 0 0; color: var(--ink-2); font-size: 14px; }
-.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sub { margin: -8px 0 0; color: var(--ink-2); font-size: 14px; font-weight: 700; }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .opt {
-  border: 1px solid var(--line); background: var(--card-hi); border-radius: 16px; padding: 18px 12px; cursor: pointer;
+  border: 2px solid var(--line); background: var(--card); border-radius: 18px; padding: 18px 12px; cursor: pointer;
   display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; min-width: 0;
-  box-shadow: 0 1px 2px rgba(60, 45, 20, .06); transition: transform .1s, border-color .15s, background .15s;
+  box-shadow: 0 4px 0 var(--edge); transition: transform .1s, box-shadow .1s, border-color .15s, background .15s;
 }
-.opt:hover:not(:disabled) { border-color: var(--ink-3); }
-.opt:active:not(:disabled) { transform: scale(.98); }
-.opt b { font-size: 18px; font-weight: 700; letter-spacing: -.02em; overflow-wrap: anywhere; }
-.opt span { font-size: 13px; color: var(--ink-2); }
-.opt.good { border-color: var(--good); background: var(--good-soft); }
-.opt.bad { border-color: var(--bad); background: var(--bad-soft); }
+.opt:hover:not(:disabled) { border-color: var(--wax); box-shadow: 0 4px 0 var(--wax); }
+.opt:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 var(--edge); }
+.opt b { font-family: var(--f-head); font-size: 19px; font-weight: 600; overflow-wrap: anywhere; }
+.opt span { font-size: 13px; color: var(--ink-2); font-weight: 700; }
+.opt.good { border-color: var(--good); background: var(--good-soft); box-shadow: 0 4px 0 var(--moss-dk); }
+.opt.bad { border-color: var(--bad); background: var(--bad-soft); box-shadow: 0 4px 0 #d93434; }
 .opt:disabled { cursor: default; }
-.btn { border: 1px solid var(--line); background: var(--card-hi); border-radius: 12px; padding: 10px 16px; cursor: pointer; font-weight: 600; font-size: 15px; transition: background .15s, transform .1s; }
-.btn:hover:not(:disabled) { background: #fff; }
-.btn:active:not(:disabled) { transform: scale(.98); }
-.btn:disabled { opacity: .4; cursor: default; }
-.btn.primary { background: var(--ink); border-color: var(--ink); color: var(--card-hi); }
-.btn.primary:hover:not(:disabled) { background: #000; }
-.btn.dark { background: var(--ink); border-color: var(--ink); color: var(--card-hi); }
-.btn.dark:hover:not(:disabled) { background: #000; }
-.btn.wide { width: 100%; padding: 14px; font-size: 16px; border-radius: 14px; }
-.mapbox { position: relative; overflow: hidden; background: var(--sea); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 1px 2px rgba(60, 45, 20, .06); }
+.btn { border: 2px solid var(--line); background: var(--card); border-radius: 16px; padding: 10px 18px; cursor: pointer; font-weight: 800; font-size: 15px; box-shadow: 0 4px 0 var(--edge); transition: transform .1s, box-shadow .1s, filter .15s; }
+.btn:hover:not(:disabled) { filter: brightness(1.04); }
+.btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.primary { background: var(--moss); border-color: var(--moss); color: #fff; box-shadow: 0 4px 0 var(--moss-dk); text-transform: uppercase; letter-spacing: .04em; }
+.btn.dark { background: var(--wax); border-color: var(--wax); color: #fff; box-shadow: 0 4px 0 var(--wax-dk); text-transform: uppercase; letter-spacing: .04em; }
+.btn.wide { width: 100%; padding: 14px; font-size: 16px; border-radius: 18px; }
+.mapbox { position: relative; overflow: hidden; background: var(--sea); border: 2px solid var(--line); border-radius: 20px; box-shadow: 0 4px 0 var(--edge); }
 .mapbox canvas { display: block; width: 100%; touch-action: none; cursor: crosshair; }
-.mapbox .zoombtns { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 2px 6px rgba(60,45,20,.1); }
-.mapbox .zoombtns button { width: 34px; height: 34px; border: 0; background: var(--card-hi); cursor: pointer; font-size: 18px; font-weight: 500; line-height: 1; }
-.mapbox .zoombtns button + button { border-top: 1px solid var(--line); }
-.maphint { position: absolute; left: 10px; bottom: 10px; font-size: 12px; font-weight: 500; color: var(--ink-2); background: color-mix(in srgb, var(--card-hi) 90%, transparent); border-radius: 999px; padding: 3px 10px; pointer-events: none; }
-.fb { border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 10px; background: var(--card-hi); border: 1px solid var(--line); animation: rise .25s cubic-bezier(.2,.8,.2,1); }
-@keyframes rise { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
-.fb.good { background: var(--good-soft); border-color: color-mix(in srgb, var(--good) 30%, var(--line)); }
-.fb.bad { background: var(--bad-soft); border-color: color-mix(in srgb, var(--bad) 25%, var(--line)); }
+.mapbox .zoombtns { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.mapbox .zoombtns button { width: 36px; height: 36px; border: 2px solid var(--line); border-radius: 12px; background: var(--card); box-shadow: 0 3px 0 var(--edge); cursor: pointer; font-size: 20px; font-weight: 800; line-height: 1; }
+.mapbox .zoombtns button:active { transform: translateY(3px); box-shadow: none; }
+.maphint { position: absolute; left: 10px; bottom: 10px; font-size: 12px; font-weight: 800; color: var(--ink-2); background: color-mix(in srgb, #fff 92%, transparent); border-radius: 999px; padding: 3px 10px; pointer-events: none; }
+.fb { border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 10px; background: var(--card); border: 2px solid var(--line); animation: pop .3s cubic-bezier(.2,1.4,.4,1); }
+@keyframes pop { from { transform: translateY(10px) scale(.97); opacity: 0; } to { transform: none; opacity: 1; } }
+.fb.good { background: var(--good-soft); border-color: color-mix(in srgb, var(--good) 45%, #fff); }
+.fb.bad { background: var(--bad-soft); border-color: color-mix(in srgb, var(--bad) 35%, #fff); }
 .fb .head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.fb .head strong { font-size: 18px; font-weight: 700; letter-spacing: -.02em; }
-.fb .head .pts { font-family: var(--f-mono); font-weight: 600; font-size: 18px; }
+.fb .head strong { font-family: var(--f-head); font-size: 22px; font-weight: 700; }
+.fb.good .head strong { color: var(--moss-dk); }
+.fb.bad .head strong { color: #d93434; }
+.fb .head .pts { font-family: var(--f-mono); font-weight: 700; font-size: 20px; }
 .fb p { margin: 0; }
 .fb .mapbox { background: var(--sea); }
 .facts { display: grid; grid-template-columns: 1fr auto; gap: 0 12px; font-size: 15px; }
-.facts > span { padding: 6px 0; border-bottom: 1px solid color-mix(in srgb, var(--ink) 9%, transparent); }
+.facts > span { padding: 6px 0; border-bottom: 2px solid color-mix(in srgb, var(--ink) 8%, transparent); }
 .facts .mono { text-align: right; }
-.facts .win { font-weight: 700; }
-.clockline { display: flex; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); }
-.clockline span { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; }
-.clockline b { color: var(--ink); font-family: var(--f-mono); font-weight: 600; }
+.facts .win { font-weight: 800; }
 
 /* border game */
 .route { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.tag { border-radius: 999px; padding: 4px 12px; font-size: 14px; font-weight: 600; background: var(--card-hi); border: 1px solid var(--line); }
+.tag { border-radius: 999px; padding: 4px 12px; font-size: 14px; font-weight: 800; background: var(--card); border: 2px solid var(--line); }
 .tag.start { background: var(--wax); border-color: var(--wax); color: #fff; }
 .tag.end { background: var(--navy); border-color: var(--navy); color: #fff; }
-.tag.path { background: color-mix(in srgb, var(--moss) 14%, var(--card-hi)); border-color: color-mix(in srgb, var(--moss) 35%, var(--line)); color: var(--moss); }
+.tag.path { background: color-mix(in srgb, var(--moss) 16%, #fff); border-color: color-mix(in srgb, var(--moss) 45%, #fff); color: var(--moss-dk); }
 .route .arrow { color: var(--ink-3); font-size: 13px; }
 .guessrow { display: flex; gap: 8px; }
-.guessrow input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--card-hi); border-radius: 12px; padding: 11px 14px; font-size: 16px; }
+.guessrow input { flex: 1; min-width: 0; border: 2px solid var(--line); background: var(--card); border-radius: 16px; padding: 11px 14px; font-size: 16px; font-weight: 700; }
 .guessrow input::placeholder { color: var(--ink-3); }
-.msg { font-size: 14px; min-height: 20px; color: var(--ink-2); }
+.msg { font-size: 14px; min-height: 20px; color: var(--ink-2); font-weight: 700; }
 .msg.err { color: var(--bad); }
 .suggest { display: flex; gap: 6px; flex-wrap: wrap; }
-.suggest button { border: 1px solid var(--line); background: var(--card-hi); border-radius: 999px; padding: 5px 12px; font-size: 14px; font-weight: 500; cursor: pointer; }
+.suggest button { border: 2px solid var(--line); background: var(--card); border-radius: 999px; padding: 5px 12px; font-size: 14px; font-weight: 800; cursor: pointer; box-shadow: 0 3px 0 var(--edge); }
 
 /* flag mix */
-.flagmix { position: relative; width: min(100%, 340px); aspect-ratio: 4 / 3; margin: 4px auto; border-radius: 12px; overflow: hidden; background: var(--paper-2); box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 18px 36px -18px rgba(60, 45, 20, .45); }
+.flagmix { position: relative; width: min(100%, 340px); aspect-ratio: 4 / 3; margin: 4px auto; border-radius: 16px; overflow: hidden; background: var(--paper-2); border: 4px solid #fff; box-shadow: 0 6px 0 var(--edge); }
 .flagmix img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .halves { display: grid; gap: 16px; }
 .half { display: flex; flex-direction: column; gap: 8px; }
-.half .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.half .choices button { border: 1px solid var(--line); background: var(--card-hi); border-radius: 12px; padding: 11px 10px; cursor: pointer; font-size: 15px; font-weight: 500; transition: border-color .15s, background .15s; }
-.half .choices button:hover:not(:disabled) { border-color: var(--ink-3); }
-.half .choices button[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--card-hi); }
-.half .choices button.good { border-color: var(--good); background: var(--good-soft); color: var(--ink); }
-.half .choices button.bad { border-color: var(--bad); background: var(--bad-soft); color: var(--ink); }
+.half .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.half .choices button { border: 2px solid var(--line); background: var(--card); border-radius: 16px; padding: 11px 10px; cursor: pointer; font-size: 15px; font-weight: 800; box-shadow: 0 4px 0 var(--edge); transition: transform .1s, box-shadow .1s, border-color .15s, background .15s; }
+.half .choices button:hover:not(:disabled) { border-color: var(--wax); }
+.half .choices button[aria-pressed="true"] { border-color: var(--wax); background: color-mix(in srgb, var(--wax) 14%, #fff); color: var(--wax-dk); box-shadow: 0 4px 0 var(--wax); }
+.half .choices button.good { border-color: var(--good); background: var(--good-soft); color: var(--ink); box-shadow: 0 4px 0 var(--moss-dk); }
+.half .choices button.bad { border-color: var(--bad); background: var(--bad-soft); color: var(--ink); box-shadow: 0 4px 0 #d93434; }
 .minis { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-.minis figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; }
-.minis img { width: 96px; height: 72px; object-fit: cover; border-radius: 8px; box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
+.minis figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 14px; font-weight: 800; }
+.minis img { width: 96px; height: 72px; object-fit: cover; border-radius: 10px; border: 3px solid #fff; box-shadow: 0 3px 0 var(--edge); }
+
+/* outline + size games */
+.shape { width: 100%; aspect-ratio: 4 / 3; background: var(--card); border: 2px solid var(--line); border-radius: 22px; box-shadow: 0 5px 0 var(--edge); display: grid; place-items: center; padding: 18px; }
+.shape svg { width: 100%; height: 100%; overflow: visible; }
+.shape path { fill: var(--grape); stroke: var(--grape-dk); stroke-width: 1.5; stroke-linejoin: round; }
+.sizes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: end; }
+.sizes figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; font-size: 14px; font-weight: 800; }
+.sizes svg { width: 100%; height: auto; overflow: visible; }
+.sizes path { stroke-width: 1.2; stroke-linejoin: round; }
+.sizes figcaption span { display: block; font-family: var(--f-mono); font-weight: 600; color: var(--ink-2); }
 
 /* end screen */
 .end { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; padding: 8px 0; }
-.end .big { font-family: var(--f-mono); font-weight: 600; font-size: 64px; line-height: 1; letter-spacing: -.05em; }
-.end h3 { margin: 4px 0 0; font-weight: 700; font-size: 20px; letter-spacing: -.02em; }
-.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--card-hi); padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 14px; z-index: 30; max-width: calc(100% - 32px); }
+.end .big { font-family: var(--f-mono); font-weight: 700; font-size: 72px; line-height: 1; color: var(--navy); }
+.end h3 { margin: 4px 0 0; font-weight: 700; font-size: 24px; }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 16px; font-weight: 800; font-size: 14px; z-index: 30; max-width: calc(100% - 32px); }
 .fail { padding: 30px; text-align: center; color: var(--ink-2); }
-.note { font-size: 12px; color: var(--ink-3); text-align: center; margin: 0; }
+.note { font-size: 12px; color: var(--ink-3); text-align: center; margin: 0; font-weight: 700; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
@@ -248,7 +273,6 @@ const fmtDeg = v => Math.abs(v).toFixed(2).replace(".", ",") + "°";
 const fmtLat = v => `${fmtDeg(v)} ${v >= 0 ? "N" : "S"}`;
 const fmtLon = v => `${fmtDeg(v)} ${v >= 0 ? "O" : "W"}`;
 const pad = n => String(n).padStart(2, "0");
-const fmtHM = m => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
 function hav(lat1, lon1, lat2, lon2) {
   const R = 6371.0088, rad = Math.PI / 180;
   const dp = (lat2 - lat1) * rad, dl = (lon2 - lon1) * rad;
@@ -306,7 +330,7 @@ class GeoMap {
     host.append(this.box);
     this.features = MAP_FEATURES;
     this.aspect = aspect; this.onTap = onTap;
-    this.fills = new Map(); this.pins = []; this.lines = []; this.labels = []; this.shades = []; this.suns = [];
+    this.fills = new Map(); this.pins = []; this.lines = []; this.labels = [];
     this.projection = d3.geoMercator();
     this.t = d3.zoomIdentity;
     this.zoom = d3.zoom().scaleExtent([1, 60]).on("zoom", e => { this.t = e.transform; this.draw(); });
@@ -389,14 +413,13 @@ class GeoMap {
     const land = css("--land");
     // soft shadow under the land masses
     ctx.save();
-    ctx.shadowColor = "rgba(70, 60, 40, .18)"; ctx.shadowBlur = 6 * d; ctx.shadowOffsetY = 1 * d;
+    ctx.shadowColor = "rgba(40, 90, 150, .25)"; ctx.shadowBlur = 6 * d; ctx.shadowOffsetY = 1 * d;
     ctx.fillStyle = land;
     for (const p of this.paths) ctx.fill(p);
     ctx.restore();
     this.features.forEach((f, i) => { const c = f.key && this.fills.get(f.key); if (c) { ctx.fillStyle = c; ctx.fill(this.paths[i]); } });
     ctx.strokeStyle = css("--border"); ctx.lineWidth = 0.9 / k; ctx.lineJoin = "round"; ctx.stroke(this.borders);
     const path = d3.geoPath(this.projection, ctx);
-    for (const S of this.shades) { ctx.beginPath(); path(S.geo); ctx.fillStyle = S.color; ctx.fill(); }
     for (const L of this.lines) {
       ctx.beginPath(); path(L.geo);
       ctx.strokeStyle = L.color; ctx.lineWidth = (L.width || 2) / k; ctx.lineCap = "round"; ctx.setLineDash(L.dash ? L.dash.map(x => x / k) : []); ctx.stroke();
@@ -417,12 +440,6 @@ class GeoMap {
       ctx.fillStyle = css("--ink"); ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(text, x, y + .5);
     };
     for (const lb of this.labels) { const p = scr(lb.ll); if (p) pill(lb.text, p[0], p[1]); }
-    for (const sun of this.suns) {
-      const p = scr(sun); if (!p) continue;
-      ctx.beginPath(); ctx.arc(p[0], p[1], 16, 0, 7); ctx.fillStyle = "rgba(240, 180, 40, .25)"; ctx.fill();
-      ctx.beginPath(); ctx.arc(p[0], p[1], 8, 0, 7); ctx.fillStyle = css("--ochre"); ctx.fill();
-      ctx.lineWidth = 2; ctx.strokeStyle = css("--card-hi"); ctx.stroke();
-    }
     for (const pin of this.pins) {
       const p = scr(pin.ll); if (!p) continue;
       const [x, y] = p;
@@ -442,8 +459,8 @@ const meridian = lon => ({ type: "LineString", coordinates: d3.range(-89, 90, 2)
 const ICONS = {
   nord: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><circle cx="24" cy="24" r="19"/><circle cx="24" cy="24" r="15.5" stroke-dasharray="1 2.4"/><path d="M24 7l4.5 17h-9z" fill="currentColor"/><path d="M24 41l-4.5-17h9z"/><text x="24" y="5.2" font-size="6" text-anchor="middle" fill="currentColor" stroke="none" font-family="serif">N</text></svg>',
   pin: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14l11-5 14 5 11-5v25l-11 5-14-5-11 5z" stroke-dasharray="0"/><path d="M17 9v25M31 14v25" stroke-dasharray="2 2.5"/><path d="M28 28c0-5 4-8 4-11a4 4 0 0 0-8 0c0 3 4 6 4 11z" fill="currentColor"/></svg>',
-  closer: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 40L24 6l16 34"/><path d="M13 30h22" stroke-dasharray="2 2.5"/><circle cx="24" cy="6" r="3" fill="currentColor"/><path d="M6 40h8M34 40h8"/></svg>',
-  daynight: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="24" cy="24" r="18"/><path d="M24 6a18 18 0 0 1 0 36z" fill="currentColor"/><circle cx="15" cy="20" r="4"/><path d="M15 12v2M15 26v2M7 20h2M21 20h2"/></svg>',
+  shape: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8l9 3 6-4 7 5 6 1-2 8 4 6-6 4 1 8-8-1-5 5-5-6-8 1 1-8-6-6 5-5z" fill="currentColor" fill-opacity=".25"/><path d="M40 33l3 3" /></svg>',
+  size: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="16" width="26" height="26" rx="5" fill="currentColor" fill-opacity=".25"/><rect x="33" y="28" width="12" height="14" rx="3"/><path d="M34 8h10v10M44 8l-9 9"/></svg>',
   border: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12c6-3 9 3 15 0s9-4 13 0 6 2 8 1v24c-4 2-7-2-12 1s-10 3-14 0-7-1-10 1z"/><path d="M19 12c-2 6 3 10 0 16s2 8 1 12M33 11c2 6-3 9 0 15s-1 9 0 12" stroke-dasharray="2 2.5"/><circle cx="12" cy="24" r="2.4" fill="currentColor"/><circle cx="38" cy="26" r="2.4" fill="currentColor"/></svg>',
   flag: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 44V5"/><path d="M10 7h28l-5 8 5 8H10"/><path d="M24 7v16" stroke-dasharray="2 2.5"/><path d="M10 7h14v16H10z" fill="currentColor" opacity=".35"/></svg>',
   back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
@@ -537,176 +554,132 @@ function viewPin(q, host, answer) {
   };
 }
 
-/* --- Näher dran --- */
-function genCloser(r) {
-  const qs = [], usedX = new Set();
-  let guard = 0;
-  while (qs.length < 10 && guard++ < 200) {
-    for (let t = 0; t < 2000; t++) {
-      const x = pick(r, FAMOUS), a = pick(r, FAMOUS), b = pick(r, FAMOUS);
-      if (usedX.has(x.n) || x === a || x === b || a === b) continue;
-      if (a.cc === b.cc) continue;
-      const da = hav(x.lat, x.lon, a.lat, a.lon), db = hav(x.lat, x.lon, b.lat, b.lon);
-      const lo = Math.min(da, db), hi = Math.max(da, db), gap = hi - lo;
-      if (lo < 600) continue;                     // nothing right next door
-      if (gap < Math.max(250, hi * 0.06)) continue; // clear winner
-      if (gap > hi * 0.3) continue;               // but close enough to be tricky
-      usedX.add(x.n);
-      qs.push({ x, a, b, da, db }); break;
-    }
+/* --- shapes (Umriss, Größer?) --- */
+// a country's main landmass plus nearby islands, without far-away overseas parts (Alaska, French Guiana, …)
+const shapeCache = {};
+function shapeOf(iso) {
+  if (shapeCache[iso]) return shapeCache[iso];
+  const polys = [];
+  for (const f of W50.filter(f => f.key === iso)) {
+    const g = f.geometry;
+    if (g.type === "Polygon") polys.push(g.coordinates); else if (g.type === "MultiPolygon") polys.push(...g.coordinates);
   }
-  return qs;
+  const parts = polys.map(c => { const g = { type: "Polygon", coordinates: c }; return { c, a: d3.geoArea(g), pts: c[0].filter((_, i) => i % 4 === 0) }; });
+  // grow from the biggest landmass: keep every part that lies within 650 km of a part already kept (island chains stay together)
+  if (iso === "NO") parts.splice(0, parts.length, ...parts.filter(x => x.pts[0][1] < 74));   // without Svalbard
+  const main = parts.reduce((x, y) => y.a > x.a ? y : x), kept = [main], rest = parts.filter(x => x !== main);
+  const close = (x, y) => x.pts.some(p => y.pts.some(q => hav(p[1], p[0], q[1], q[0]) < 650));
+  for (let grew = true; grew;) {
+    grew = false;
+    for (let i = rest.length - 1; i >= 0; i--) if (kept.some(k => close(k, rest[i]))) { kept.push(rest.splice(i, 1)[0]); grew = true; }
+  }
+  const shape = { type: "MultiPolygon", coordinates: kept.map(x => x.c) };
+  return shapeCache[iso] = { shape, mid: d3.geoCentroid({ type: "Polygon", coordinates: main.c }) };
 }
-function viewCloser(q, host, answer) {
-  const { x, a, b, da, db } = q;
-  const win = da < db ? a : b;
-  host.append(h("p", "q", `Was liegt näher an <b>${esc(x.n)}</b>?`));
-  host.append(h("p", "sub", `Luftlinie von ${esc(x.n)}, ${esc(x.country)}`));
+// equal-area projection centred on the country, so shapes are undistorted and sizes comparable
+const shapeProj = iso => d3.geoAzimuthalEqualArea().rotate([-shapeOf(iso).mid[0], -shapeOf(iso).mid[1]]).scale(1).translate([0, 0]);
+function shapeSvg(iso, w, h, scale = null) {
+  const { shape } = shapeOf(iso);
+  const p = shapeProj(iso);
+  const [[x0, y0], [x1, y1]] = d3.geoPath(p).bounds(shape);
+  const k = scale || 0.92 * Math.min(w / (x1 - x0), h / (y1 - y0));
+  p.scale(k).translate([w / 2 - k * (x0 + x1) / 2, h / 2 - k * (y0 + y1) / 2]);
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Umriss"><path d="${d3.geoPath(p)(shape)}"/></svg>`;
+}
+// common scale that fits the larger of several countries into w × h
+function sharedScale(isos, w, h) {
+  return d3.min(isos, iso => { const [[x0, y0], [x1, y1]] = d3.geoPath(shapeProj(iso)).bounds(shapeOf(iso).shape); return 0.92 * Math.min(w / (x1 - x0), h / (y1 - y0)); });
+}
+const REGION_EXTRA = { IS: "Europa", RU: "Europa", CU: "Amerika", JP: "Asien", LK: "Asien", PH: "Asien", MG: "Afrika", AU: "Ozeanien", NZ: "Ozeanien", PG: "Ozeanien" };
+const regionOf = iso => REGION_EXTRA[iso] || Object.keys(DATA.regions).find(r => DATA.regions[r].includes(iso));
+
+/* --- Umriss --- */
+const OUTLINE = "DE FR IT ES PT GB IE IS NO SE FI DK PL CZ AT CH GR TR UA HU RO HR NL BE BY RS BG US CA MX BR AR CL PE CO VE BO CU EC UY PY CN IN JP KR VN TH MN KZ IR SA IQ AF PK NP LK PH ID MY MM EG LY MA DZ ZA NG ET KE MG SO NA TZ SD AO CD ML NE TD AU NZ PG".split(" ");
+function genShape(r) {
+  return shuffle(r, OUTLINE).slice(0, 5).map(iso => {
+    const reg = regionOf(iso);
+    const near = OUTLINE.filter(c => c !== iso && (regionOf(c) === reg || (reg === "Ozeanien" && regionOf(c) === "Asien")));
+    return { iso, opts: shuffle(r, [iso, ...shuffle(r, near).slice(0, 3)]) };
+  });
+}
+function viewShape(q, host, answer) {
+  host.append(h("p", "q", "Welches Land hat <b>diesen Umriss</b>?"));
+  host.append(h("p", "sub", "Nicht maßstabsgetreu · Norden ist oben"));
+  host.append(h("div", "shape", shapeSvg(q.iso, 400, 300)));
   const opts = h("div", "opts");
-  for (const c of [a, b]) {
-    const btn = h("button", "opt", `<b>${esc(c.n)}</b><span>${esc(c.country)}</span>`);
-    btn.type = "button";
+  for (const c of q.opts) {
+    const btn = h("button", "opt", `<b>${esc(nameOf(c))}</b>`); btn.type = "button";
     btn.onclick = () => {
-      opts.querySelectorAll("button").forEach(z => z.disabled = true);
-      const ok = c === win;
+      opts.querySelectorAll("button").forEach(x => x.disabled = true);
+      const ok = c === q.iso;
       btn.classList.add(ok ? "good" : "bad");
-      if (!ok) opts.children[[a, b].indexOf(win)].classList.add("good");
-      const fb = h("div");
-      fb.append(h("div", "facts", [[a, da], [b, db]].map(([c2, d]) => `<span class="${c2 === win ? "win" : ""}">${esc(x.n)} → ${esc(c2.n)}</span><span class="mono ${c2 === win ? "win" : ""}">${fmtInt(d)} km</span>`).join("")));
-      fb.append(h("p", "muted", `Der Unterschied: ${fmtInt(Math.abs(da - db))} km.`));
+      if (!ok) opts.children[q.opts.indexOf(q.iso)].classList.add("good");
+      const fb = h("div", "", `<p>Das ist <b>${esc(nameOf(q.iso))}</b>.</p>`);
       const m = new GeoMap(fb);
-      m.pins = [{ ll: [x.lon, x.lat], color: css("--ink"), label: x.n }, ...[a, b].map(c2 => ({ ll: [c2.lon, c2.lat], color: c2 === win ? css("--good") : css("--ink-2"), label: c2.n }))];
-      m.lines = [a, b].map(c2 => ({ geo: { type: "LineString", coordinates: [[x.lon, x.lat], [c2.lon, c2.lat]] }, color: c2 === win ? css("--good") : css("--ink-2"), width: c2 === win ? 2.2 : 1.4, dash: c2 === win ? null : [4, 4] }));
-      answer(ok ? 100 : 0, ok ? "Richtig!" : "Leider falsch", fb, () => m.zoomToPoints([[x.lon, x.lat], [a.lon, a.lat], [b.lon, b.lat]], 0, 60));
+      m.fills = new Map([[q.iso, css("--grape")]]);
+      answer(ok ? 200 : 0, ok ? "Richtig!" : "Leider falsch", fb, () => { m.draw(); m.zoomToFeatures([q.iso], 0); });
     };
     opts.append(btn);
   }
   host.append(opts);
 }
 
-/* --- Tag & Nacht --- */
-// Sun position after the NOAA solar calculator (accurate to well under a degree)
-const RAD = Math.PI / 180;
-function sunPos(date) {
-  const jd = date.getTime() / 864e5 + 2440587.5, T = (jd - 2451545) / 36525;
-  const L0 = ((280.46646 + T * (36000.76983 + T * 0.0003032)) % 360 + 360) % 360;
-  const M = 357.52911 + T * (35999.05029 - 0.0001537 * T), Mr = M * RAD;
-  const e = 0.016708634 - T * (0.000042037 + 0.0000001267 * T);
-  const C = Math.sin(Mr) * (1.914602 - T * (0.004817 + 0.000014 * T)) + Math.sin(2 * Mr) * (0.019993 - 0.000101 * T) + Math.sin(3 * Mr) * 0.000289;
-  const omega = 125.04 - 1934.136 * T;
-  const lambda = L0 + C - 0.00569 - 0.00478 * Math.sin(omega * RAD);
-  const eps0 = 23 + (26 + (21.448 - T * (46.815 + T * (0.00059 - T * 0.001813))) / 60) / 60;
-  const eps = eps0 + 0.00256 * Math.cos(omega * RAD);
-  const decl = Math.asin(Math.sin(eps * RAD) * Math.sin(lambda * RAD)) / RAD;
-  const y = Math.tan(eps / 2 * RAD) ** 2, L0r = L0 * RAD;
-  const eqTime = 4 / RAD * (y * Math.sin(2 * L0r) - 2 * e * Math.sin(Mr) + 4 * e * y * Math.sin(Mr) * Math.cos(2 * L0r) - 0.5 * y * y * Math.sin(4 * L0r) - 1.25 * e * e * Math.sin(2 * Mr));
-  const utcMin = date.getUTCHours() * 60 + date.getUTCMinutes() + date.getUTCSeconds() / 60;
-  let lon = -(utcMin + eqTime - 720) / 4;
-  lon = ((lon + 540) % 360) - 180;
-  return { lat: decl, lon };
-}
-function sunAlt(lat, lon, sp) {
-  const H = (lon - sp.lon) * RAD;
-  const s = Math.sin(lat * RAD) * Math.sin(sp.lat * RAD) + Math.cos(lat * RAD) * Math.cos(sp.lat * RAD) * Math.cos(H);
-  return Math.asin(Math.max(-1, Math.min(1, s))) / RAD;
-}
-const isMorning = (lon, sp) => ((((lon - sp.lon) + 540) % 360) - 180) < 0;
-function nightShades(sp) {
-  const anti = [((sp.lon + 360) % 360) - 180, -sp.lat];
-  const c = r2 => d3.geoCircle().center(anti).radius(r2)();
-  return [89.167, 84, 78, 72].map(r2 => ({ geo: c(r2), color: css("--night") }));
-}
-const fmtAlt = a => `${Math.abs(a).toFixed(0)}° ${a >= 0 ? "über" : "unter"} dem Horizont`;
-const DN_TASKS = {
-  sunrise: "Tippe einen Ort an, an dem <b>gerade die Sonne aufgeht</b>.",
-  sunset: "Tippe einen Ort an, an dem <b>gerade die Sonne untergeht</b>.",
-  night: "Tippe einen Ort an, an dem <b>gerade tiefe Nacht</b> ist.",
-  zenith: "Wo steht die Sonne <b>gerade senkrecht</b> über dem Kopf?",
+/* --- Größer? --- */
+// area in km² (land and inland water, without overseas territories)
+const AREA = {
+  RU: 17098246, CA: 9984670, CN: 9596961, BR: 8515767, AU: 7692024, IN: 3287263, AR: 2780400, KZ: 2724900, DZ: 2381741, CD: 2344858,
+  SA: 2149690, MX: 1964375, ID: 1904569, SD: 1886068, LY: 1759540, IR: 1648195, MN: 1564110, PE: 1285216, TD: 1284000, NE: 1267000,
+  AO: 1246700, ML: 1240192, ZA: 1221037, CO: 1141748, ET: 1104300, BO: 1098581, EG: 1002450, TZ: 945087, NG: 923768, VE: 916445,
+  PK: 881913, NA: 825615, MZ: 801590, TR: 783562, CL: 756102, ZM: 752612, MM: 676578, AF: 652230, SO: 637657, UA: 603550,
+  MG: 587041, BW: 581730, KE: 580367, FR: 551695, YE: 527968, TH: 513120, ES: 505990, TM: 488100, CM: 475442, PG: 462840,
+  SE: 450295, UZ: 447400, MA: 446550, IQ: 438317, PY: 406752, ZW: 390757, JP: 377975, DE: 357592, FI: 338455, VN: 331212,
+  MY: 330803, NO: 323802, PL: 312696, IT: 301340, PH: 300000, EC: 283561, NZ: 268021, GB: 242495, UG: 241038, GH: 238533,
+  RO: 238397, BY: 207600, SN: 196722, SY: 185180, KH: 181035, UY: 176215, TN: 163610, BD: 147570, NP: 147516, GR: 131957,
+  NI: 130373, KP: 120540, BG: 110879, CU: 109884, IS: 103000, KR: 100210, HU: 93030, PT: 92212, JO: 89342, AT: 83879,
+  CZ: 78871, RS: 77474, PA: 75417, IE: 70273, LK: 65610, LT: 65300, LV: 64589, HR: 56594, CR: 51100, SK: 49035,
+  EE: 45339, DK: 42933, NL: 41850, CH: 41285, BE: 30689, IL: 22072, SI: 20271,
 };
-function genDayNight(r) {
-  return shuffle(r, ["sunrise", "sunset", "night", "zenith", "cities"]).map(type => ({ type, seed: Math.floor(r() * 1e9) }));
-}
-function viewDayNight(q, host, answer) {
-  const now = new Date();
-  const local = now.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
-  const utc = `${pad(now.getUTCHours())}:${pad(now.getUTCMinutes())}`;
-  const clock = h("div", "clockline", `<span>Jetzt bei dir <b>${local}</b></span><span>Weltzeit (UTC) <b>${utc}</b></span>`);
-  const sp = sunPos(now);
-
-  if (q.type === "cities") {
-    const r = rngFrom(q.seed);
-    const withAlt = shuffle(r, FAMOUS).map(c => ({ c, alt: sunAlt(c.lat, c.lon, sp) }));
-    const dark = withAlt.filter(x => x.alt < -6), light = withAlt.filter(x => x.alt > 3);
-    const askDark = dark.length >= 1 && light.length >= 3 && (light.length >= dark.length || dark.length < 3);
-    const odd = askDark ? dark[0] : light[0];
-    const others = (askDark ? light : dark).slice(0, 3);
-    const opts4 = shuffle(r, [odd, ...others]);
-    host.append(h("p", "q", askDark ? "In welcher Stadt ist es <b>gerade dunkel</b>?" : "In welcher Stadt ist es <b>gerade hell</b>?"));
-    host.append(clock);
-    const opts = h("div", "opts");
-    for (const o of opts4) {
-      const btn = h("button", "opt", `<b>${esc(o.c.n)}</b><span>${esc(o.c.country)}</span>`); btn.type = "button";
-      btn.onclick = () => {
-        opts.querySelectorAll("button").forEach(z => z.disabled = true);
-        const ok = o === odd;
-        btn.classList.add(ok ? "good" : "bad");
-        if (!ok) opts.children[opts4.indexOf(odd)].classList.add("good");
-        const fb = h("div");
-        fb.append(h("div", "facts", opts4.map(x => {
-          const lt = now.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", timeZone: x.c.tz });
-          return `<span class="${x === odd ? "win" : ""}">${esc(x.c.n)} · ${lt} Uhr</span><span class="mono ${x === odd ? "win" : ""}">${x.alt < -6 ? "dunkel" : x.alt < 0 ? "Dämmerung" : "hell"}</span>`;
-        }).join("")));
-        const m = new GeoMap(fb);
-        m.shades = nightShades(sp);
-        m.pins = opts4.map(x => ({ ll: [x.c.lon, x.c.lat], color: x === odd ? css("--good") : css("--ink-2"), label: x.c.n }));
-        m.suns = [[sp.lon, sp.lat]];
-        answer(ok ? 200 : 0, ok ? "Richtig!" : "Leider falsch", fb);
-      };
-      opts.append(btn);
-    }
-    host.append(opts);
-    return;
+let sizePool = null;
+// only countries whose drawn shape matches the official area, so the size picture never contradicts the numbers
+const SIZE_POOL = () => sizePool || (sizePool = Object.keys(AREA).filter(c => CN[c] && W50.some(f => f.key === c) && Math.abs(d3.geoArea(shapeOf(c).shape) * 6371.0088 ** 2 / AREA[c] - 1) <= 0.1));
+const fmtArea = a => a >= 1e6 ? `${(a / 1e6).toFixed(2).replace(".", ",")} Mio. km²` : `${fmtInt(Math.round(a / 1000) * 1000)} km²`;
+function genSize(r) {
+  const qs = [], used = new Set();
+  let guard = 0;
+  const pool = SIZE_POOL();
+  while (qs.length < 10 && guard++ < 5000) {
+    const a = pick(r, pool), b = pick(r, pool);
+    if (a === b || used.has(a) || used.has(b)) continue;
+    const ratio = Math.max(AREA[a], AREA[b]) / Math.min(AREA[a], AREA[b]);
+    if (ratio < 1.12 || ratio > 2) continue;   // clear winner, but close enough to be tricky
+    used.add(a); used.add(b);
+    qs.push({ a, b });
   }
-
-  host.append(h("p", "q", DN_TASKS[q.type]));
-  host.append(clock);
-  let guess = null, locked = false;
-  const btn = h("button", "btn primary wide", "Hier!"); btn.type = "button"; btn.disabled = true;
-  const m = new GeoMap(host, {
-    aspect: 0.7, hint: "Ort antippen, dann bestätigen",
-    onTap: ll => { if (locked) return; guess = ll; m.pins = [{ ll, color: css("--wax") }]; m.draw(); btn.disabled = false; },
-  });
-  host.append(btn);
-  btn.onclick = () => {
-    if (!guess || locked) return;
-    locked = true; btn.hidden = true;
-    const t2 = new Date(), sp2 = sunPos(t2);
-    const alt = sunAlt(guess[1], guess[0], sp2), morning = isMorning(guess[0], sp2);
-    let pts = 0, title = "", text = "";
-    if (q.type === "sunrise" || q.type === "sunset") {
-      const wantMorning = q.type === "sunrise";
-      const near = Math.max(0, 1 - Math.abs(alt + 0.833) / 10);
-      pts = morning === wantMorning ? Math.round(200 * near) : 0;
-      const side = morning ? "Morgen" : "Abend";
-      text = `Dort ist gerade ${side}, die Sonne steht ${fmtAlt(alt)}.`;
-      if (morning !== wantMorning && near > 0) text += ` Richtige Linie, aber die falsche Seite: Hier geht sie gerade ${morning ? "auf" : "unter"}.`;
-      title = pts >= 150 ? "Genau auf der Linie!" : pts > 0 ? "Fast" : "Daneben";
-    } else if (q.type === "night") {
-      pts = alt <= -18 ? 200 : alt <= -12 ? 150 : alt <= -6 ? 100 : alt <= -0.833 ? 50 : 0;
-      text = alt <= -18 ? `Stockfinster: Die Sonne steht ${fmtAlt(alt)}.` : alt <= -0.833 ? `Dort ist es dunkel bis dämmrig, die Sonne steht ${fmtAlt(alt)}. Tiefe Nacht beginnt bei 18° darunter.` : `Dort scheint gerade die Sonne, sie steht ${fmtAlt(alt)}.`;
-      title = pts === 200 ? "Tiefe Nacht!" : pts > 0 ? "Schon dunkel, aber nicht tief" : "Da ist gerade Tag";
-    } else {
-      const km = hav(guess[1], guess[0], sp2.lat, sp2.lon);
-      pts = Math.round(200 * Math.max(0, 1 - Math.max(0, km - 300) / 4000));
-      text = `Der Punkt, an dem die Sonne gerade senkrecht steht, liegt bei ${fmtLat(sp2.lat)}, ${fmtLon(sp2.lon)}. Du warst ${fmtInt(km)} km entfernt.`;
-      title = km < 800 ? "Genau unter der Sonne!" : km < 2500 ? "Nicht schlecht" : "Daneben";
-    }
-    m.shades = nightShades(sp2);
-    m.suns = [[sp2.lon, sp2.lat]];
-    m.pins = [{ ll: guess, color: css("--wax"), label: "Dein Tipp" }];
-    m.draw();
-    answer(pts, title, h("div", "", `<p>${text}</p><p class="muted" style="font-size:14px">Dunkle Fläche: Nacht und Dämmerung. Sonne: der Punkt, über dem sie gerade senkrecht steht.</p>`));
-  };
+  return qs;
+}
+function viewSize(q, host, answer) {
+  const { a, b } = q;
+  const win = AREA[a] > AREA[b] ? a : b;
+  host.append(h("p", "q", "Welches Land ist <b>größer</b>?"));
+  host.append(h("p", "sub", "Gemessen an der Fläche"));
+  const opts = h("div", "opts");
+  for (const c of [a, b]) {
+    const btn = h("button", "opt", `<b>${esc(nameOf(c))}</b>`); btn.type = "button";
+    btn.onclick = () => {
+      opts.querySelectorAll("button").forEach(x => x.disabled = true);
+      const ok = c === win;
+      btn.classList.add(ok ? "good" : "bad");
+      if (!ok) opts.children[[a, b].indexOf(win)].classList.add("good");
+      const k = sharedScale([a, b], 160, 140);
+      const fig = c2 => `<figure style="--c:var(${c2 === win ? "--good" : "--ink-3"})">${shapeSvg(c2, 160, 140, k).replace("<path", `<path fill="var(--c)" stroke="color-mix(in srgb, var(--c) 75%, #000)"`)}<figcaption>${esc(nameOf(c2))}<span>${fmtArea(AREA[c2])}</span></figcaption></figure>`;
+      const ratio = Math.max(AREA[a], AREA[b]) / Math.min(AREA[a], AREA[b]);
+      const fb = h("div", "", `<div class="sizes">${fig(a)}${fig(b)}</div>
+        <p class="muted" style="margin-top:8px">${esc(nameOf(win))} ist rund ${ratio < 1.95 ? `${Math.round((ratio - 1) * 100)} %` : "doppelt so"} größer. Beide Umrisse im selben Maßstab.</p>`);
+      answer(ok ? 100 : 0, ok ? "Richtig!" : "Leider falsch", fb);
+    };
+    opts.append(btn);
+  }
+  host.append(opts);
 }
 
 /* --- Grenzgänger --- */
@@ -882,10 +855,10 @@ function viewFlag(q, host, answer) {
 const GAMES = [
   { id: "pin", name: "Nadelwurf", hue: "--wax", desc: "Setz die Nadel auf der leeren Weltkarte so nah wie möglich.", rounds: 5, per: 200, gen: genPin, view: viewPin },
   { id: "border", name: "Grenzgänger", hue: "--moss", desc: "Über Landgrenzen von A nach B, mit möglichst wenigen Ländern.", rounds: 2, per: 500, gen: genBorder, view: viewBorder },
-  { id: "flag", name: "Flaggen-Mix", hue: "--navy", desc: "Zwei halbe Flaggen, eine neue. Welche stecken drin?", rounds: 5, per: 200, gen: genFlag, view: viewFlag },
-  { id: "nord", name: "Nördlicher?", hue: "--ochre", desc: "Zwei bekannte Orte. Welcher liegt weiter im Norden, Süden, Osten oder Westen?", rounds: 10, per: 100, gen: genNord, view: viewNord },
-  { id: "closer", name: "Näher dran", hue: "--navy", desc: "Was liegt näher an der Stadt: die eine oder die andere?", rounds: 10, per: 100, gen: genCloser, view: viewCloser },
-  { id: "daynight", name: "Tag & Nacht", hue: "--wax", desc: "Wo geht gerade die Sonne auf, wo ist tiefe Nacht? Live nach echter Uhrzeit.", rounds: 5, per: 200, gen: genDayNight, view: viewDayNight },
+  { id: "flag", name: "Flaggen-Mix", hue: "--pink", desc: "Zwei halbe Flaggen, eine neue. Welche stecken drin?", rounds: 5, per: 200, gen: genFlag, view: viewFlag },
+  { id: "nord", name: "Nördlicher?", hue: "--navy", desc: "Zwei bekannte Orte. Welcher liegt weiter im Norden, Süden, Osten oder Westen?", rounds: 10, per: 100, gen: genNord, view: viewNord },
+  { id: "shape", name: "Umriss", hue: "--grape", desc: "Nur die Silhouette eines Landes. Welches ist es?", rounds: 5, per: 200, gen: genShape, view: viewShape },
+  { id: "size", name: "Größer?", hue: "--ochre", dark: true, desc: "Zwei Länder, eine Frage: Welches hat mehr Fläche?", rounds: 10, per: 100, gen: genSize, view: viewSize },
 ];
 const MAX_DAY = GAMES.length * 1000;
 
@@ -928,7 +901,7 @@ function hub() {
   const total = GAMES.reduce((a, g) => a + (day[g.id] || 0), 0);
   const played = GAMES.filter(g => g.id in day).length;
   app.innerHTML = "";
-  const head = h("header", "brand", `${ICONS.rose}<div><h1>Geoaffe</h1><p>Nr. ${no} · ${esc(t.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" }))}</p></div>
+  const head = h("header", "brand", `${ICONS.rose}<div><h1>Geoaffe</h1><p>Nr. ${no} · ${esc(t.toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "long" }))}</p></div>
     <div class="total"><b>${fmtInt(total)}</b><span>von ${fmtInt(MAX_DAY)}</span></div>`);
   app.append(head);
   app.append(h("div", "voyage", `<span class="trail"><i style="width:${played / GAMES.length * 100}%"></i></span><span>${played} von ${GAMES.length} gespielt</span>`));
@@ -936,7 +909,7 @@ function hub() {
   for (const g of GAMES) {
     const p = prog().g[g.id], done = g.id in day;
     const st = done ? "" : p && p.i ? `Fortsetzen · <b>${p.i} von ${g.rounds}</b>` : "Noch offen";
-    const c = h("button", "gcard" + (done ? " done" : ""), `<div class="in"><div class="top"><span class="ic">${ICONS[g.id]}</span><span class="val">${g.rounds} Runden</span></div><h3>${esc(g.name)}</h3><p>${esc(g.desc)}</p><div class="st">${st}</div></div>${done ? `<span class="postmark">Fertig <b>${fmtInt(day[g.id])}</b></span>` : ""}`);
+    const c = h("button", "gcard" + (done ? " done" : "") + (g.dark ? " dark-text" : ""), `<div class="in"><div class="top"><span class="ic">${ICONS[g.id]}</span><span class="val">${g.rounds} Runden</span></div><h3>${esc(g.name)}</h3><p>${esc(g.desc)}</p><div class="st">${st}</div></div>${done ? `<span class="postmark">Fertig <b>${fmtInt(day[g.id])}</b></span>` : ""}`);
     c.style.setProperty("--hue", `var(${g.hue})`);
     c.type = "button"; c.onclick = () => openGame(g.id, false);
     grid.append(c);
@@ -951,8 +924,8 @@ function hub() {
   app.append(statsCard());
   app.append(h("details", "", `<summary>Regeln und Daten</summary><ul>
     <li>Jeden Tag gibt es für alle dieselben Runden. Jedes Spiel bringt bis zu 1.000 Punkte.</li>
-    <li>Nördlicher? und Näher dran nutzen nur bekannte Städte und Orte. Entfernungen sind Luftlinie auf der Erdkugel (Großkreis), gemessen zwischen den Stadtzentren.</li>
-    <li>Tag &amp; Nacht berechnet den Sonnenstand nach den Formeln der US-Behörde NOAA, genau für den Moment, in dem du antwortest. Tiefe Nacht heißt: Sonne mehr als 18° unter dem Horizont.</li>
+    <li>Nördlicher? nutzt nur bekannte Städte und Orte. Entfernungen sind Luftlinie auf der Erdkugel (Großkreis), gemessen zwischen den Stadtzentren.</li>
+    <li>Umriss und Größer? zeigen jedes Land ohne weit entfernte Überseegebiete (die USA also ohne Alaska und Hawaii). Die Umrisse sind flächentreu gezeichnet. Flächen: Land- und Binnenwasserfläche nach offiziellen Angaben.</li>
     <li>Grenzgänger zählt Landgrenzen, so wie sie auf der Karte zu sehen sind. Überseegebiete zählen nicht (Frankreich grenzt hier also nicht an Brasilien). Der Kosovo ist als eigenes Land dabei, Somaliland gehört zu Somalia.</li>
     <li>Karten: Natural Earth. Städte geprüft mit GeoNames. Flaggen: flag-icons.</li></ul>`));
   const note = h("p", "note", ""); note.id = "note"; app.append(note);
@@ -1103,7 +1076,7 @@ let lastDay = T();
 setInterval(() => { if (T() !== lastDay) { lastDay = T(); if (!run) hub(); } }, 30000);
 
 // expose generators for testing in the console
-window.__kompass = { get maps() { return mapsAlive; }, KNOWN, FCODES, PLACES, FAMOUS_MARKS, GAMES, genNord, genPin, genCloser, genDayNight, genBorder, genFlag, rngFrom, hashSeed, bfs, sunPos, sunAlt };
+window.__kompass = { get maps() { return mapsAlive; }, KNOWN, FCODES, PLACES, FAMOUS_MARKS, GAMES, genNord, genPin, genShape, genSize, genBorder, genFlag, shapeOf, AREA, SIZE_POOL, rngFrom, hashSeed, bfs };
 })();
 </script>
 <script>

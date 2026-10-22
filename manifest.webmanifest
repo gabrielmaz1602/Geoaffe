@@ -1,13 +1,13 @@
 {
   "name": "Geoaffe",
   "short_name": "Geoaffe",
-  "description": "Tägliche Geografie-Spiele: Nadelwurf, Grenzgänger, Flaggen-Mix, Nördlicher?, Näher dran und Tag & Nacht.",
+  "description": "Tägliche Geografie-Spiele: Nadelwurf, Grenzgänger, Flaggen-Mix, Nördlicher?, Umriss und Größer?.",
   "lang": "de",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#ece5d6",
+  "theme_color": "#eef5ff",
   "icons": [
     {
       "src": "icon-192.png",
