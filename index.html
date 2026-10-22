@@ -105,7 +105,7 @@ h1, h2, h3 { font-family: var(--f-head); }
 .gcard.dark-text { color: var(--ink); }
 .gcard .in { padding: 14px; display: flex; flex-direction: column; gap: 6px; height: 100%; min-height: 176px; }
 .gcard .top { display: flex; justify-content: space-between; align-items: flex-start; }
-.gcard .ic { width: 46px; height: 46px; border-radius: 14px; padding: 8px; color: var(--hue-dk); background: #fff; }
+.gcard .ic { width: 64px; height: 64px; border-radius: 18px; padding: 10px; color: var(--hue-dk); background: #fff; }
 .gcard .ic svg { width: 100%; height: 100%; }
 .gcard .val { font-size: 12px; font-weight: 800; background: rgba(255,255,255,.25); border-radius: 999px; padding: 2px 9px; }
 .gcard h3 { margin: 6px 0 0; font-weight: 700; font-size: 20px; line-height: 1.1; }
@@ -205,7 +205,7 @@ details ul { margin: 10px 0 2px; padding-left: 18px; display: flex; flex-directi
 
 /* border game */
 .route { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.tag { border-radius: 999px; padding: 4px 12px; font-size: 14px; font-weight: 800; background: var(--card); border: 2px solid var(--line); }
+.tag { white-space: nowrap; flex-shrink: 0; border-radius: 999px; padding: 4px 12px; font-size: 14px; font-weight: 800; background: var(--card); border: 2px solid var(--line); }
 .tag.start { background: var(--wax); border-color: var(--wax); color: #fff; }
 .tag.end { background: var(--navy); border-color: var(--navy); color: #fff; }
 .tag.path { background: color-mix(in srgb, var(--moss) 16%, #fff); border-color: color-mix(in srgb, var(--moss) 45%, #fff); color: var(--moss-dk); }
@@ -489,7 +489,7 @@ const DIRS = { N: "nördlich", S: "südlich", O: "östlich", W: "westlich" };
 function genNord(r) {
   const qs = [], used = new Set();
   let guard = 0;
-  while (qs.length < 10 && guard++ < 200) {
+  while (qs.length < 5 && guard++ < 200) {
     const dir = r() < 0.6 ? pick(r, ["N", "S"]) : pick(r, ["O", "W"]);
     for (let t = 0; t < 600; t++) {
       const a = pick(r, PLACES), b = pick(r, PLACES);
@@ -541,7 +541,7 @@ function genPin(r) {
   const ms = shuffle(r, FAMOUS_MARKS).slice(0, 2).map(m => ({ n: m.n, sub: `Sehenswürdigkeit · ${m.country}`, lat: m.lat, lon: m.lon }));
   return shuffle(r, [...cs, ...ms]);
 }
-const pinPoints = km => km <= 25 ? 200 : Math.round(200 * Math.exp(-(km - 25) / 1200));
+const pinPoints = km => km <= 25 ? 100 : Math.round(100 * Math.exp(-(km - 25) / 1200));
 function viewPin(q, host, answer) {
   host.append(h("p", "q", `Wo liegt <b>${esc(q.n)}</b>?`));
   host.append(h("p", "sub", esc(q.sub)));
@@ -628,7 +628,7 @@ function viewShape(q, host, answer) {
       const fb = h("div", "", `<p>Das ist <b>${esc(nameOf(q.iso))}</b>.</p>`);
       const m = new GeoMap(fb);
       m.fills = new Map([[q.iso, css("--grape")]]);
-      answer(ok ? 200 : 0, ok ? "Richtig!" : "Leider falsch", fb, () => { m.draw(); m.zoomToFeatures([q.iso], 0); });
+      answer(ok ? 100 : 0, ok ? "Richtig!" : "Leider falsch", fb, () => { m.draw(); m.zoomToFeatures([q.iso], 0); });
     };
     opts.append(btn);
   }
@@ -659,7 +659,7 @@ function genSize(r) {
   const qs = [], used = new Set();
   let guard = 0;
   const pool = SIZE_POOL();
-  while (qs.length < 10 && guard++ < 5000) {
+  while (qs.length < 5 && guard++ < 5000) {
     const a = pick(r, pool), b = pick(r, pool);
     if (a === b || used.has(a) || used.has(b)) continue;
     const ratio = Math.max(AREA[a], AREA[b]) / Math.min(AREA[a], AREA[b]);
@@ -713,21 +713,23 @@ function bfsIn(start, allowed) {
   return { dist, par };
 }
 function genBorder(r) {
-  const out = [];
-  const regionsFor = [["Europa"], shuffle(r, ["Afrika", "Asien", "Amerika"])];
+  const out = [], used = new Set();
+  // five routes: two in Europe, one each in Africa, Asia and the Americas, in random order
+  const regionsFor = shuffle(r, ["Europa", "Europa", "Afrika", "Asien", "Amerika"]).map(reg => [reg, ...shuffle(r, ["Europa", "Afrika", "Asien"].filter(x => x !== reg))]);
+  const allowed = new Set([...KNOWN].filter(c => c !== "RU"));
   for (const regs of regionsFor) {
     let done = false;
     for (const reg of regs) {
       const pool = DATA.regions[reg].filter(c => ADJ[c] && KNOWN.has(c));
-      const allowed = new Set([...KNOWN].filter(c => c !== "RU"));
-      for (let t = 0; t < 400 && !done; t++) {
+      for (let t = 0; t < 600 && !done; t++) {
         const s = pick(r, pool), e = pick(r, pool);
-        if (s === e) continue;
+        if (s === e || used.has(s) || used.has(e)) continue;
         const full = bfs(s).dist[e];
-        if (!(full >= 3 && full <= 5)) continue;
+        if (!(full >= 4 && full <= 6)) continue;
         const nr = bfsIn(s, allowed);
         if (nr.dist[e] !== full) continue;   // a shortest route exists through well-known countries only
         const path = [e]; while (path[0] !== s) path.unshift(nr.par[path[0]]);
+        used.add(s); used.add(e);
         out.push({ s, e, k: full - 1, path, reg }); done = true;
       }
       if (done) break;
@@ -736,7 +738,7 @@ function genBorder(r) {
   return out;
 }
 function viewBorder(q, host, answer) {
-  const maxG = q.k + 5;
+  const maxG = q.k + 3;
   const chain = [];
   let over = false;
   host.append(h("p", "q", `Finde einen Landweg von <b>${esc(nameOf(q.s))}</b> nach <b style="color:var(--navy)">${esc(nameOf(q.e))}</b>.`));
@@ -776,7 +778,7 @@ function viewBorder(q, host, answer) {
   function finish(ok) {
     over = true; row.hidden = true; giveUp.hidden = true; sug.replaceChildren(); m.onTap = null;
     const g = chain.length;
-    const pts = ok ? Math.round(500 * Math.max(0, 1 - (g - q.k) / 5)) : 0;
+    const pts = ok ? Math.round(100 * Math.max(0, 1 - (g - q.k) / 4)) : 0;
     if (!ok) m.fills = new Map([[q.s, css("--wax")], [q.e, css("--navy")], ...chain.map(c => [c, css("--line")]), ...q.path.slice(1, -1).map(c => [c, css("--ochre")])]);
     m.draw();
     if (ok) route.innerHTML = route.innerHTML.replace("→ ··· →", "→");
@@ -861,25 +863,25 @@ function viewFlag(q, host, answer) {
       x.disabled = true;
       if (x.dataset.c === q[k]) x.classList.add("good"); else if (x.dataset.c === sel[k]) x.classList.add("bad");
     }));
-    const pts = (ok.a ? 100 : 0) + (ok.b ? 100 : 0);
+    const pts = (ok.a ? 50 : 0) + (ok.b ? 50 : 0);
     const fb = h("div", "", `<div class="minis"><figure><img src="${FLAGS[q.a]}" alt=""><figcaption>${esc(DATA.flagNames[q.a])}</figcaption></figure><figure><img src="${FLAGS[q.b]}" alt=""><figcaption>${esc(DATA.flagNames[q.b])}</figcaption></figure></div>`);
-    answer(pts, pts === 200 ? "Beide richtig!" : pts === 100 ? "Eine richtig" : "Beide falsch", fb);
+    answer(pts, pts === 100 ? "Beide richtig!" : pts === 50 ? "Eine richtig" : "Beide falsch", fb);
   };
   host.joker = () => { sel.a = q.a; sel.b = q.b; btn.disabled = false; btn.click(); };
 }
 
 const GAMES = [
-  { id: "pin", name: "Nadelwurf", hue: "--wax", desc: "Setz die Nadel auf der leeren Weltkarte so nah wie möglich.", rounds: 5, per: 200, gen: genPin, view: viewPin },
-  { id: "border", name: "Grenzgänger", hue: "--moss", desc: "Über Landgrenzen von A nach B, mit möglichst wenigen Ländern.", rounds: 2, per: 500, gen: genBorder, view: viewBorder },
-  { id: "flag", name: "Flaggen-Mix", hue: "--pink", desc: "Zwei halbe Flaggen, eine neue. Welche stecken drin?", rounds: 5, per: 200, gen: genFlag, view: viewFlag },
-  { id: "nord", name: "Nördlicher?", hue: "--navy", desc: "Zwei bekannte Orte. Welcher liegt weiter im Norden, Süden, Osten oder Westen?", rounds: 10, per: 100, gen: genNord, view: viewNord },
-  { id: "shape", name: "Umriss", hue: "--grape", desc: "Nur die Silhouette eines Landes. Welches ist es?", rounds: 5, per: 200, gen: genShape, view: viewShape },
-  { id: "size", name: "Größer?", hue: "--ochre", dark: true, desc: "Zwei Länder, eine Frage: Welches hat mehr Fläche?", rounds: 10, per: 100, gen: genSize, view: viewSize },
+  { id: "pin", name: "Nadelwurf", hue: "--wax", desc: "Setz die Nadel auf der leeren Weltkarte so nah wie möglich.", rounds: 5, per: 100, gen: genPin, view: viewPin },
+  { id: "border", name: "Grenzgänger", hue: "--moss", desc: "Über Landgrenzen von A nach B, mit möglichst wenigen Ländern.", rounds: 5, per: 100, gen: genBorder, view: viewBorder },
+  { id: "flag", name: "Flaggen-Mix", hue: "--pink", desc: "Zwei halbe Flaggen, eine neue. Welche stecken drin?", rounds: 5, per: 100, gen: genFlag, view: viewFlag },
+  { id: "nord", name: "Nördlicher?", hue: "--navy", desc: "Zwei bekannte Orte. Welcher liegt weiter im Norden, Süden, Osten oder Westen?", rounds: 5, per: 100, gen: genNord, view: viewNord },
+  { id: "shape", name: "Umriss", hue: "--grape", desc: "Nur die Silhouette eines Landes. Welches ist es?", rounds: 5, per: 100, gen: genShape, view: viewShape },
+  { id: "size", name: "Größer?", hue: "--ochre", dark: true, desc: "Zwei Länder, eine Frage: Welches hat mehr Fläche?", rounds: 5, per: 100, gen: genSize, view: viewSize },
 ];
-const MAX_DAY = GAMES.length * 1000;
+const MAX_DAY = GAMES.length * 500;
 
 /* ================= state & persistence ================= */
-let saved = { days: {}, prog: null, bananas: 0, bananaDay: null };   // days: {date: {gameId: score}}, prog: {date, g: {gameId: {i, pts}}}, bananas: jokers left, bananaDay: last day one was earned
+let saved = { days: {}, prog: null, bananas: 0, bananaDay: null, seen: {} };   // days: {date: {gameId: score}}, prog: {date, g: {gameId: {i, pts}}}, bananas: jokers left, bananaDay: last day one was earned, seen: games whose explanation was shown
 let run = null, mapsAlive = [];
 const T = () => dkey(today());
 function prog() {
@@ -887,9 +889,9 @@ function prog() {
   return saved.prog;
 }
 function normalize(d) {
-  const s = { days: {}, prog: null, bananas: 0, bananaDay: null };
+  const s = { days: {}, prog: null, bananas: 0, bananaDay: null, seen: {} };
   if (!d) return s;
-  s.bananas = Math.max(0, d.bananas | 0); s.bananaDay = d.bananaDay || null;
+  s.bananas = Math.max(0, d.bananas | 0); s.bananaDay = d.bananaDay || null; s.seen = { ...(d.seen || {}) };
   for (const k in d.days || {}) s.days[k] = { ...d.days[k] };
   if (d.prog && d.prog.date) { s.prog = { date: d.prog.date, g: {} }; for (const k in d.prog.g || {}) s.prog.g[k] = { i: d.prog.g[k].i || 0, pts: [...(d.prog.g[k].pts || [])] }; }
   return s;
@@ -929,7 +931,7 @@ function hub() {
   for (const g of GAMES) {
     const p = prog().g[g.id], done = g.id in day;
     const st = done ? "" : p && p.i ? `Fortsetzen · <b>${p.i} von ${g.rounds}</b>` : "Noch offen";
-    const c = h("button", "gcard" + (done ? " done" : "") + (g.dark ? " dark-text" : ""), `<div class="in"><div class="top"><span class="ic">${ICONS[g.id]}</span><span class="val">${g.rounds} Runden</span></div><h3>${esc(g.name)}</h3><p>${esc(g.desc)}</p><div class="st">${st}</div></div>${done ? `<span class="postmark">Fertig <b>${fmtInt(day[g.id])}</b></span>` : ""}`);
+    const c = h("button", "gcard" + (done ? " done" : "") + (g.dark ? " dark-text" : ""), `<div class="in"><div class="top"><span class="ic">${ICONS[g.id]}</span><span class="val">${g.rounds} Level</span></div><h3>${esc(g.name)}</h3><p>${esc(g.desc)}</p><div class="st">${st}</div></div>${done ? `<span class="postmark">Fertig <b>${fmtInt(day[g.id])}</b></span>` : ""}`);
     c.style.setProperty("--hue", `var(${g.hue})`);
     c.type = "button"; c.onclick = () => openGame(g.id, false);
     grid.append(c);
@@ -943,7 +945,7 @@ function hub() {
   }
   app.append(statsCard());
   app.append(h("details", "", `<summary>Regeln und Daten</summary><ul>
-    <li>Jeden Tag gibt es für alle dieselben Runden. Jedes Spiel bringt bis zu 1.000 Punkte.</li>
+    <li>Jeden Tag gibt es für alle dieselben Runden. Jedes Spiel hat 5 Level mit je bis zu 100 Punkten, also bis zu 500 Punkte pro Spiel und 3.000 am Tag.</li>
     <li>Nördlicher? nutzt nur bekannte Städte und Orte. Entfernungen sind Luftlinie auf der Erdkugel (Großkreis), gemessen zwischen den Stadtzentren.</li>
     <li>Umriss und Größer? zeigen jedes Land ohne weit entfernte Überseegebiete (die USA also ohne Alaska und Hawaii). Die Umrisse sind flächentreu gezeichnet. Flächen: Land- und Binnenwasserfläche nach offiziellen Angaben.</li>
     <li>Grenzgänger zählt Landgrenzen, so wie sie auf der Karte zu sehen sind. Überseegebiete zählen nicht (Frankreich grenzt hier also nicht an Brasilien). Der Kosovo ist als eigenes Land dabei, Somaliland gehört zu Somalia.</li>
@@ -1020,7 +1022,7 @@ function question() {
   app.innerHTML = "";
   const [bar, dots] = topbar();
   app.append(bar, dots);
-  if (run.i === 0) app.append(h("p", "intro", esc(run.g.desc)));
+  if (!saved.seen[run.g.id]) { saved.seen[run.g.id] = true; persist(); app.append(h("p", "intro", esc(run.g.desc))); }
   const host = h("section", ""); host.style.cssText = "display:flex;flex-direction:column;gap:14px";
   let joker = null, usedJoker = false;
   if (!run.practice && saved.bananas > 0) {
@@ -1070,8 +1072,8 @@ function endScreen() {
   const earned = !practice && awardBanana();
   app.innerHTML = "";
   const [bar, dots] = topbar(); app.append(bar, dots);
-  const verdict = shown >= 900 ? "Weltklasse" : shown >= 700 ? "Sehr stark" : shown >= 500 ? "Solide" : shown >= 300 ? "Ausbaufähig" : "Morgen wird's besser";
-  const box = h("div", "card", `<div class="end"><span class="label">${practice ? "Übungsrunde" : "Heutiges Ergebnis"}</span><div class="big">${fmtInt(shown)}</div><span class="muted mono">von 1.000</span><h3>${verdict}</h3></div>`);
+  const max = g.rounds * g.per, verdict = shown >= max * .9 ? "Weltklasse" : shown >= max * .7 ? "Sehr stark" : shown >= max * .5 ? "Solide" : shown >= max * .3 ? "Ausbaufähig" : "Morgen wird's besser";
+  const box = h("div", "card", `<div class="end"><span class="label">${practice ? "Übungsrunde" : "Heutiges Ergebnis"}</span><div class="big">${fmtInt(shown)}</div><span class="muted mono">von ${fmtInt(max)}</span><h3>${verdict}</h3></div>`);
   const row = h("div", "row"); row.style.justifyContent = "center";
   const b1 = h("button", "btn dark", "Zur Übersicht"); b1.type = "button"; b1.onclick = hub;
   const b2 = h("button", "btn", "Übungsrunde"); b2.type = "button"; b2.onclick = () => openGame(g.id, true);
@@ -1113,6 +1115,7 @@ hub();
       for (const k in saved.days) remote.days[k] = { ...(remote.days[k] || {}), ...saved.days[k] };
       const cnt = s => s.prog && s.prog.date === T() ? Object.values(s.prog.g).reduce((a, x) => a + x.i, 0) : -1;
       if (cnt(saved) > cnt(remote)) remote.prog = saved.prog;
+      remote.seen = { ...remote.seen, ...saved.seen };
       if ((saved.bananaDay || "") > (remote.bananaDay || "")) { remote.bananas = saved.bananas; remote.bananaDay = saved.bananaDay; }
       saved = remote;
     }

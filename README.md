@@ -13,20 +13,20 @@
 
 ## Was ist Geoaffe?
 
-Geoaffe ist eine kleine Web-App mit sechs Geografie-Spielen. Jeden Tag um Mitternacht gibt es neue Runden, und alle Spielerinnen und Spieler bekommen dieselben Aufgaben, ähnlich wie bei Wordle. Jedes Spiel bringt bis zu 1.000 Punkte, also maximal 6.000 pro Tag.
+Geoaffe ist eine kleine Web-App mit sechs Geografie-Spielen. Jeden Tag um Mitternacht gibt es neue Runden, und alle Spielerinnen und Spieler bekommen dieselben Aufgaben, ähnlich wie bei Wordle. Jedes Spiel hat 5 Level mit je bis zu 100 Punkten, also bis zu 500 pro Spiel und maximal 3.000 pro Tag. Wer alle sechs Spiele eines Tages schafft, bekommt eine Banane, die man später als Joker für eine einzelne Frage einsetzen kann.
 
 Die App läuft komplett im Browser, braucht kein Konto und lässt sich auf dem Handy wie eine richtige App auf den Homescreen legen. Nach dem ersten Öffnen funktioniert sie auch offline.
 
 ## Die sechs Spiele
 
-| Spiel | Worum es geht | Runden |
+| Spiel | Worum es geht | Level |
 |---|---|---|
 | **Nadelwurf** | Eine Stadt oder Sehenswürdigkeit wird genannt. Du setzt eine Nadel auf der unbeschrifteten Weltkarte. Je näher, desto mehr Punkte. | 5 |
-| **Grenzgänger** | Finde einen Landweg von Land A nach Land B, nur über gemeinsame Landgrenzen. Land auf der Karte antippen oder eintippen. Weniger Länder bringen mehr Punkte. | 2 |
+| **Grenzgänger** | Finde einen Landweg von Land A nach Land B, nur über gemeinsame Landgrenzen. Land auf der Karte antippen oder eintippen. Weniger Länder bringen mehr Punkte. | 5 |
 | **Flaggen-Mix** | Zwei halbe Flaggen sind zu einer zusammengesetzt. Welche zwei Länder stecken drin? | 5 |
-| **Nördlicher?** | Zwei bekannte Orte. Welcher liegt weiter im Norden, Süden, Osten oder Westen? | 10 |
+| **Nördlicher?** | Zwei bekannte Orte. Welcher liegt weiter im Norden, Süden, Osten oder Westen? | 5 |
 | **Umriss** | Ein Land wird nur als Silhouette gezeigt. Welches ist es? Vier Antworten zur Auswahl. | 5 |
-| **Größer?** | Zwei Länder: Welches hat die größere Fläche? Danach siehst du beide Umrisse im selben Maßstab. | 10 |
+| **Größer?** | Zwei Länder: Welches hat die größere Fläche? Danach siehst du beide Umrisse im selben Maßstab. | 5 |
 
 ## Funktionen
 
