@@ -1526,7 +1526,7 @@ async function shareImage() {
     [0.01, .6, .9].forEach((f, k) => { x.fillStyle = done && sc >= max * f ? "#ffc21a" : "#dfe9f7"; x.fillText("★", 640 + k * 52, y + 64); });
     x.textAlign = "right"; x.fillStyle = done ? "#1d2742" : "#97a3bb"; x.font = "700 44px Fredoka, sans-serif"; x.fillText(done ? fmtInt(sc) : "–", W - 100, y + 66);
   });
-  x.textAlign = "center"; x.fillStyle = "#5a6885"; x.font = "800 34px Nunito, sans-serif"; x.fillText("Spiel mit: geoaffe.netlify.app", cx, H - 52);
+  x.textAlign = "center"; x.fillStyle = "#5a6885"; x.font = "800 34px Nunito, sans-serif"; x.fillText(`Spiel mit: ${/^https?:$/.test(location.protocol) ? location.host : "geoaffe.gabrielmaz1602.workers.dev"}`, cx, H - 52);
   const blob = await new Promise(res => c.toBlob(res, "image/png"));
   const file = new File([blob], `geoaffe-${dayNo(today())}.png`, { type: "image/png" });
   const text = `Geoaffe Nr. ${dayNo(today())}: ${fmtInt(total)} von ${fmtInt(MAX_DAY)} Punkten 🐒 ${location.origin + location.pathname}`;
