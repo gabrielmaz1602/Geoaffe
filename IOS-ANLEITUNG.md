@@ -35,6 +35,8 @@ Das baut die App und öffnet Xcode automatisch. Beim ersten Mal lädt Xcode noch
 
 ## 4. In Xcode mit deiner Apple-ID anmelden
 
+(Schon erledigt: Das Team „Gabriel Maz (Personal Team)“ ist im Projekt hinterlegt.)
+
 1. Oben in der Menüleiste: **Xcode → Settings… → Accounts** → unten links **+** → **Apple ID** → mit deiner normalen Apple-ID anmelden. Fenster schließen.
 2. Links in der Seitenleiste ganz oben auf **App** (blaues Symbol) klicken.
 3. In der Mitte unter **TARGETS** auf **App** klicken, dann oben den Reiter **Signing & Capabilities**.
@@ -64,11 +66,14 @@ Im Terminal:
 
 ```
 cd ~/Desktop/Geoaffe
+git stash -u
 git pull
 npm run ios
 ```
 
-Dann in Xcode ▶ drücken.
+Dann in Xcode ▶ drücken. (`git stash -u` legt Dateien beiseite, die Xcode selbst verändert hat, damit `git pull` nicht abbricht.)
+
+Oder einfacher: der Claude-Sitzung auf dem Mac sagen „Hol das neueste Geoaffe-Update aufs iPhone“.
 
 ## Wenn etwas nicht klappt
 
