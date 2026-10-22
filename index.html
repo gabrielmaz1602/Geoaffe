@@ -83,6 +83,11 @@ h1, h2, h3 { font-family: var(--f-head); }
 .total { text-align: center; background: var(--card); border: 2px solid var(--line); box-shadow: 0 4px 0 var(--edge); border-radius: 18px; padding: 8px 12px 6px; }
 .total b { display: block; font-family: var(--f-mono); font-weight: 700; font-size: 26px; line-height: 1; color: var(--navy); }
 .total span { font-size: 12px; color: var(--ink-2); font-weight: 700; }
+.daybar { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.pill { display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 2px solid var(--line); box-shadow: 0 3px 0 var(--edge); border-radius: 999px; padding: 4px 14px; font-size: 13px; font-weight: 800; color: var(--ink-2); }
+.pill b { font-family: var(--f-mono); font-weight: 700; font-size: 16px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.pill.banana b { color: var(--ochre-dk); }
+.pill.banana.empty { opacity: .6; }
 .voyage { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--ink-2); font-weight: 800; }
 .voyage .trail { flex: 1; height: 16px; border-radius: 999px; background: var(--paper-2); overflow: hidden; }
 .voyage .trail i { position: relative; display: block; height: 100%; min-width: 16px; border-radius: 999px; background: var(--moss); transition: width .5s cubic-bezier(.2,.8,.2,1); }
@@ -151,6 +156,10 @@ details ul { margin: 10px 0 2px; padding-left: 18px; display: flex; flex-directi
 .dots i.g1 { background: var(--bad); }
 .q { margin: 0; font-family: var(--f-head); font-weight: 600; font-size: 25px; line-height: 1.2; text-wrap: balance; }
 .q b { color: var(--wax); font-weight: 700; }
+.intro { margin: 0; padding: 10px 14px; border-radius: 16px; background: var(--card); border: 2px solid var(--line); color: var(--ink-2); font-size: 14px; font-weight: 700; }
+.jokerbtn { align-self: flex-end; border: 2px solid var(--ochre-dk); background: var(--ochre); color: var(--ink); border-radius: 999px; padding: 6px 14px; font-size: 14px; font-weight: 800; cursor: pointer; box-shadow: 0 3px 0 var(--ochre-dk); }
+.jokerbtn:active { transform: translateY(3px); box-shadow: none; }
+.jokerbtn.sure { background: #fff; animation: pop .25s; }
 .sub { margin: -8px 0 0; color: var(--ink-2); font-size: 14px; font-weight: 700; }
 .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .opt {
@@ -523,6 +532,7 @@ function viewNord(q, host, answer) {
     opts.append(btn);
   }
   host.append(opts);
+  host.joker = () => opts.children[[a, b].indexOf(win)].click();
 }
 
 /* --- Nadelwurf --- */
@@ -552,6 +562,7 @@ function viewPin(q, host, answer) {
     const fb = h("div", "", `<p>${km < 25 ? "Fast genau getroffen." : `Du lagst <b>${fmtInt(km)} km</b> daneben.`}</p><p class="muted" style="font-size:14px">${esc(q.n)}: ${fmtLat(q.lat)}, ${fmtLon(q.lon)}</p>`);
     answer(pts, km < 100 ? "Volltreffer!" : km < 600 ? "Nicht schlecht" : km < 2000 ? "Grob in der Nähe" : "Weit daneben", fb);
   };
+  host.joker = () => { guess = [q.lon, q.lat]; btn.disabled = false; btn.click(); };
 }
 
 /* --- shapes (Umriss, Größer?) --- */
@@ -622,6 +633,7 @@ function viewShape(q, host, answer) {
     opts.append(btn);
   }
   host.append(opts);
+  host.joker = () => opts.children[q.opts.indexOf(q.iso)].click();
 }
 
 /* --- Größer? --- */
@@ -680,6 +692,7 @@ function viewSize(q, host, answer) {
     opts.append(btn);
   }
   host.append(opts);
+  host.joker = () => opts.children[[a, b].indexOf(win)].click();
 }
 
 /* --- Grenzgänger --- */
@@ -787,6 +800,8 @@ function viewBorder(q, host, answer) {
   row.querySelector("#bAdd").onclick = submit;
   inp.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); submit(); } };
   giveUp.onclick = () => finish(false);
+  // joker: walk the shortest route, replacing whatever was entered so far
+  host.joker = () => { chain.length = 0; for (const c of q.path.slice(1, -1)) tryAdd(c); };
   paint();
   setTimeout(() => m.zoomToFeatures(q.path.filter(c => c !== "RU"), 0), 30);
 }
@@ -850,6 +865,7 @@ function viewFlag(q, host, answer) {
     const fb = h("div", "", `<div class="minis"><figure><img src="${FLAGS[q.a]}" alt=""><figcaption>${esc(DATA.flagNames[q.a])}</figcaption></figure><figure><img src="${FLAGS[q.b]}" alt=""><figcaption>${esc(DATA.flagNames[q.b])}</figcaption></figure></div>`);
     answer(pts, pts === 200 ? "Beide richtig!" : pts === 100 ? "Eine richtig" : "Beide falsch", fb);
   };
+  host.joker = () => { sel.a = q.a; sel.b = q.b; btn.disabled = false; btn.click(); };
 }
 
 const GAMES = [
@@ -863,7 +879,7 @@ const GAMES = [
 const MAX_DAY = GAMES.length * 1000;
 
 /* ================= state & persistence ================= */
-let saved = { days: {}, prog: null };   // days: {date: {gameId: score}}, prog: {date, g: {gameId: {i, pts}}}
+let saved = { days: {}, prog: null, bananas: 0, bananaDay: null };   // days: {date: {gameId: score}}, prog: {date, g: {gameId: {i, pts}}}, bananas: jokers left, bananaDay: last day one was earned
 let run = null, mapsAlive = [];
 const T = () => dkey(today());
 function prog() {
@@ -871,8 +887,9 @@ function prog() {
   return saved.prog;
 }
 function normalize(d) {
-  const s = { days: {}, prog: null };
+  const s = { days: {}, prog: null, bananas: 0, bananaDay: null };
   if (!d) return s;
+  s.bananas = Math.max(0, d.bananas | 0); s.bananaDay = d.bananaDay || null;
   for (const k in d.days || {}) s.days[k] = { ...d.days[k] };
   if (d.prog && d.prog.date) { s.prog = { date: d.prog.date, g: {} }; for (const k in d.prog.g || {}) s.prog.g[k] = { i: d.prog.g[k].i || 0, pts: [...(d.prog.g[k].pts || [])] }; }
   return s;
@@ -904,6 +921,9 @@ function hub() {
   const head = h("header", "brand", `${ICONS.rose}<div><h1>Geoaffe</h1><p>Nr. ${no} · ${esc(t.toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "long" }))}</p></div>
     <div class="total"><b>${fmtInt(total)}</b><span>von ${fmtInt(MAX_DAY)}</span></div>`);
   app.append(head);
+  if (awardBanana()) toast("Alle sechs geschafft: eine Banane für dich! 🍌");
+  app.append(h("div", "daybar", `<span class="pill">Neue Spiele in <b id="cd">${countdown()}</b></span>
+    <span class="pill banana${saved.bananas ? "" : " empty"}" title="Joker: Wer an einem Tag alle sechs Spiele schafft, bekommt eine Banane">🍌 <b>${saved.bananas}</b> Joker</span>`));
   app.append(h("div", "voyage", `<span class="trail"><i style="width:${played / GAMES.length * 100}%"></i></span><span>${played} von ${GAMES.length} gespielt</span>`));
   const grid = h("div", "grid");
   for (const g of GAMES) {
@@ -927,9 +947,22 @@ function hub() {
     <li>Nördlicher? nutzt nur bekannte Städte und Orte. Entfernungen sind Luftlinie auf der Erdkugel (Großkreis), gemessen zwischen den Stadtzentren.</li>
     <li>Umriss und Größer? zeigen jedes Land ohne weit entfernte Überseegebiete (die USA also ohne Alaska und Hawaii). Die Umrisse sind flächentreu gezeichnet. Flächen: Land- und Binnenwasserfläche nach offiziellen Angaben.</li>
     <li>Grenzgänger zählt Landgrenzen, so wie sie auf der Karte zu sehen sind. Überseegebiete zählen nicht (Frankreich grenzt hier also nicht an Brasilien). Der Kosovo ist als eigenes Land dabei, Somaliland gehört zu Somalia.</li>
+    <li>Bananen-Joker: Wer an einem Tag alle sechs Spiele beendet, bekommt eine Banane. Mit einer Banane löst du eine einzelne Frage sofort richtig und bekommst die vollen Punkte dafür. In Übungsrunden gibt es keine Joker.</li>
     <li>Karten: Natural Earth. Städte geprüft mit GeoNames. Flaggen: flag-icons.</li></ul>`));
   const note = h("p", "note", ""); note.id = "note"; app.append(note);
   setNote(noteText);
+}
+
+// one banana per day for finishing all six games
+function awardBanana() {
+  const day = saved.days[T()] || {};
+  if (!GAMES.every(g => g.id in day) || saved.bananaDay === T()) return false;
+  saved.bananas++; saved.bananaDay = T(); persist();
+  return true;
+}
+function countdown() {
+  const sec = Math.max(0, Math.floor((addDays(today(), 1) - Date.now()) / 1000));
+  return `${pad(Math.floor(sec / 3600))}:${pad(Math.floor(sec / 60) % 60)}:${pad(sec % 60)}`;
 }
 
 function statsCard() {
@@ -987,10 +1020,26 @@ function question() {
   app.innerHTML = "";
   const [bar, dots] = topbar();
   app.append(bar, dots);
+  if (run.i === 0) app.append(h("p", "intro", esc(run.g.desc)));
   const host = h("section", ""); host.style.cssText = "display:flex;flex-direction:column;gap:14px";
+  let joker = null, usedJoker = false;
+  if (!run.practice && saved.bananas > 0) {
+    joker = h("button", "jokerbtn", `🍌 Joker einsetzen · ${saved.bananas}`); joker.type = "button";
+    let armed = null;
+    joker.onclick = () => {
+      // first tap asks, second tap spends the banana
+      if (!armed) { joker.classList.add("sure"); joker.textContent = "🍌 Wirklich? Nochmal tippen"; armed = setTimeout(() => { armed = null; joker.classList.remove("sure"); joker.textContent = `🍌 Joker einsetzen · ${saved.bananas}`; }, 3000); return; }
+      clearTimeout(armed);
+      saved.bananas--; usedJoker = true; persist();
+      host.joker();
+    };
+    app.append(joker);
+  }
   app.append(host);
   const q = run.qs[run.i];
   run.g.view(q, host, (points, title, fbNode, after) => {
+    if (joker) joker.remove();
+    if (usedJoker) title = "Joker eingesetzt 🍌";
     run.pts.push(points);
     if (!run.practice) { prog().g[run.g.id] = { i: run.i + 1, pts: [...run.pts] }; persist(); }
     // refresh header score + dots
@@ -1018,6 +1067,7 @@ function endScreen() {
     persist();
   }
   const shown = practice ? total : (saved.days[T()] || {})[g.id] ?? total;
+  const earned = !practice && awardBanana();
   app.innerHTML = "";
   const [bar, dots] = topbar(); app.append(bar, dots);
   const verdict = shown >= 900 ? "Weltklasse" : shown >= 700 ? "Sehr stark" : shown >= 500 ? "Solide" : shown >= 300 ? "Ausbaufähig" : "Morgen wird's besser";
@@ -1030,6 +1080,7 @@ function endScreen() {
     const next = GAMES.find(x => !(x.id in (saved.days[T()] || {})));
     if (next) { const b3 = h("button", "btn primary wide", `Weiter mit ${next.name}`); b3.type = "button"; b3.onclick = () => openGame(next.id, false); box.append(b3); }
   }
+  if (earned) box.append(h("p", "intro", `🍌 Alle sechs Spiele geschafft! Du bekommst eine Banane als Joker. Du hast jetzt ${saved.bananas}.`));
   app.append(box);
   window.scrollTo(0, 0);
 }
@@ -1062,6 +1113,7 @@ hub();
       for (const k in saved.days) remote.days[k] = { ...(remote.days[k] || {}), ...saved.days[k] };
       const cnt = s => s.prog && s.prog.date === T() ? Object.values(s.prog.g).reduce((a, x) => a + x.i, 0) : -1;
       if (cnt(saved) > cnt(remote)) remote.prog = saved.prog;
+      if ((saved.bananaDay || "") > (remote.bananaDay || "")) { remote.bananas = saved.bananas; remote.bananaDay = saved.bananaDay; }
       saved = remote;
     }
     ref = r;
@@ -1073,7 +1125,7 @@ hub();
 
 // new day while open
 let lastDay = T();
-setInterval(() => { if (T() !== lastDay) { lastDay = T(); if (!run) hub(); } }, 30000);
+setInterval(() => { const cd = document.getElementById("cd"); if (cd) cd.textContent = countdown(); if (T() !== lastDay) { lastDay = T(); if (!run) hub(); } }, 1000);
 
 // expose generators for testing in the console
 window.__kompass = { get maps() { return mapsAlive; }, KNOWN, FCODES, PLACES, FAMOUS_MARKS, GAMES, genNord, genPin, genShape, genSize, genBorder, genFlag, shapeOf, AREA, SIZE_POOL, rngFrom, hashSeed, bfs };
