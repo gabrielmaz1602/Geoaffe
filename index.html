@@ -422,9 +422,9 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 .avcolors { display: flex; gap: 10px; justify-content: space-between; }
 .avcolors button { width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--card); box-shadow: 0 0 0 2px var(--line); cursor: pointer; }
 .avcolors button.on { box-shadow: 0 0 0 3px var(--wax); }
-.avgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.avgrid button { border: 2px solid var(--line); background: var(--card); border-radius: 18px; padding: 8px 4px 6px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 800; color: var(--ink-2); box-shadow: 0 3px 0 var(--edge); }
-.avgrid button .avatar { width: 62px; height: 62px; }
+.avgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.avgrid button { border: 2px solid var(--line); background: var(--card); border-radius: 18px; padding: 10px 4px 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px; font-weight: 800; color: var(--ink-2); box-shadow: 0 3px 0 var(--edge); }
+.avgrid button .avatar { width: 84px; height: 84px; }
 .avgrid button.on { border-color: var(--wax); color: var(--wax-dk); box-shadow: 0 3px 0 var(--wax); }
 .dice { font-size: 18px; }
 
@@ -1444,10 +1444,10 @@ function privacyInfo() {
 /* ================= avatar ================= */
 // 16 illustrated monkeys (avatars/*.webp) on a background colour of the player's choice
 const AVATARS = [["entdecker", "Entdecker"], ["pilot", "Pilot"], ["astronaut", "Astronaut"], ["pirat", "Pirat"], ["koch", "Koch"], ["koenig", "König"],
-  ["taucher", "Taucher"], ["cowboy", "Cowboy"], ["wikinger", "Wikinger"], ["ninja", "Ninja"], ["forscher", "Forscher"], ["dj", "DJ"],
+  ["taucher", "Taucher"], ["cowboy", "Cowboy"], ["wikinger", "Wikinger"], ["ninja", "Ninja"], ["dj", "DJ"],
   ["skifahrer", "Skifahrer"], ["kapitaen", "Kapitän"], ["detektiv", "Detektiv"], ["party", "Partyaffe"]];
 // new high-resolution avatars are already framed for the circle (face centred, clothes to the bottom edge)
-const AV_FRAMED = new Set(["entdecker", "pilot", "astronaut", "pirat", "koch", "koenig", "taucher", "cowboy", "wikinger", "ninja"]);
+const AV_FRAMED = new Set(AVATARS.map(x => x[0]));   // all avatars are framed for the circle
 const AV_BG = ["#cfe6ff", "#ffd9c2", "#d7f5dc", "#e6dcff", "#fff1b8", "#ffd6e5", "#2a2a2e"];
 function avatarHtml(a) {
   const pick = AVATARS.some(x => x[0] === (a && a.pick)) ? a.pick : DEFAULT_AVATAR.pick;
