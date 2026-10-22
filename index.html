@@ -1447,7 +1447,7 @@ const AVATARS = [["entdecker", "Entdecker"], ["pilot", "Pilot"], ["astronaut", "
   ["taucher", "Taucher"], ["cowboy", "Cowboy"], ["wikinger", "Wikinger"], ["ninja", "Ninja"], ["forscher", "Forscher"], ["dj", "DJ"],
   ["skifahrer", "Skifahrer"], ["kapitaen", "Kapitän"], ["detektiv", "Detektiv"], ["party", "Partyaffe"]];
 // new high-resolution avatars are already framed for the circle (face centred, clothes to the bottom edge)
-const AV_FRAMED = new Set(["entdecker", "pilot", "astronaut", "pirat", "koch"]);
+const AV_FRAMED = new Set(["entdecker", "pilot", "astronaut", "pirat", "koch", "koenig", "taucher", "cowboy", "wikinger", "ninja"]);
 const AV_BG = ["#cfe6ff", "#ffd9c2", "#d7f5dc", "#e6dcff", "#fff1b8", "#ffd6e5", "#2a2a2e"];
 function avatarHtml(a) {
   const pick = AVATARS.some(x => x[0] === (a && a.pick)) ? a.pick : DEFAULT_AVATAR.pick;
