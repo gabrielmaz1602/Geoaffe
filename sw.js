@@ -1,5 +1,5 @@
 // Offline support: app files (including the fonts) are cached on install.
-const VERSION = "geoaffe-v21";
+const VERSION = "geoaffe-v22";
 const APP = ["./", "data.js", "d3.min.js", "topojson.min.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png", "favicon-32.png", "icon-maskable-192.png", "icon-maskable-512.png", "fonts/fredoka-latin.woff2", "fonts/fredoka-latin-ext.woff2", "fonts/nunito-latin.woff2", "fonts/nunito-latin-ext.woff2"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(APP)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => {

@@ -56,6 +56,12 @@ Dann im Browser `http://localhost:8000` öffnen.
 
 Den Ordnerinhalt auf einen beliebigen statischen Hoster legen, zum Beispiel Netlify (per Drag & Drop oder mit diesem Repo verbunden), GitHub Pages oder Vercel. Die Datei `_headers` setzt auf Netlify den richtigen Dateityp für das App-Manifest.
 
+## Freunde und Rangliste
+
+Freiwillig: Unter „Freunde“ tippt man auf „Mitmachen“, dann werden Name, Avatar und Tagespunkte bei Supabase (Frankfurt) gespeichert. Anmeldung anonym, ohne E-Mail. Freunde fügt man per 6-stelligem Code oder Einladungslink (`?freund=CODE`) hinzu; Ranglisten gibt es für Freunde und weltweit, jeweils für heute oder die letzten 7 Tage.
+
+Der Datenbank-Aufbau samt Sicherheitsregeln steht in `supabase/schema.sql` und wird im Supabase-Dashboard unter „SQL Editor“ ausgeführt. In der App steht nur der öffentliche „publishable“ Key; was jeder lesen und schreiben darf, regelt die Datenbank.
+
 ## Projektstruktur
 
 | Datei | Inhalt |

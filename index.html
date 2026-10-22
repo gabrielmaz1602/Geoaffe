@@ -426,6 +426,28 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 .avgrid button.on { border-color: var(--wax); color: var(--wax-dk); box-shadow: 0 3px 0 var(--wax); }
 .dice { font-size: 18px; }
 
+/* friends & leaderboard */
+.mecard { flex-direction: row; flex-wrap: wrap; align-items: center; }
+.mecard > div:nth-child(2) { flex: 1; min-width: 150px; }
+.mecard h2 { margin: 0; }
+.mecard p.muted { margin: 2px 0 0; }
+.code { font-family: var(--f-mono); font-weight: 700; font-size: 30px; letter-spacing: .14em; color: var(--wax); -webkit-user-select: text; user-select: text; }
+#fCode { font-family: var(--f-mono); letter-spacing: .14em; text-transform: uppercase; }
+.board { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.board li { display: grid; grid-template-columns: 34px 44px 1fr auto auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 16px; background: var(--paper); }
+.board li.me { background: color-mix(in srgb, var(--wax) 14%, var(--surf)); box-shadow: inset 0 0 0 2px var(--wax); }
+.board li.empty { display: block; text-align: center; color: var(--ink-2); font-size: 14px; padding: 14px; background: none; }
+.board .rk { font-family: var(--f-mono); font-weight: 700; font-size: 18px; text-align: center; }
+.board .av { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; }
+.board .nm { display: flex; flex-direction: column; min-width: 0; }
+.board .nm b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.board .nm i { font-style: normal; font-size: 11px; font-weight: 800; color: #fff; background: var(--wax); border-radius: 999px; padding: 1px 7px; vertical-align: middle; }
+.board .nm small { color: var(--ink-2); font-size: 12px; font-weight: 700; }
+.board .pt { font-family: var(--f-mono); font-weight: 700; font-size: 18px; }
+.board .rm { border: 0; background: none; color: var(--ink-3); font-size: 15px; cursor: pointer; padding: 4px; }
+.board li:not(:has(.rm)) { grid-template-columns: 34px 44px 1fr auto; }
+.fine { margin: 0; font-size: 12.5px; color: var(--ink-3); line-height: 1.4; }
+
 /* celebration & feedback motion */
 .confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 60; }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(2px); } }
@@ -1123,7 +1145,7 @@ const HOWTO = {
 /* ================= state & persistence ================= */
 const DEFAULT_SETTINGS = { theme: "system", sound: true, confetti: true, jokerAsk: true, units: "km" };
 const DEFAULT_AVATAR = { fur: 0, face: 0, mouth: 0, glasses: 0, hat: 0, extra: 0, bg: 0, name: "" };
-let saved = { days: {}, prog: null, bananas: 0, bananaDay: null, seen: {}, settings: { ...DEFAULT_SETTINGS }, avatar: { ...DEFAULT_AVATAR } };   // days: {date: {gameId: score}}, prog: {date, g: {gameId: {i, pts}}}, bananas: jokers left, bananaDay: last day one was earned
+let saved = { days: {}, prog: null, bananas: 0, bananaDay: null, seen: {}, settings: { ...DEFAULT_SETTINGS }, avatar: { ...DEFAULT_AVATAR }, cloud: null };   // days: {date: {gameId: score}}, prog: {date, g: {gameId: {i, pts}}}, bananas: jokers left, bananaDay: last day one was earned
 let run = null, mapsAlive = [];
 const T = () => dkey(today());
 function prog() {
@@ -1131,9 +1153,9 @@ function prog() {
   return saved.prog;
 }
 function normalize(d) {
-  const s = { days: {}, prog: null, bananas: 0, bananaDay: null, seen: {}, settings: { ...DEFAULT_SETTINGS }, avatar: { ...DEFAULT_AVATAR } };
+  const s = { days: {}, prog: null, bananas: 0, bananaDay: null, seen: {}, settings: { ...DEFAULT_SETTINGS }, avatar: { ...DEFAULT_AVATAR }, cloud: null };
   if (!d) return s;
-  s.bananas = Math.max(0, d.bananas | 0); s.bananaDay = d.bananaDay || null; s.seen = { ...(d.seen || {}) }; s.settings = { ...DEFAULT_SETTINGS, ...(d.settings || {}) }; s.avatar = { ...DEFAULT_AVATAR, ...(d.avatar || {}) };
+  s.bananas = Math.max(0, d.bananas | 0); s.bananaDay = d.bananaDay || null; s.seen = { ...(d.seen || {}) }; s.settings = { ...DEFAULT_SETTINGS, ...(d.settings || {}) }; s.avatar = { ...DEFAULT_AVATAR, ...(d.avatar || {}) }; s.cloud = d.cloud && d.cloud.refresh ? { ...d.cloud } : null;
   for (const k in d.days || {}) s.days[k] = { ...d.days[k] };
   if (d.prog && d.prog.date) { s.prog = { date: d.prog.date, g: {} }; for (const k in d.prog.g || {}) s.prog.g[k] = { i: d.prog.g[k].i || 0, pts: [...(d.prog.g[k].pts || [])], rev: [...(d.prog.g[k].rev || [])] }; }
   return s;
@@ -1213,19 +1235,130 @@ function showTabs(cur) {
 }
 function pageHead(title, sub) { return h("header", "pagehead", `<h1>${esc(title)}</h1>${sub ? `<p>${esc(sub)}</p>` : ""}`); }
 
+/* ================= online: friends & leaderboards (Supabase) ================= */
+// the publishable key is meant to be public; what each player may read or write is enforced by the database rules (supabase/schema.sql)
+const CLOUD = { url: "https://fienrzyyzmontvwudaqj.supabase.co", key: "sb_publishable_LMKaxiI9OwNAeME8tb7G3Q_TpiWOqPu" };
+const CLOUD_ERRORS = { code_not_found: "Diesen Code gibt es nicht.", own_code: "Das ist dein eigener Code 🙂", not_signed_in: "Bitte zuerst mitmachen." };
+function setSession(d) {
+  saved.cloud = { access: d.access_token, refresh: d.refresh_token, exp: d.expires_at || Math.floor(Date.now() / 1000) + (d.expires_in || 3600), uid: d.user.id, synced: (saved.cloud || {}).synced || "" };
+  persist();
+}
+async function authCall(path, body) {
+  const r = await fetch(CLOUD.url + path, { method: "POST", headers: { apikey: CLOUD.key, "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(d.msg || d.error_description || d.message || r.status), { status: r.status });
+  return d;
+}
+async function cloudFetch(path, { method = "POST", body, prefer } = {}) {
+  if (!saved.cloud) throw new Error("not_signed_in");
+  if (Date.now() / 1000 > saved.cloud.exp - 60) setSession(await authCall("/auth/v1/token?grant_type=refresh_token", { refresh_token: saved.cloud.refresh }));
+  const headers = { apikey: CLOUD.key, Authorization: "Bearer " + saved.cloud.access, "Content-Type": "application/json" };
+  if (prefer) headers.Prefer = prefer;
+  const r = await fetch(CLOUD.url + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
+  const t = await r.text(); let d = null; try { d = t ? JSON.parse(t) : null; } catch {}
+  if (!r.ok) throw Object.assign(new Error((d && d.message) || "HTTP " + r.status), { status: r.status });
+  return d;
+}
+const rpc = (fn, args = {}) => cloudFetch(`/rest/v1/rpc/${fn}`, { body: args });
+const cloudMsg = e => CLOUD_ERRORS[e.message] || (navigator.onLine === false ? "Keine Internetverbindung." : "Das hat gerade nicht geklappt. Versuch es gleich nochmal.");
+
+async function cloudJoin(name) {
+  setSession(await authCall("/auth/v1/signup", {}));
+  await cloudFetch("/rest/v1/profiles", { body: { id: saved.cloud.uid, name, avatar: saved.avatar }, prefer: "return=minimal" });
+  await cloudSync(true);
+}
+// upload today's (and yesterday's) finished games; the database ignores anything already there and refuses older days
+async function cloudSync(force) {
+  if (!saved.cloud) return;
+  const rows = [];
+  for (const k of [0, -1]) { const d = addDays(today(), k), day = saved.days[dkey(d)] || {}; for (const g in day) rows.push({ user_id: saved.cloud.uid, day: dayNo(d), game: g, score: Math.min(500, day[g]) }); }
+  const sig = rows.map(r => `${r.day}${r.game}`).sort().join(",");
+  if (!rows.length || (!force && sig === saved.cloud.synced)) return;
+  try { await cloudFetch("/rest/v1/results", { body: rows, prefer: "resolution=ignore-duplicates,return=minimal" }); saved.cloud.synced = sig; persist(); } catch {}
+}
+function cloudProfileUpdate() {
+  if (saved.cloud) cloudFetch(`/rest/v1/profiles?id=eq.${saved.cloud.uid}`, { method: "PATCH", body: { name: saved.avatar.name || "Geoaffe", avatar: saved.avatar }, prefer: "return=minimal" }).catch(() => {});
+}
+async function cloudDelete() {
+  try { await rpc("delete_me"); } catch (e) { if (e.status !== 401) throw e; }
+  saved.cloud = null; persist();
+}
+
+let lbMode = { who: "friends", span: "day" }, pendingCode = "";
 function friendsPage() {
   run = null; clearMaps(); showTabs("friends");
   app.innerHTML = "";
   app.append(pageHead("Freunde", "Gemeinsam rätselt es sich besser"));
-  const hero = h("div", "card hero", `<div class="avbox">${avatarSvg(saved.avatar)}</div><h2>Bald: Freunde & Rangliste</h2>
-    <p class="muted">Hier kannst du bald Freunde hinzufügen, eure Tagesergebnisse vergleichen und sehen, wer die längste Serie hat.</p>`);
-  app.append(hero);
-  const act = h("div", "card", `<h2>Bis dahin</h2><div class="stack">
-    <button class="btn primary wide sharebtn" type="button" id="fInvite">${ICONS.share}Freunde einladen</button>
-    <button class="btn wide sharebtn" type="button" id="fShare">${ICONS.share}Mein Ergebnis von heute teilen</button></div>`);
-  act.querySelector("#fInvite").onclick = invite;
-  act.querySelector("#fShare").onclick = shareImage;
-  app.append(act);
+  if (!saved.cloud) return joinCard();
+  const me = h("div", "card mecard", `<div class="avbox">${avatarSvg(saved.avatar)}</div><div><h2>${esc(saved.avatar.name || "Geoaffe")}</h2>
+    <p class="muted">Dein Freundescode</p><div class="code" id="myCode">······</div></div>
+    <button class="btn primary wide sharebtn" type="button" id="fInvite">${ICONS.share}Code mit Freunden teilen</button>`);
+  const add = h("div", "card", `<h2>Freund hinzufügen</h2><div class="guessrow"><input id="fCode" type="text" maxlength="6" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Code, z. B. 7F3A9C" aria-label="Freundescode"><button class="btn dark" type="button" id="fAdd">+</button></div><div class="msg" id="fMsg"></div>`);
+  const board = h("div", "card", `<div class="row between"><h2>Rangliste</h2><button class="help" type="button" id="lbReload" aria-label="Neu laden">↻</button></div>
+    <div class="seg" id="lbWho"><button data-v="friends">Freunde</button><button data-v="global">Weltweit</button></div>
+    <div class="seg" id="lbSpan"><button data-v="day">Heute</button><button data-v="week">7 Tage</button></div><ol class="board" id="lbList"></ol>`);
+  const share = h("div", "card", `<button class="btn wide sharebtn" type="button" id="fShare">${ICONS.share}Mein Ergebnis von heute teilen</button>`);
+  app.append(me, add, board, share);
+  share.querySelector("#fShare").onclick = shareImage;
+  let myCode = "";
+  rpc("my_profile").then(d => { myCode = (d && d[0] && d[0].friend_code) || ""; me.querySelector("#myCode").textContent = myCode || "–"; })
+    .catch(e => { me.querySelector("#myCode").textContent = "–"; if (e.status === 401 || e.status === 403) { saved.cloud = null; persist(); friendsPage(); } });
+  me.querySelector("#fInvite").onclick = () => invite(myCode);
+  const inp = add.querySelector("#fCode"), msg = add.querySelector("#fMsg");
+  inp.value = pendingCode; pendingCode = "";
+  inp.oninput = () => { inp.value = inp.value.toUpperCase().replace(/[^0-9A-F]/g, ""); msg.textContent = ""; };
+  const addFriend = async () => {
+    const code = inp.value.trim(); if (code.length !== 6) { msg.textContent = "Ein Code hat 6 Zeichen."; msg.className = "msg err"; return; }
+    try { const d = await rpc("add_friend", { code }); inp.value = ""; msg.textContent = `✓ ${(d[0] && d[0].name) || "Freund"} ist jetzt dein Freund.`; msg.className = "msg"; sound("good"); lbMode.who = "friends"; loadBoard(); }
+    catch (e) { msg.textContent = cloudMsg(e); msg.className = "msg err"; }
+  };
+  add.querySelector("#fAdd").onclick = addFriend;
+  inp.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); addFriend(); } };
+  const list = board.querySelector("#lbList");
+  const setSeg = () => { for (const [id, key] of [["#lbWho", "who"], ["#lbSpan", "span"]]) board.querySelectorAll(`${id} button`).forEach(b => b.classList.toggle("on", b.dataset.v === lbMode[key])); };
+  for (const [id, key] of [["#lbWho", "who"], ["#lbSpan", "span"]]) board.querySelectorAll(`${id} button`).forEach(b => { b.type = "button"; b.onclick = () => { lbMode[key] = b.dataset.v; loadBoard(); }; });
+  board.querySelector("#lbReload").onclick = () => loadBoard();
+  async function loadBoard() {
+    setSeg();
+    list.innerHTML = `<li class="empty">Lädt …</li>`;
+    await cloudSync();
+    const to = dayNo(today()), from = lbMode.span === "day" ? to : to - 6;
+    try {
+      const rows = await rpc(lbMode.who === "friends" ? "leaderboard_friends" : "leaderboard_global", { day_from: from, day_to: to });
+      const medal = r => r === 1 ? "🥇" : r === 2 ? "🥈" : r === 3 ? "🥉" : r;
+      let last = null, rank = 0;
+      list.innerHTML = rows.map((r, i) => {
+        if (r.rank == null) { if (r.total !== last) rank = i + 1; last = r.total; } else rank = r.rank;
+        const sub = lbMode.who === "friends" && lbMode.span === "day" ? `${r.games} von 6 Spielen` : "";
+        return `<li class="${r.is_me ? "me" : ""}"><span class="rk">${medal(rank)}</span><span class="av">${avatarSvg({ ...DEFAULT_AVATAR, ...(r.avatar || {}) })}</span>
+          <span class="nm"><b>${esc(r.name || "Geoaffe")}${r.is_me ? " <i>Du</i>" : ""}</b>${sub ? `<small>${sub}</small>` : ""}</span><span class="pt">${fmtInt(r.total)}</span>
+          ${lbMode.who === "friends" && !r.is_me ? `<button class="rm" type="button" data-id="${r.id}" data-name="${esc(r.name || "")}" aria-label="Freund entfernen">✕</button>` : ""}</li>`;
+      }).join("");
+      if (lbMode.who === "friends" && rows.length < 2) list.insertAdjacentHTML("beforeend", `<li class="empty">Noch keine Freunde. Teile deinen Code oder gib oben einen Code ein.</li>`);
+      if (!rows.length && lbMode.who === "global") list.innerHTML = `<li class="empty">Heute hat noch niemand gespielt. Sei die oder der Erste!</li>`;
+      list.querySelectorAll(".rm").forEach(b => b.onclick = async () => {
+        if (!confirm(`${b.dataset.name || "Diesen Freund"} aus deiner Freundesliste entfernen?`)) return;
+        try { await rpc("remove_friend", { fid: b.dataset.id }); loadBoard(); } catch (e) { toast(cloudMsg(e)); }
+      });
+    } catch (e) { list.innerHTML = `<li class="empty">${esc(cloudMsg(e))}</li>`; }
+  }
+  loadBoard();
+}
+function joinCard() {
+  const card = h("div", "card hero", `<div class="avbox">${avatarSvg(saved.avatar)}</div><h2>Mit Freunden spielen</h2>
+    <p class="muted">Füge Freunde per Code hinzu, vergleicht eure Punkte jeden Tag und tretet in der weltweiten Rangliste an.</p>
+    <input class="avname" id="jName" type="text" maxlength="18" placeholder="Dein Name" autocomplete="off" value="${esc(saved.avatar.name || "")}">
+    <button class="btn primary wide" type="button" id="jGo">Mitmachen</button><div class="msg" id="jMsg"></div>
+    <p class="fine">Dafür werden dein Name, dein Avatar und deine Tagespunkte auf unserem Server gespeichert. Kein Konto, keine E-Mail. Du kannst alles jederzeit in den Einstellungen löschen.</p>`);
+  app.append(card);
+  const go = card.querySelector("#jGo"), msg = card.querySelector("#jMsg"), nm = card.querySelector("#jName");
+  go.onclick = async () => {
+    const name = nm.value.trim();
+    if (!name) { msg.textContent = "Wie sollen dich deine Freunde nennen?"; msg.className = "msg err"; nm.focus(); return; }
+    go.disabled = true; go.textContent = "Einen Moment …";
+    try { saved.avatar.name = name; persist(); await cloudJoin(name); sound("win"); confetti(90); friendsPage(); }
+    catch (e) { saved.cloud = null; persist(); go.disabled = false; go.textContent = "Mitmachen"; msg.textContent = cloudMsg(e); msg.className = "msg err"; }
+  };
 }
 
 const APP_VERSION = "1.0";
@@ -1264,9 +1397,17 @@ function settingsPage() {
     if (!confirm("Die heutigen Spiele zurücksetzen? Deine Punkte von heute werden gelöscht.")) return;
     delete saved.days[T()]; saved.prog = null; persist(); toast("Heute ist zurückgesetzt");
   };
-  reset.querySelector("#rsAll").onclick = () => {
-    if (!confirm("Wirklich alles löschen? Punkte, Statistik, Serie, Bananen, Avatar und Einstellungen sind danach weg.")) return;
+  reset.querySelector("#rsAll").onclick = async () => {
+    if (!confirm("Wirklich alles löschen? Punkte, Statistik, Serie, Bananen, Avatar, Einstellungen und dein Online-Profil sind danach weg.")) return;
+    if (saved.cloud) try { await cloudDelete(); } catch { toast("Online-Profil konnte nicht gelöscht werden. Prüfe deine Verbindung."); return; }
     saved = normalize(null); persist(); applyTheme(); settingsPage(); toast("Alles zurückgesetzt");
+  };
+  const online = h("div", "card", saved.cloud
+    ? `<h2>Online-Profil</h2><p class="muted">Du spielst mit Freunden und in der Rangliste mit. Gespeichert sind dein Name, dein Avatar und deine Tagespunkte.</p><button class="btn wide danger" type="button" id="cloudDel">Online-Profil löschen</button>`
+    : `<h2>Online-Profil</h2><p class="muted">Du spielst nur auf diesem Gerät. Unter „Freunde“ kannst du mitmachen.</p>`);
+  if (saved.cloud) online.querySelector("#cloudDel").onclick = async () => {
+    if (!confirm("Online-Profil löschen? Deine Freunde und Ranglisten-Einträge werden entfernt. Dein Spielstand auf diesem Gerät bleibt.")) return;
+    try { await cloudDelete(); toast("Online-Profil gelöscht"); settingsPage(); } catch (e) { toast(cloudMsg(e)); }
   };
   const about = h("div", "card", `<h2>Über Geoaffe</h2><p class="muted">Version ${APP_VERSION} · Jeden Tag sechs neue Geografie-Spiele, für alle gleich.</p>
     <div class="stack"><button class="btn wide" type="button" id="privacy">Datenschutz</button>
@@ -1280,14 +1421,15 @@ function settingsPage() {
   about.querySelector("#privacy").onclick = privacyInfo;
   about.querySelector("#helpAgain").onclick = () => { saved.seen = {}; persist(); toast("Erklärungen kommen beim nächsten Öffnen wieder"); };
   const note = h("p", "note", ""); note.id = "note";
-  app.append(prof, look, play, reset, about, note);
+  app.append(prof, look, play, online, reset, about, note);
   setNote(noteText);
 }
 function privacyInfo() {
   modal(`<h2>Datenschutz</h2><div class="legal">
-    <p><b>Kurz gesagt:</b> Geoaffe braucht kein Konto, setzt keine Tracker ein und zeigt keine Werbung.</p>
+    <p><b>Kurz gesagt:</b> Geoaffe braucht kein Konto, setzt keine Tracker ein und zeigt keine Werbung. Online-Funktionen nutzt du nur, wenn du unter „Freunde“ auf „Mitmachen“ tippst.</p>
     <p><b>Was auf deinem Gerät gespeichert wird:</b> deine Punkte, Statistik, Serie, Bananen, dein Avatar und deine Einstellungen. Diese Daten liegen nur im Speicher deines Browsers bzw. der App und werden nicht an uns übertragen. Du kannst sie jederzeit unter „Alles löschen“ entfernen.</p>
-    <p><b>Hosting:</b> Die App wird über Netlify ausgeliefert. Beim Laden verarbeitet der Anbieter technisch notwendige Daten wie deine IP-Adresse, um die Seite auszuliefern und vor Missbrauch zu schützen.</p>
+    <p><b>Freunde und Rangliste (freiwillig):</b> Wenn du mitmachst, speichern wir eine zufällige Kennung, deinen gewählten Namen, deinen Avatar, deine Tagespunkte pro Spiel und deine Freundesliste. Name, Avatar und Punkte sehen deine Freunde; Name, Avatar und Gesamtpunkte erscheinen in der weltweiten Rangliste. Gespeichert wird bei Supabase auf Servern in Frankfurt (EU). Unter Einstellungen → „Online-Profil löschen“ entfernst du alles sofort.</p>
+    <p><b>Hosting:</b> Die App wird über Cloudflare ausgeliefert. Beim Laden verarbeitet der Anbieter technisch notwendige Daten wie deine IP-Adresse, um die Seite auszuliefern und vor Missbrauch zu schützen.</p>
     <p><b>Keine Drittanbieter:</b> Schriften, Karten und Flaggen sind Teil der App und werden nicht von fremden Servern geladen.</p>
     <p><b>Teilen:</b> Wenn du dein Ergebnis teilst, entscheidest du selbst, an wen das Bild geht. Geoaffe erhält davon nichts.</p>
     <p><b>Verantwortlich:</b> Angaben folgen.</p></div>`, "Schließen");
@@ -1402,17 +1544,17 @@ function avatarEditor() {
   name.oninput = () => { draft.name = name.value.trim(); };
   bar.querySelector(".back").onclick = settingsPage;
   bar.querySelector(".dice").onclick = () => { for (const k of Object.keys(AV)) draft[k] = Math.floor(Math.random() * AV[k].length); draw(); };
-  save.onclick = () => { saved.avatar = { ...draft, name: name.value.trim() }; persist(); toast("Avatar gespeichert"); settingsPage(); };
+  save.onclick = () => { saved.avatar = { ...draft, name: name.value.trim() }; persist(); cloudProfileUpdate(); toast("Avatar gespeichert"); settingsPage(); };
   draw();
   window.scrollTo(0, 0);
 }
 
 /* ================= sharing ================= */
-function invite() {
-  const url = location.origin + location.pathname;
-  const data = { title: "Geoaffe", text: "Spiel mit mir Geoaffe: jeden Tag sechs Geografie-Rätsel 🐒🌍", url };
+function invite(code) {
+  const url = location.origin + location.pathname + (code ? `?freund=${code}` : "");
+  const data = { title: "Geoaffe", text: code ? `Spiel mit mir Geoaffe 🐒🌍 Mein Freundescode: ${code}` : "Spiel mit mir Geoaffe: jeden Tag sechs Geografie-Rätsel 🐒🌍", url };
   if (navigator.share) navigator.share(data).catch(() => {});
-  else navigator.clipboard.writeText(url).then(() => toast("Link kopiert"), () => toast(url));
+  else navigator.clipboard.writeText(`${data.text} ${url}`).then(() => toast("Link kopiert"), () => toast(url));
 }
 // today's result as a picture for the share sheet (WhatsApp, Messages, …)
 async function shareImage() {
@@ -1636,7 +1778,7 @@ function endScreen() {
   const total = run.pts.reduce((a, b) => a + b, 0);
   if (!practice && !(g.id in (saved.days[T()] || {}))) {
     saved.days[T()] = { ...(saved.days[T()] || {}), [g.id]: total };
-    persist();
+    persist(); cloudSync();
   }
   const shown = practice ? total : (saved.days[T()] || {})[g.id] ?? total;
   const earned = !practice && awardBanana();
@@ -1695,7 +1837,10 @@ new MutationObserver(() => mapsAlive.forEach(m => m.draw())).observe(document.do
 try { const raw = localStorage.getItem(LS); if (raw) saved = normalize(JSON.parse(raw)); } catch {}
 applyTheme();
 try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyTheme); } catch {}
-hub();
+// invitation link: geoaffe…/?freund=CODE opens the friends tab with the code filled in
+try { const c = new URLSearchParams(location.search).get("freund"); if (c) { pendingCode = c.toUpperCase().replace(/[^0-9A-F]/g, "").slice(0, 6); history.replaceState(null, "", location.pathname); } } catch {}
+if (pendingCode) friendsPage(); else hub();
+cloudSync();
 
 (async () => {
   const claude = window.claude;
