@@ -59,10 +59,10 @@
   color-scheme: light;
 }
 /* dark mode: chosen in the settings, or following the phone (System) */
-:root[data-theme="dark"] { --paper: #111a2e; --paper-2: #26314d; --card: #1b2540; --card-hi: #1b2540; --surf: #1b2540; --ink: #edf1fa; --ink-2: #a9b3cb; --ink-3: #6d7997;
-  --line: #2d3958; --edge: #0a1020; --sea: #15335a; --land: #3a4870; --border: #56658c; --good-soft: #17402a; --bad-soft: #4a2027; color-scheme: dark; }
-@media (prefers-color-scheme: dark) { :root[data-theme="system"] { --paper: #111a2e; --paper-2: #26314d; --card: #1b2540; --card-hi: #1b2540; --surf: #1b2540; --ink: #edf1fa; --ink-2: #a9b3cb; --ink-3: #6d7997;
-  --line: #2d3958; --edge: #0a1020; --sea: #15335a; --land: #3a4870; --border: #56658c; --good-soft: #17402a; --bad-soft: #4a2027; color-scheme: dark; } }
+:root[data-theme="dark"] { --paper: #0e0e10; --paper-2: #2a2a2e; --card: #1c1c1f; --card-hi: #1c1c1f; --surf: #1c1c1f; --ink: #f2f2f4; --ink-2: #ababb3; --ink-3: #74747c;
+  --line: #2e2e33; --edge: #000000; --sea: #1a1c20; --land: #3b3d44; --border: #5c5f68; --good-soft: #163522; --bad-soft: #3d1c20; color-scheme: dark; }
+@media (prefers-color-scheme: dark) { :root[data-theme="system"] { --paper: #0e0e10; --paper-2: #2a2a2e; --card: #1c1c1f; --card-hi: #1c1c1f; --surf: #1c1c1f; --ink: #f2f2f4; --ink-2: #ababb3; --ink-3: #74747c;
+  --line: #2e2e33; --edge: #000000; --sea: #1a1c20; --land: #3b3d44; --border: #5c5f68; --good-soft: #163522; --bad-soft: #3d1c20; color-scheme: dark; } }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--paper); }
@@ -1143,7 +1143,7 @@ const HOWTO = {
 };
 
 /* ================= state & persistence ================= */
-const DEFAULT_SETTINGS = { theme: "system", sound: true, confetti: true, jokerAsk: true, units: "km" };
+const DEFAULT_SETTINGS = { theme: "light", sound: true, confetti: true, jokerAsk: true, units: "km" };
 const DEFAULT_AVATAR = { fur: 0, face: 0, mouth: 0, glasses: 0, hat: 0, extra: 0, bg: 0, name: "" };
 let saved = { days: {}, prog: null, bananas: 0, bananaDay: null, seen: {}, settings: { ...DEFAULT_SETTINGS }, avatar: { ...DEFAULT_AVATAR }, cloud: null };   // days: {date: {gameId: score}}, prog: {date, g: {gameId: {i, pts}}}, bananas: jokers left, bananaDay: last day one was earned
 let run = null, mapsAlive = [];
@@ -1155,7 +1155,10 @@ function prog() {
 function normalize(d) {
   const s = { days: {}, prog: null, bananas: 0, bananaDay: null, seen: {}, settings: { ...DEFAULT_SETTINGS }, avatar: { ...DEFAULT_AVATAR }, cloud: null };
   if (!d) return s;
-  s.bananas = Math.max(0, d.bananas | 0); s.bananaDay = d.bananaDay || null; s.seen = { ...(d.seen || {}) }; s.settings = { ...DEFAULT_SETTINGS, ...(d.settings || {}) }; s.avatar = { ...DEFAULT_AVATAR, ...(d.avatar || {}) }; s.cloud = d.cloud && d.cloud.refresh ? { ...d.cloud } : null;
+  s.bananas = Math.max(0, d.bananas | 0); s.bananaDay = d.bananaDay || null; s.seen = { ...(d.seen || {}) }; s.settings = { ...DEFAULT_SETTINGS, ...(d.settings || {}) };
+  // earlier versions stored "system" without the player picking it
+  if (!s.settings.themeChosen) s.settings.theme = "light";
+  s.avatar = { ...DEFAULT_AVATAR, ...(d.avatar || {}) }; s.cloud = d.cloud && d.cloud.refresh ? { ...d.cloud } : null;
   for (const k in d.days || {}) s.days[k] = { ...d.days[k] };
   if (d.prog && d.prog.date) { s.prog = { date: d.prog.date, g: {} }; for (const k in d.prog.g || {}) s.prog.g[k] = { i: d.prog.g[k].i || 0, pts: [...(d.prog.g[k].pts || [])], rev: [...(d.prog.g[k].rev || [])] }; }
   return s;
@@ -1218,7 +1221,7 @@ function hub() {
 function applyTheme() {
   const t = saved.settings.theme, dark = t === "dark" || (t === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
   document.documentElement.dataset.theme = t;
-  document.querySelector('meta[name="theme-color"]').content = dark ? "#111a2e" : "#eef5ff";
+  document.querySelector('meta[name="theme-color"]').content = dark ? "#0e0e10" : "#eef5ff";
 }
 
 /* ================= tabs & pages ================= */
@@ -1385,7 +1388,7 @@ function settingsPage() {
     <button class="btn dark wide" type="button">Avatar bearbeiten</button>`);
   prof.querySelector("button").onclick = avatarEditor;
   const look = h("div", "card", `<h2>Darstellung</h2>`);
-  look.append(segmented("theme", [["light", "☀️ Hell"], ["dark", "🌙 Dunkel"], ["system", "📱 System"]], applyTheme));
+  look.append(segmented("theme", [["light", "☀️ Hell"], ["dark", "🌙 Dunkel"], ["system", "📱 System"]], () => { saved.settings.themeChosen = true; persist(); applyTheme(); }));
   const play = h("div", "card", `<h2>Spiel</h2>`);
   play.append(toggleRow("sound", "Töne", "Kurze Klänge bei richtig und falsch"),
     toggleRow("confetti", "Konfetti", "Bei 3 Sternen und wenn alle sechs geschafft sind"),
