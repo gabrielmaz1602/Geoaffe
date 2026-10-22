@@ -42,13 +42,6 @@
   --pink-dk: #d9346c;
   --grape: #8d5cff;
   --grape-dk: #6c3ee0;
-  /* softer tile colours for the six games, dark text on top */
-  --t-coral: #ff9d8c;
-  --t-mint: #5fd6b6;
-  --t-sky: #7fc3ff;
-  --t-apricot: #ffbd66;
-  --t-lilac: #b9a1ff;
-  --t-lime: #bde46c;
   --sea: #bfe3ff;
   --land: #ffffff;
   --border: #b9cbe2;
@@ -83,45 +76,51 @@ h1, h2, h3 { font-family: var(--f-head); }
 
 /* ---------- hub ---------- */
 .brand { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; }
-.brand .rose { width: 66px; height: 66px; object-fit: contain; margin: -8px -2px -8px -8px; animation: bob 3.2s ease-in-out infinite; transform-origin: 50% 90%; }
+.brand .rose { width: 74px; height: 74px; object-fit: contain; margin: -8px -2px -8px -8px; animation: bob 3.2s ease-in-out infinite; transform-origin: 50% 90%; }
 @keyframes bob { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg) translateY(-2px); } }
-.brand h1 { margin: 0; font-weight: 700; font-size: 30px; line-height: 1; letter-spacing: -.01em; }
-.brand p { margin: 4px 0 0; color: var(--ink-2); font-size: 13px; font-weight: 700; }
-.meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-.streak { display: inline-flex; align-items: center; gap: 4px; font-family: var(--f-mono); font-weight: 700; font-size: 17px; background: var(--card); border: 2px solid var(--line); box-shadow: 0 3px 0 var(--edge); border-radius: 999px; padding: 1px 11px 1px 8px; }
-.streak.off { color: var(--ink-3); }
-.streak.off i { filter: grayscale(1); opacity: .6; }
-.streak i { font-style: normal; font-size: 16px; }
-.countdown { text-align: right; font-size: 11px; color: var(--ink-2); font-weight: 700; line-height: 1.2; }
-.countdown b { display: block; font-family: var(--f-mono); font-size: 15px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.brand h1 { margin: 0; font-weight: 700; font-size: 34px; line-height: 1; color: var(--wax); letter-spacing: -.01em; }
+.brand p { margin: 4px 0 0; color: var(--ink-2); font-size: 14px; font-weight: 700; }
+.total { text-align: center; background: var(--card); border: 2px solid var(--line); box-shadow: 0 4px 0 var(--edge); border-radius: 18px; padding: 8px 12px 6px; }
+.total b { display: block; font-family: var(--f-mono); font-weight: 700; font-size: 26px; line-height: 1; color: var(--navy); }
+.total span { font-size: 12px; color: var(--ink-2); font-weight: 700; }
 .voyage { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--ink-2); font-weight: 800; }
 .voyage .trail { flex: 1; height: 16px; border-radius: 999px; background: var(--paper-2); overflow: hidden; }
 .voyage .trail i { position: relative; display: block; height: 100%; min-width: 16px; border-radius: 999px; background: var(--moss); transition: width .5s cubic-bezier(.2,.8,.2,1); }
 .voyage .trail i::after { content: ""; position: absolute; left: 8px; right: 8px; top: 4px; height: 4px; border-radius: 999px; background: rgba(255,255,255,.35); }
-.voyage b { font-family: var(--f-mono); color: var(--ink); font-weight: 700; font-size: 16px; }
 
 .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
 .gcard {
-  --hue-dk: color-mix(in srgb, var(--hue) 72%, #1d2742);
-  position: relative; border: 0; background: var(--hue); color: var(--ink); border-radius: 24px; padding: 18px 12px 14px; cursor: pointer; min-width: 0;
-  display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
-  box-shadow: 0 6px 0 var(--hue-dk); margin-bottom: 6px;
+  --hue-dk: color-mix(in srgb, var(--hue) 78%, #000);
+  position: relative; border: 0; background: var(--hue); color: #fff; border-radius: 22px; padding: 0; cursor: pointer; text-align: left; min-width: 0;
+  box-shadow: 0 5px 0 var(--hue-dk); margin-bottom: 5px;
   transition: transform .12s, box-shadow .12s;
 }
-.gcard:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--hue-dk); }
-.gcard:active { transform: translateY(6px); box-shadow: 0 0 0 var(--hue-dk); }
-.gcard .ic { width: 76px; height: 76px; border-radius: 22px; padding: 13px; color: var(--hue-dk); background: #fff; box-shadow: 0 4px 0 rgba(29, 39, 66, .12); transform: rotate(-5deg); transition: transform .2s; }
-.gcard:nth-child(even) .ic { transform: rotate(5deg); }
-.gcard:hover .ic { transform: rotate(0) scale(1.06); }
+.gcard:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--hue-dk); }
+.gcard:active { transform: translateY(5px); box-shadow: 0 0 0 var(--hue-dk); }
+.gcard.dark-text { color: var(--ink); }
+.gcard .in { padding: 14px; display: flex; flex-direction: column; gap: 6px; height: 100%; min-height: 176px; }
+.gcard .top { display: flex; justify-content: space-between; align-items: flex-start; }
+.gcard .ic { width: 46px; height: 46px; border-radius: 14px; padding: 8px; color: var(--hue-dk); background: #fff; }
 .gcard .ic svg { width: 100%; height: 100%; }
-.gcard h3 { margin: 4px 0 0; font-weight: 700; font-size: 20px; line-height: 1.1; }
-.gcard .st { font-size: 13px; font-weight: 800; background: rgba(255,255,255,.55); border-radius: 999px; padding: 2px 11px; }
-.gcard .st b { font-family: var(--f-mono); font-weight: 700; }
-.gcard.done { background: var(--card); box-shadow: 0 6px 0 var(--edge); outline: 2px solid var(--line); outline-offset: -2px; }
-.gcard.done .ic { background: color-mix(in srgb, var(--hue) 30%, #fff); box-shadow: none; }
-.gcard.done .st { background: var(--good); color: #fff; }
-.gcard.done .st::before { content: "✓ "; }
-@media (max-width: 340px) { .grid { grid-template-columns: 1fr; } }
+.gcard .val { font-size: 12px; font-weight: 800; background: rgba(255,255,255,.25); border-radius: 999px; padding: 2px 9px; }
+.gcard h3 { margin: 6px 0 0; font-weight: 700; font-size: 20px; line-height: 1.1; }
+.gcard p { margin: 0; font-size: 13.5px; line-height: 1.3; opacity: .92; font-weight: 700; }
+.gcard .st { margin-top: auto; padding-top: 4px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; }
+.gcard .st::before { content: "▶"; font-size: 10px; }
+.gcard .st b { font-weight: 800; }
+.gcard.done { background: var(--card); color: var(--ink); box-shadow: 0 5px 0 var(--edge); border: 2px solid var(--line); }
+.gcard.done .ic { background: color-mix(in srgb, var(--hue) 16%, #fff); color: var(--hue-dk); }
+.gcard.done .val { background: var(--paper); color: var(--ink-2); }
+.gcard.done p { color: var(--ink-2); }
+.gcard.done .st { display: none; }
+.postmark {
+  position: absolute; left: 14px; bottom: 12px; display: inline-flex; align-items: center; gap: 6px;
+  background: var(--good); color: #fff; border-radius: 999px; padding: 3px 11px 3px 9px; font-size: 13px; font-weight: 800; pointer-events: none;
+}
+.postmark::before { content: "✓"; font-weight: 800; }
+.postmark b { font-family: var(--f-mono); font-weight: 700; font-size: 14px; }
+.postmark .d { display: none; }
+@media (max-width: 370px) { .grid { grid-template-columns: 1fr; } }
 
 .card { background: var(--card); border: 2px solid var(--line); box-shadow: 0 5px 0 var(--edge); border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
 .card h2 { margin: 0; font-weight: 700; font-size: 20px; }
@@ -152,7 +151,6 @@ details ul { margin: 10px 0 2px; padding-left: 18px; display: flex; flex-directi
 .dots i.g1 { background: var(--bad); }
 .q { margin: 0; font-family: var(--f-head); font-weight: 600; font-size: 25px; line-height: 1.2; text-wrap: balance; }
 .q b { color: var(--wax); font-weight: 700; }
-.intro { margin: -6px 0 0; padding: 10px 14px; border-radius: 16px; background: var(--card); border: 2px solid var(--line); color: var(--ink-2); font-size: 14px; font-weight: 700; }
 .sub { margin: -8px 0 0; color: var(--ink-2); font-size: 14px; font-weight: 700; }
 .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .opt {
@@ -855,12 +853,12 @@ function viewFlag(q, host, answer) {
 }
 
 const GAMES = [
-  { id: "pin", name: "Nadelwurf", hue: "--t-coral", desc: "Setz die Nadel auf der leeren Weltkarte so nah wie möglich.", rounds: 5, per: 200, gen: genPin, view: viewPin },
-  { id: "border", name: "Grenzgänger", hue: "--t-mint", desc: "Über Landgrenzen von A nach B, mit möglichst wenigen Ländern.", rounds: 2, per: 500, gen: genBorder, view: viewBorder },
-  { id: "flag", name: "Flaggen-Mix", hue: "--t-sky", desc: "Zwei halbe Flaggen, eine neue. Welche stecken drin?", rounds: 5, per: 200, gen: genFlag, view: viewFlag },
-  { id: "nord", name: "Nördlicher?", hue: "--t-apricot", desc: "Zwei bekannte Orte. Welcher liegt weiter im Norden, Süden, Osten oder Westen?", rounds: 10, per: 100, gen: genNord, view: viewNord },
-  { id: "shape", name: "Umriss", hue: "--t-lilac", desc: "Nur die Silhouette eines Landes. Welches ist es?", rounds: 5, per: 200, gen: genShape, view: viewShape },
-  { id: "size", name: "Größer?", hue: "--t-lime", desc: "Zwei Länder, eine Frage: Welches hat mehr Fläche?", rounds: 10, per: 100, gen: genSize, view: viewSize },
+  { id: "pin", name: "Nadelwurf", hue: "--wax", desc: "Setz die Nadel auf der leeren Weltkarte so nah wie möglich.", rounds: 5, per: 200, gen: genPin, view: viewPin },
+  { id: "border", name: "Grenzgänger", hue: "--moss", desc: "Über Landgrenzen von A nach B, mit möglichst wenigen Ländern.", rounds: 2, per: 500, gen: genBorder, view: viewBorder },
+  { id: "flag", name: "Flaggen-Mix", hue: "--pink", desc: "Zwei halbe Flaggen, eine neue. Welche stecken drin?", rounds: 5, per: 200, gen: genFlag, view: viewFlag },
+  { id: "nord", name: "Nördlicher?", hue: "--navy", desc: "Zwei bekannte Orte. Welcher liegt weiter im Norden, Süden, Osten oder Westen?", rounds: 10, per: 100, gen: genNord, view: viewNord },
+  { id: "shape", name: "Umriss", hue: "--grape", desc: "Nur die Silhouette eines Landes. Welches ist es?", rounds: 5, per: 200, gen: genShape, view: viewShape },
+  { id: "size", name: "Größer?", hue: "--ochre", dark: true, desc: "Zwei Länder, eine Frage: Welches hat mehr Fläche?", rounds: 10, per: 100, gen: genSize, view: viewSize },
 ];
 const MAX_DAY = GAMES.length * 1000;
 
@@ -903,16 +901,15 @@ function hub() {
   const total = GAMES.reduce((a, g) => a + (day[g.id] || 0), 0);
   const played = GAMES.filter(g => g.id in day).length;
   app.innerHTML = "";
-  const st = streak();
   const head = h("header", "brand", `${ICONS.rose}<div><h1>Geoaffe</h1><p>Nr. ${no} · ${esc(t.toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "long" }))}</p></div>
-    <div class="meta"><span class="streak${st ? "" : " off"}" title="Tage in Folge gespielt"><i>🍌</i>${st}</span><span class="countdown">Neue Spiele in<b id="cd">${countdown()}</b></span></div>`);
+    <div class="total"><b>${fmtInt(total)}</b><span>von ${fmtInt(MAX_DAY)}</span></div>`);
   app.append(head);
-  app.append(h("div", "voyage", `<span class="trail"><i style="width:${played / GAMES.length * 100}%"></i></span><span><b>${fmtInt(total)}</b> / ${fmtInt(MAX_DAY)}</span>`));
+  app.append(h("div", "voyage", `<span class="trail"><i style="width:${played / GAMES.length * 100}%"></i></span><span>${played} von ${GAMES.length} gespielt</span>`));
   const grid = h("div", "grid");
   for (const g of GAMES) {
     const p = prog().g[g.id], done = g.id in day;
-    const label = done ? `<b>${fmtInt(day[g.id])}</b> Punkte` : p && p.i ? `Weiter · <b>${p.i}/${g.rounds}</b>` : `${g.rounds} Runden`;
-    const c = h("button", "gcard" + (done ? " done" : ""), `<span class="ic">${ICONS[g.id]}</span><h3>${esc(g.name)}</h3><span class="st">${label}</span>`);
+    const st = done ? "" : p && p.i ? `Fortsetzen · <b>${p.i} von ${g.rounds}</b>` : "Noch offen";
+    const c = h("button", "gcard" + (done ? " done" : "") + (g.dark ? " dark-text" : ""), `<div class="in"><div class="top"><span class="ic">${ICONS[g.id]}</span><span class="val">${g.rounds} Runden</span></div><h3>${esc(g.name)}</h3><p>${esc(g.desc)}</p><div class="st">${st}</div></div>${done ? `<span class="postmark">Fertig <b>${fmtInt(day[g.id])}</b></span>` : ""}`);
     c.style.setProperty("--hue", `var(${g.hue})`);
     c.type = "button"; c.onclick = () => openGame(g.id, false);
     grid.append(c);
@@ -935,26 +932,18 @@ function hub() {
   setNote(noteText);
 }
 
-function streak() {
-  let n = 0, d = today();
-  if (!saved.days[dkey(d)]) d = addDays(d, -1);
-  while (saved.days[dkey(d)] && Object.keys(saved.days[dkey(d)]).length) { n++; d = addDays(d, -1); }
-  return n;
-}
-function countdown() {
-  const s = Math.max(0, Math.floor((addDays(today(), 1) - Date.now()) / 1000));
-  return `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`;
-}
-
 function statsCard() {
   const keys = Object.keys(saved.days).sort();
   const totals = keys.map(k => Object.values(saved.days[k]).reduce((a, b) => a + b, 0));
+  let streak = 0, d = today();
+  if (!saved.days[dkey(d)]) d = addDays(d, -1);
+  while (saved.days[dkey(d)] && Object.keys(saved.days[dkey(d)]).length) { streak++; d = addDays(d, -1); }
   const best = totals.length ? Math.max(...totals) : 0;
   const per = {}; for (const k of keys) for (const g in saved.days[k]) (per[g] = per[g] || []).push(saved.days[k][g]);
   const avgs = GAMES.map(g => per[g.id] ? Math.round(per[g.id].reduce((a, b) => a + b, 0) / per[g.id].length) : null);
   const strongest = avgs.some(x => x != null) ? GAMES[avgs.indexOf(Math.max(...avgs.filter(x => x != null)))].name : "–";
   return h("div", "card", `<h2>Deine Statistik</h2><div class="stats">
-    <div><b>${keys.length}</b><span>Tage gespielt</span></div><div><b>${streak()}</b><span>Tage Serie</span></div>
+    <div><b>${keys.length}</b><span>Tage gespielt</span></div><div><b>${streak}</b><span>Tage Serie</span></div>
     <div><b>${fmtInt(best)}</b><span>Bester Tag</span></div><div><b style="font-size:14px;line-height:1.9">${esc(strongest)}</b><span>Stärkstes Spiel</span></div></div>`);
 }
 
@@ -998,7 +987,6 @@ function question() {
   app.innerHTML = "";
   const [bar, dots] = topbar();
   app.append(bar, dots);
-  if (run.i === 0) app.append(h("p", "intro", esc(run.g.desc)));
   const host = h("section", ""); host.style.cssText = "display:flex;flex-direction:column;gap:14px";
   app.append(host);
   const q = run.qs[run.i];
@@ -1085,7 +1073,7 @@ hub();
 
 // new day while open
 let lastDay = T();
-setInterval(() => { const cd = document.getElementById("cd"); if (cd) cd.textContent = countdown(); if (T() !== lastDay) { lastDay = T(); if (!run) hub(); } }, 1000);
+setInterval(() => { if (T() !== lastDay) { lastDay = T(); if (!run) hub(); } }, 30000);
 
 // expose generators for testing in the console
 window.__kompass = { get maps() { return mapsAlive; }, KNOWN, FCODES, PLACES, FAMOUS_MARKS, GAMES, genNord, genPin, genShape, genSize, genBorder, genFlag, shapeOf, AREA, SIZE_POOL, rngFrom, hashSeed, bfs };
