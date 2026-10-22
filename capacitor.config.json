@@ -1,0 +1,17 @@
+{
+  "appId": "com.gabrielmaz.geoaffe",
+  "appName": "Geoaffe",
+  "webDir": "www",
+  "backgroundColor": "#eef5ff",
+  "ios": {
+    "contentInset": "never",
+    "scrollEnabled": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 600,
+      "backgroundColor": "#eef5ff",
+      "showSpinner": false
+    }
+  }
+}

@@ -7,3 +7,10 @@ _headers.md
 node_modules
 .wrangler
 supabase
+ios
+scripts
+package.json
+package-lock.json
+capacitor.config.json
+www
+IOS-ANLEITUNG.md

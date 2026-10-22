@@ -1145,7 +1145,7 @@ const HOWTO = {
 };
 
 /* ================= state & persistence ================= */
-const DEFAULT_SETTINGS = { theme: "light", sound: true, confetti: true, jokerAsk: true, units: "km" };
+const DEFAULT_SETTINGS = { theme: "light", sound: true, haptics: true, confetti: true, jokerAsk: true, units: "km" };
 const DEFAULT_AVATAR = { pick: "entdecker", bg: 0, name: "" };
 let saved = { days: {}, prog: null, bananas: 0, bananaDay: null, seen: {}, settings: { ...DEFAULT_SETTINGS }, avatar: { ...DEFAULT_AVATAR }, cloud: null };   // days: {date: {gameId: score}}, prog: {date, g: {gameId: {i, pts}}}, bananas: jokers left, bananaDay: last day one was earned
 let run = null, mapsAlive = [];
@@ -1225,6 +1225,7 @@ function applyTheme() {
   const t = saved.settings.theme, dark = t === "dark" || (t === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
   document.documentElement.dataset.theme = t;
   document.querySelector('meta[name="theme-color"]').content = dark ? "#0e0e10" : "#eef5ff";
+  nativeStatusBar();
 }
 
 /* ================= tabs & pages ================= */
@@ -1394,6 +1395,7 @@ function settingsPage() {
   look.append(segmented("theme", [["light", "☀️ Hell"], ["dark", "🌙 Dunkel"], ["system", "📱 System"]], () => { saved.settings.themeChosen = true; persist(); applyTheme(); }));
   const play = h("div", "card", `<h2>Spiel</h2>`);
   play.append(toggleRow("sound", "Töne", "Kurze Klänge bei richtig und falsch"),
+    ...(NATIVE ? [toggleRow("haptics", "Vibration", "Kurzes Vibrieren bei richtig und falsch")] : []),
     toggleRow("confetti", "Konfetti", "Bei 3 Sternen und wenn alle sechs geschafft sind"),
     toggleRow("jokerAsk", "Joker-Nachfrage", "Vor dem Einsetzen einer Banane nachfragen"));
   play.append(h("div", "setlabel", "Entfernungen in"), segmented("units", [["km", "Kilometern"], ["mi", "Meilen"]]));
@@ -1486,7 +1488,7 @@ function avatarEditor() {
 
 /* ================= sharing ================= */
 function invite(code) {
-  const url = location.origin + location.pathname + (code ? `?freund=${code}` : "");
+  const url = (NATIVE ? "https://geoaffe.gabrielmaz1602.workers.dev/" : location.origin + location.pathname) + (code ? `?freund=${code}` : "");
   const data = { title: "Geoaffe", text: code ? `Spiel mit mir Geoaffe 🐒🌍 Mein Freundescode: ${code}` : "Spiel mit mir Geoaffe: jeden Tag sechs Geografie-Rätsel 🐒🌍", url };
   if (navigator.share) navigator.share(data).catch(() => {});
   else navigator.clipboard.writeText(`${data.text} ${url}`).then(() => toast("Link kopiert"), () => toast(url));
@@ -1539,10 +1541,25 @@ async function shareImage() {
   modal(`<h2>Dein Ergebnis</h2><img class="shareimg" src="${url}" alt="Ergebnisbild"><a class="btn wide" href="${url}" download="${file.name}">Bild speichern</a>`, "Schließen");
 }
 
+/* ================= native app (Capacitor) ================= */
+// inside the iOS app Capacitor provides native plugins; in the browser these calls do nothing
+const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+const plugin = n => NATIVE && window.Capacitor.Plugins ? window.Capacitor.Plugins[n] : null;
+function haptic(kind) {
+  const H = plugin("Haptics"); if (!H || !saved.settings.haptics) return;
+  try { kind === "good" || kind === "win" ? H.notification({ type: "SUCCESS" }) : kind === "bad" ? H.notification({ type: "ERROR" }) : H.impact({ style: "LIGHT" }); } catch {}
+}
+function nativeStatusBar() {
+  const S = plugin("StatusBar"); if (!S) return;
+  const dark = document.documentElement.dataset.theme === "dark" || (document.documentElement.dataset.theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+  try { S.setStyle({ style: dark ? "DARK" : "LIGHT" }); } catch {}
+}
+
 /* ================= sounds ================= */
 // short synthesised sounds, no audio files needed; on iPhones they respect the silent switch
 let actx = null;
 function sound(kind) {
+  haptic(kind);
   if (!saved.settings.sound) return;
   try {
     if (navigator.audioSession) navigator.audioSession.type = "ambient";
@@ -1813,7 +1830,7 @@ window.__kompass = { get maps() { return mapsAlive; }, KNOWN, FCODES, PLACES, FA
 <script>
 // iOS ignores user-scalable=no in Safari, so block the pinch gesture itself (maps handle their own zoom via touch events)
 document.addEventListener("gesturestart", e => e.preventDefault());
-if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+if ("serviceWorker" in navigator && !(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 </script>
 </body>
 </html>
