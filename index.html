@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#eef5ff">
-<meta name="description" content="Tägliche Geografie-Spiele: Nadelwurf, Grenzgänger, Flaggen-Mix, Nördlicher?, Umriss und Größer?.">
+<meta name="description" content="Tägliche Geografie-Spiele: Nadelwurf, Grenzgänger, Flaggen-Mix, Kompass, Umriss und Flächenduell.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
 <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
@@ -85,12 +85,20 @@ h1, h2, h3 { font-family: var(--f-head); }
 @keyframes bob { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg) translateY(-2px); } }
 .brand h1 { margin: 0; font-weight: 700; font-size: 34px; line-height: 1; color: var(--wax); letter-spacing: -.01em; }
 .brand p { margin: 4px 0 0; color: var(--ink-2); font-size: 14px; font-weight: 700; }
-.total { text-align: center; background: var(--card); border: 2px solid var(--line); box-shadow: 0 4px 0 var(--edge); border-radius: 18px; padding: 8px 12px 6px; }
-.total b { display: block; font-family: var(--f-mono); font-weight: 700; font-size: 26px; line-height: 1; color: var(--navy); }
-.total span { font-size: 12px; color: var(--ink-2); font-weight: 700; }
+.score { position: relative; width: 92px; height: 92px; flex-shrink: 0; }
+.score svg { width: 100%; height: 100%; transform: rotate(-90deg); filter: drop-shadow(0 3px 0 var(--edge)); }
+.score circle { fill: none; stroke-width: 9; stroke-linecap: round; }
+.score .bg { stroke: #fff; }
+.score .fg { stroke: url(#ringG); animation: ring 1s cubic-bezier(.2,.8,.2,1) .1s forwards; }
+@keyframes ring { to { stroke-dashoffset: var(--off); } }
+.score div { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
+.score b { font-family: var(--f-mono); font-weight: 700; font-size: 21px; color: var(--navy-dk); font-variant-numeric: tabular-nums; }
+.score span { margin-top: 3px; font-size: 10.5px; font-weight: 800; color: var(--ink-3); }
 .daybar { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .pill { display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 2px solid var(--line); box-shadow: 0 3px 0 var(--edge); border-radius: 999px; padding: 4px 14px; font-size: 13px; font-weight: 800; color: var(--ink-2); }
 .pill b { font-family: var(--f-mono); font-weight: 700; font-size: 16px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.pill.banana { cursor: pointer; }
+.pill.banana:active { transform: translateY(3px); box-shadow: none; }
 .pill.banana b { color: var(--ochre-dk); }
 .pill.banana.empty { opacity: .6; }
 .voyage { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--ink-2); font-weight: 800; }
@@ -151,10 +159,10 @@ details ul { margin: 10px 0 2px; padding-left: 18px; display: flex; flex-directi
 
 /* ---------- game screen ---------- */
 .topbar { display: flex; align-items: center; gap: 12px; }
-.back { border: 2px solid var(--line); background: var(--card); box-shadow: 0 3px 0 var(--edge); border-radius: 999px; padding: 6px 14px 6px 10px; cursor: pointer; font-size: 14px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; }
+.back { width: 40px; height: 40px; flex-shrink: 0; border: 2px solid var(--line); background: var(--card); box-shadow: 0 3px 0 var(--edge); border-radius: 50%; padding: 0; cursor: pointer; display: grid; place-items: center; }
 .back:active { transform: translateY(3px); box-shadow: none; }
-.back svg { width: 16px; height: 16px; }
-.topbar h2 { margin: 0; font-weight: 700; font-size: 22px; flex: 1; min-width: 0; }
+.back svg { width: 20px; height: 20px; }
+.topbar h2 { margin: 0; font-weight: 700; font-size: 22px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .topbar .sc { font-family: var(--f-mono); font-weight: 700; font-size: 18px; color: #fff; background: var(--navy); border-radius: 999px; padding: 3px 14px; }
 .chip { font-family: var(--f-body); font-size: 11px; font-weight: 800; color: var(--grape-dk); background: color-mix(in srgb, var(--grape) 15%, #fff); border-radius: 999px; padding: 2px 8px; vertical-align: middle; }
 .dots { display: flex; gap: 5px; }
@@ -216,16 +224,19 @@ details ul { margin: 10px 0 2px; padding-left: 18px; display: flex; flex-directi
 .route { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .tag { white-space: nowrap; flex-shrink: 0; border-radius: 999px; padding: 4px 12px; font-size: 14px; font-weight: 800; background: var(--card); border: 2px solid var(--line); }
 .tag.start { background: var(--wax); border-color: var(--wax); color: #fff; }
-.tag.end { background: var(--navy); border-color: var(--navy); color: #fff; }
+.tag.goal { background: var(--navy); border-color: var(--navy); color: #fff; }
 .tag.path { background: color-mix(in srgb, var(--moss) 16%, #fff); border-color: color-mix(in srgb, var(--moss) 45%, #fff); color: var(--moss-dk); }
 .route .arrow { color: var(--ink-3); font-size: 13px; }
 .guessrow { display: flex; gap: 8px; }
 .guessrow input { flex: 1; min-width: 0; border: 2px solid var(--line); background: var(--card); border-radius: 16px; padding: 11px 14px; font-size: 16px; font-weight: 700; }
 .guessrow input::placeholder { color: var(--ink-3); }
+.guessrow input:focus { outline: none; border-color: var(--wax); }
+.guessrow .btn { font-size: 22px; padding: 6px 18px; }
 .msg { font-size: 14px; min-height: 20px; color: var(--ink-2); font-weight: 700; }
 .msg.err { color: var(--bad); }
 .suggest { display: flex; gap: 6px; flex-wrap: wrap; }
-.suggest button { border: 2px solid var(--line); background: var(--card); border-radius: 999px; padding: 5px 12px; font-size: 14px; font-weight: 800; cursor: pointer; box-shadow: 0 3px 0 var(--edge); }
+.suggest button.first { border-color: var(--wax); color: var(--wax-dk); }
+.suggest button { border: 2px solid var(--line); background: var(--card); border-radius: 999px; padding: 8px 14px; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 3px 0 var(--edge); }
 
 /* flag mix */
 .flagmix { position: relative; width: min(100%, 340px); aspect-ratio: 4 / 3; margin: 4px auto; border-radius: 16px; overflow: hidden; background: var(--paper-2); border: 4px solid #fff; box-shadow: 0 6px 0 var(--edge); }
@@ -288,6 +299,59 @@ details ul { margin: 10px 0 2px; padding-left: 18px; display: flex; flex-directi
 .rpic.mix img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .review li:not(:has(.rpic)) { grid-template-columns: auto 1fr auto; }
 .btn.danger { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 40%, #fff); }
+
+/* pin tip */
+.tip { margin: -6px 0 0; align-self: flex-start; background: color-mix(in srgb, var(--ochre) 22%, #fff); border: 2px solid color-mix(in srgb, var(--ochre) 55%, #fff); color: var(--ink-2); border-radius: 999px; padding: 4px 14px; font-size: 14px; font-weight: 800; }
+.tip b { color: var(--ink); }
+
+/* compass game */
+.dial { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.compass { width: 150px; height: 150px; filter: drop-shadow(0 5px 0 var(--edge)); }
+.compass .rim { fill: var(--navy); }
+.compass .face { fill: #fff; }
+.compass .ticks line { stroke: var(--ink-3); stroke-width: 1.6; stroke-linecap: round; }
+.compass g circle { fill: var(--paper); }
+.compass text { font-family: var(--f-head); font-weight: 700; font-size: 13px; text-anchor: middle; fill: var(--ink-2); }
+.compass g.on circle { fill: var(--navy); }
+.compass g.on text { fill: #fff; }
+.compass .needle { transform-box: view-box; transform-origin: 60px 60px; transform: rotate(var(--ang)); animation: swing 1.1s cubic-bezier(.3,1.6,.5,1); }
+@keyframes swing { from { transform: rotate(calc(var(--ang) - 220deg)); } }
+.compass .tip { fill: var(--bad); }
+.compass .tail { fill: var(--ink-3); }
+.compass .needle circle { fill: var(--ink); }
+.noflag { width: 100%; aspect-ratio: 4 / 3; display: grid; place-items: center; font-size: 40px; border-radius: 12px; background: var(--paper); }
+.vs.small { font-size: 14px; width: 48px; height: 48px; }
+
+/* outline reveal */
+.shape path { transition: fill .3s, stroke .3s; }
+.shape.good path { fill: var(--good); stroke: var(--moss-dk); }
+.shape.bad path { fill: var(--bad); stroke: #c73333; }
+.reveal { display: flex; align-items: center; gap: 14px; }
+.reveal img, .reveal .noflag { width: 84px; height: 63px; object-fit: cover; border-radius: 10px; border: 3px solid #fff; box-shadow: 0 3px 0 var(--edge); flex-shrink: 0; font-size: 28px; }
+.reveal div { display: flex; flex-direction: column; line-height: 1.2; }
+.reveal small { color: var(--ink-2); font-weight: 700; }
+.reveal b { font-family: var(--f-head); font-size: 24px; }
+.reveal span { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); font-weight: 800; }
+
+/* help, pop-ups, finished card */
+.help { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--line); background: var(--card); box-shadow: 0 3px 0 var(--edge); font-family: var(--f-head); font-weight: 700; font-size: 18px; cursor: pointer; flex-shrink: 0; }
+.help:active { transform: translateY(3px); box-shadow: none; }
+.modal-bg { position: fixed; inset: 0; z-index: 50; background: rgba(29, 39, 66, .45); display: grid; place-items: center; padding: 20px; animation: fade .18s; }
+.modal-bg.out { opacity: 0; transition: opacity .18s; }
+@keyframes fade { from { opacity: 0; } }
+.modal { width: min(100%, 400px); background: var(--card); border-radius: 28px; padding: 24px 20px 20px; box-shadow: 0 8px 0 var(--edge); display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; animation: pop .3s cubic-bezier(.2,1.4,.4,1); }
+.modal h2 { margin: 0; font-size: 24px; }
+.big-emoji { font-size: 52px; line-height: 1; }
+.big-ic { width: 76px; height: 76px; border-radius: 22px; padding: 13px; color: #fff; background: var(--hue); box-shadow: 0 5px 0 color-mix(in srgb, var(--hue) 78%, #000); transform: rotate(-5deg); }
+.big-ic svg { width: 100%; height: 100%; }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; text-align: left; counter-reset: st; width: 100%; }
+.steps li { position: relative; padding: 10px 12px 10px 46px; background: var(--paper); border-radius: 16px; font-size: 14.5px; line-height: 1.35; color: var(--ink-2); counter-increment: st; }
+.steps li::before { content: counter(st); position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; border-radius: 50%; background: var(--wax); color: #fff; display: grid; place-items: center; font-family: var(--f-head); font-weight: 700; font-size: 14px; }
+.steps b { color: var(--ink); }
+.have { margin: 0; font-size: 14px; color: var(--ink-2); }
+.done-card { flex-direction: row; align-items: center; gap: 14px; background: linear-gradient(135deg, #fff6d6, #ffe7c7); border-color: #ffd98a; box-shadow: 0 5px 0 #f5c46b; }
+.done-card h2 { font-size: 21px; }
+.done-card p { margin: 2px 0 0; font-size: 14px; }
 
 /* end screen */
 .end { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; padding: 8px 0; }
@@ -530,8 +594,17 @@ for (const m of MARKS) if (m.n === "Uluru") m.n = "Uluru (Ayers Rock)";
 const FAMOUS_MARKS = MARKS.filter(m => MARK_INFO[m.n]).map(m => ({ n: m.n, lat: m.lat, lon: m.lon, country: MARK_INFO[m.n][0], cc: MARK_INFO[m.n][1] }));
 const PLACES = [...FAMOUS, ...FAMOUS_MARKS];
 
-/* --- Nördlicher? --- */
-const DIRS = { N: "nördlich", S: "südlich", O: "östlich", W: "westlich" };
+/* --- Kompass --- */
+const DIRS = { N: "nördlicher", S: "südlicher", O: "östlicher", W: "westlicher" };
+// a flag picture for a country code, or a globe when we have no flag
+const flagImg = cc => FLAGS[String(cc).toLowerCase()] ? `<img src="${FLAGS[String(cc).toLowerCase()]}" alt="">` : `<span class="noflag">🌍</span>`;
+function compassSvg(dir) {
+  const pos = { N: [60, 15], O: [105, 60], S: [60, 105], W: [15, 60] }, ang = { N: 0, O: 90, S: 180, W: 270 }[dir];
+  const ticks = d3.range(0, 360, 15).map(a => { const r1 = a % 90 ? 44 : 40, t = a * Math.PI / 180; return `<line x1="${60 + r1 * Math.sin(t)}" y1="${60 - r1 * Math.cos(t)}" x2="${60 + 48 * Math.sin(t)}" y2="${60 - 48 * Math.cos(t)}"/>`; }).join("");
+  const letters = Object.entries(pos).map(([k, [x, y]]) => `<g class="${k === dir ? "on" : ""}"><circle cx="${x}" cy="${y}" r="12"/><text x="${x}" y="${y + 5}">${k}</text></g>`).join("");
+  return `<svg class="compass" viewBox="-4 -4 128 128" aria-hidden="true"><circle class="rim" cx="60" cy="60" r="58"/><circle class="face" cx="60" cy="60" r="50"/><g class="ticks">${ticks}</g>${letters}
+    <g class="needle" style="--ang:${ang}deg"><path class="tip" d="M60 22 L68 60 L52 60 Z"/><path class="tail" d="M52 60 L68 60 L60 98 Z"/><circle cx="60" cy="60" r="6"/></g></svg>`;
+}
 function genNord(r) {
   const qs = [], used = new Set();
   let guard = 0;
@@ -555,16 +628,16 @@ function viewNord(q, host, answer) {
   const ns = dir === "N" || dir === "S";
   const val = c => ns ? c.lat : c.lon;
   const win = (dir === "N" || dir === "O") ? (val(a) > val(b) ? a : b) : (val(a) < val(b) ? a : b);
-  host.append(h("p", "q", `Was liegt weiter <b>${DIRS[dir]}</b>?`));
-  const opts = h("div", "opts");
+  host.append(h("div", "dial", `${compassSvg(dir)}<p class="q">Was ist <b>${DIRS[dir]}</b>?</p>`));
+  const duel = h("div", "duel"), btns = [];
   for (const c of [a, b]) {
-    const btn = h("button", "opt", `<b>${esc(c.n)}</b><span>${esc(c.country)}</span>`);
-    btn.type = "button";
+    const btn = h("button", "opt fighter", `${flagImg(c.cc)}<b>${esc(c.n)}</b><span>${esc(c.country)}</span>`); btn.type = "button";
     btn.onclick = () => {
-      opts.querySelectorAll("button").forEach(x => x.disabled = true);
+      btns.forEach(x => x.disabled = true);
       const ok = c === win;
       btn.classList.add(ok ? "good" : "bad");
-      if (!ok) opts.children[[a, b].indexOf(win)].classList.add("good");
+      if (!ok) btns[[a, b].indexOf(win)].classList.add("good");
+      duel.classList.add("over");
       const diffDeg = Math.abs(val(a) - val(b));
       const km = ns ? diffDeg * 111.2 : diffDeg * 111.32 * Math.cos(((a.lat + b.lat) / 2) * Math.PI / 180);
       const fb = h("div");
@@ -573,24 +646,25 @@ function viewNord(q, host, answer) {
       const m = new GeoMap(fb);
       m.pins = [a, b].map(c2 => ({ ll: [c2.lon, c2.lat], color: c2 === win ? css("--good") : css("--ink-2"), label: c2.n }));
       m.lines = [a, b].map(c2 => ({ geo: ns ? parallel(c2.lat) : meridian(c2.lon), color: c2 === win ? css("--good") : css("--ink-2"), width: 1.2, dash: [4, 4] }));
-      answer(ok ? 100 : 0, ok ? "Richtig!" : "Leider falsch", fb, () => m.zoomToPoints([[a.lon, a.lat], [b.lon, b.lat]], 0, 60), { q: `Weiter ${DIRS[dir]}: ${a.n} oder ${b.n}?`, you: c.n, right: win.n });
+      answer(ok ? 100 : 0, ok ? "Richtig!" : "Leider falsch", fb, () => m.zoomToPoints([[a.lon, a.lat], [b.lon, b.lat]], 0, 60), { q: `Was ist ${DIRS[dir]}: ${a.n} oder ${b.n}?`, you: c.n, right: win.n });
     };
-    opts.append(btn);
+    btns.push(btn);
   }
-  host.append(opts);
-  host.joker = () => opts.children[[a, b].indexOf(win)].click();
+  duel.append(btns[0], h("span", "vs small", "oder"), btns[1]);
+  host.append(duel);
+  host.joker = () => btns[[a, b].indexOf(win)].click();
 }
 
 /* --- Nadelwurf --- */
 function genPin(r) {
-  const cs = shuffle(r, FAMOUS).slice(0, 3).map(c => ({ n: c.n, sub: c.country, lat: c.lat, lon: c.lon }));
-  const ms = shuffle(r, FAMOUS_MARKS).slice(0, 2).map(m => ({ n: m.n, sub: `Sehenswürdigkeit · ${m.country}`, lat: m.lat, lon: m.lon }));
+  const cs = shuffle(r, FAMOUS).slice(0, 3).map(c => ({ n: c.n, tip: c.country, lat: c.lat, lon: c.lon }));
+  const ms = shuffle(r, FAMOUS_MARKS).slice(0, 2).map(m => ({ n: m.n, tip: m.country, lat: m.lat, lon: m.lon }));
   return shuffle(r, [...cs, ...ms]);
 }
 const pinPoints = km => km <= 25 ? 100 : Math.round(100 * Math.exp(-(km - 25) / 1200));
 function viewPin(q, host, answer) {
   host.append(h("p", "q", `Wo liegt <b>${esc(q.n)}</b>?`));
-  host.append(h("p", "sub", esc(q.sub)));
+  host.append(h("p", "tip", `💡 Tipp: <b>${esc(q.tip || q.sub || "")}</b>`));
   let guess = null, locked = false;
   const btn = h("button", "btn primary wide", "Nadel setzen"); btn.type = "button"; btn.disabled = true;
   const m = new GeoMap(host, {
@@ -611,7 +685,7 @@ function viewPin(q, host, answer) {
   host.joker = () => { guess = [q.lon, q.lat]; btn.disabled = false; btn.click(); };
 }
 
-/* --- shapes (Umriss, Größer?) --- */
+/* --- shapes (Umriss, Flächenduell) --- */
 // a country's main landmass plus nearby islands, without far-away overseas parts (Alaska, French Guiana, …)
 const shapeCache = {};
 function shapeOf(iso) {
@@ -662,7 +736,7 @@ function genShape(r) {
 function viewShape(q, host, answer) {
   host.append(h("p", "q", "Welches Land hat <b>diesen Umriss</b>?"));
   host.append(h("p", "sub", "Nicht maßstabsgetreu · Norden ist oben"));
-  host.append(h("div", "shape", shapeSvg(q.iso, 400, 300)));
+  const pic = h("div", "shape", shapeSvg(q.iso, 400, 300)); host.append(pic);
   const opts = h("div", "opts");
   for (const c of q.opts) {
     const btn = h("button", "opt", `<b>${esc(nameOf(c))}</b>`); btn.type = "button";
@@ -671,10 +745,9 @@ function viewShape(q, host, answer) {
       const ok = c === q.iso;
       btn.classList.add(ok ? "good" : "bad");
       if (!ok) opts.children[q.opts.indexOf(q.iso)].classList.add("good");
-      const fb = h("div", "", `<p>Das ist <b>${esc(nameOf(q.iso))}</b>.</p>`);
-      const m = new GeoMap(fb);
-      m.fills = new Map([[q.iso, css("--grape")]]);
-      answer(ok ? 100 : 0, ok ? "Richtig!" : "Leider falsch", fb, () => { m.draw(); m.zoomToFeatures([q.iso], 0); }, { q: "Welches Land ist das?", you: nameOf(c), right: nameOf(q.iso), pic: { t: "shape", iso: q.iso } });
+      pic.classList.add(ok ? "good" : "bad");
+      const fb = h("div", "reveal", `${flagImg(q.iso)}<div><small>Das ist</small><b>${esc(nameOf(q.iso))}</b><span>${esc(regionOf(q.iso) || "")}</span></div>`);
+      answer(ok ? 100 : 0, ok ? "Richtig!" : "Leider falsch", fb, null, { q: "Welches Land ist das?", you: nameOf(c), right: nameOf(q.iso), pic: { t: "shape", iso: q.iso } });
     };
     opts.append(btn);
   }
@@ -682,7 +755,7 @@ function viewShape(q, host, answer) {
   host.joker = () => opts.children[q.opts.indexOf(q.iso)].click();
 }
 
-/* --- Größer? --- */
+/* --- Flächenduell --- */
 // area in km² (land and inland water, without overseas territories)
 const AREA = {
   RU: 17098246, CA: 9984670, CN: 9596961, BR: 8515767, AU: 7692024, IN: 3287263, AR: 2780400, KZ: 2724900, DZ: 2381741, CD: 2344858,
@@ -734,7 +807,7 @@ function viewSize(q, host, answer) {
       const fig = c2 => `<figure style="--c:var(${c2 === win ? "--good" : "--ink-3"})">${shapeSvg(c2, 160, 140, k).replace("<path", `<path fill="var(--c)" stroke="color-mix(in srgb, var(--c) 75%, #000)"`)}<figcaption>${esc(nameOf(c2))}<span>${fmtArea(AREA[c2])}</span></figcaption></figure>`;
       const ratio = Math.max(AREA[a], AREA[b]) / Math.min(AREA[a], AREA[b]);
       const fb = h("div", "", `<div class="sizes">${fig(a)}${fig(b)}</div>
-        <p class="muted" style="margin-top:8px">${esc(nameOf(win))} ist rund ${ratio < 1.95 ? `${Math.round((ratio - 1) * 100)} %` : "doppelt so"} größer. Beide Umrisse im selben Maßstab.</p>`);
+        <p class="muted" style="margin-top:8px">${esc(nameOf(win))} ist rund ${ratio < 1.95 ? `${Math.round((ratio - 1) * 100)} %` : "doppelt so"} größer.</p>`);
       answer(ok ? 100 : 0, ok ? "Richtig!" : "Leider falsch", fb, null, { q: `${nameOf(a)} oder ${nameOf(b)}: Welches ist größer?`, you: nameOf(c), right: nameOf(win), pic: { t: "duel", a, b } });
     };
     btns.push(btn);
@@ -793,11 +866,12 @@ function viewBorder(q, host, answer) {
   host.append(h("p", "q", `Finde einen Landweg von <b>${esc(nameOf(q.s))}</b> nach <b style="color:var(--navy)">${esc(nameOf(q.e))}</b>.`));
   const info = h("p", "sub"); host.append(info);
   const route = h("div", "route"); host.append(route);
-  const m = new GeoMap(host, { detail: true, aspect: 0.75, hint: "Land antippen oder unten eintragen", onTap: ll => { const f = m.hit(ll); if (f) tryAdd(f.key); } });
-  const row = h("div", "guessrow", `<input id="bIn" type="text" autocomplete="off" placeholder="Land eintragen …" aria-label="Land eingeben"><button class="btn dark" type="button" id="bAdd">Los</button>`);
+  const row = h("div", "guessrow", `<input id="bIn" type="text" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" placeholder="Nächstes Land eintippen …" aria-label="Land eingeben"><button class="btn dark" type="button" id="bAdd">+</button>`);
   host.append(row);
   const sug = h("div", "suggest"); host.append(sug);
   const msg = h("div", "msg"); host.append(msg);
+  const mapHost = h("div"); host.append(mapHost);
+  const m = new GeoMap(mapHost, { detail: true, aspect: 0.75, hint: "Karte zum Orientieren · Länder oben eintippen" });
   const giveUp = h("button", "btn", "Aufgeben"); giveUp.type = "button"; host.append(giveUp);
   const inp = row.querySelector("#bIn");
 
@@ -807,7 +881,7 @@ function viewBorder(q, host, answer) {
     m.fills = new Map([[q.s, css("--wax")], [q.e, css("--navy")], ...chain.map(c => [c, css("--moss")])]);
     m.labels = [q.s, q.e].map(c => { const f = m.feature(c)[0]; return f ? { ll: d3.geoCentroid(mainland(f)), text: nameOf(c) } : null; }).filter(Boolean);
     m.draw();
-    route.innerHTML = `<span class="tag start">${esc(nameOf(q.s))}</span>${chain.map(c => `<span class="arrow">→</span><span class="tag path">${esc(nameOf(c))}</span>`).join("")}<span class="arrow">→ ··· →</span><span class="tag end">${esc(nameOf(q.e))}</span>`;
+    route.innerHTML = `<span class="tag start">${esc(nameOf(q.s))}</span>${chain.map(c => `<span class="arrow">→</span><span class="tag path">${esc(nameOf(c))}</span>`).join("")}<span class="arrow">→ ··· →</span><span class="tag goal">${esc(nameOf(q.e))}</span>`;
     info.textContent = `Kürzester Weg: ${q.k} ${q.k === 1 ? "Land" : "Länder"} dazwischen · Versuche: ${chain.length} von ${maxG}`;
   }
   function say(t, err) { msg.textContent = t; msg.className = "msg" + (err ? " err" : ""); }
@@ -818,36 +892,46 @@ function viewBorder(q, host, answer) {
     if (!ADJ[iso]) { say(`${nameOf(iso)} hat keine Landgrenzen.`, true); return; }
     const touches = [...reached()].some(c => ADJ[c].includes(iso));
     if (!touches) { say(`${nameOf(iso)} grenzt an kein Land auf deinem Weg. Zählt nicht.`, true); return; }
-    chain.push(iso); say(`${nameOf(iso)} eingetragen.`);
+    chain.push(iso); say(`✓ ${nameOf(iso)} ist dabei.`);
     inp.value = ""; sug.replaceChildren();
+    if (!connected() && chain.length < maxG) inp.focus();
     paint();
     if (connected()) finish(true);
     else if (chain.length >= maxG) finish(false);
   }
   function finish(ok) {
-    over = true; row.hidden = true; giveUp.hidden = true; sug.replaceChildren(); m.onTap = null;
+    over = true; row.hidden = true; giveUp.hidden = true; sug.replaceChildren(); inp.blur();
     const g = chain.length;
     const pts = ok ? Math.round(100 * Math.max(0, 1 - (g - q.k) / 4)) : 0;
     if (!ok) m.fills = new Map([[q.s, css("--wax")], [q.e, css("--navy")], ...chain.map(c => [c, css("--line")]), ...q.path.slice(1, -1).map(c => [c, css("--ochre")])]);
     m.draw();
     if (ok) route.innerHTML = route.innerHTML.replace("→ ··· →", "→");
-    const fb = h("div", "", `<p>${ok ? (g === q.k ? "Perfekt, kürzer geht es nicht." : `Geschafft mit ${g} Ländern. Der kürzeste Weg hat ${q.k}.`) : "Kein Weg gefunden."}</p>
-      <p class="muted">Ein kürzester Weg: ${q.path.map(c => esc(nameOf(c))).join(" → ")}</p>`);
+    const sameRoute = ok && g === q.k && q.path.slice(1, -1).every(c => chain.includes(c));
+    const other = sameRoute ? "" : `<p class="muted">${!ok ? "So wäre es gegangen" : g === q.k ? "Eine andere Lösung" : "Kürzer ging es so"}: ${q.path.map(c => esc(nameOf(c))).join(" → ")}</p>`;
+    const fb = h("div", "", `<p>${ok ? (g === q.k ? "Perfekt, kürzer geht es nicht." : `Geschafft mit ${g} Ländern. Es ging auch mit ${q.k}.`) : "Kein Weg gefunden."}</p>${other}`);
     answer(pts, ok ? (g === q.k ? "Kürzester Weg!" : "Ziel erreicht") : "Nicht geschafft", fb, null, { q: `${nameOf(q.s)} → ${nameOf(q.e)}`, you: ok ? `${g} ${g === 1 ? "Land" : "Länder"}: ${chain.map(nameOf).join(", ")}` : "Nicht geschafft", right: `${q.k} ${q.k === 1 ? "Land" : "Länder"}: ${q.path.slice(1, -1).map(nameOf).join(", ")}` });
   }
   const names = Object.keys(ADJ).map(iso => ({ iso, n: nameOf(iso), k: norm(nameOf(iso)), al: (CN[iso].a || []).map(norm) }));
+  // suggestions from the first letter: names (or any word in them) and alternative names that start with the input
+  const matches = v => names.filter(x => x.k.startsWith(v) || x.k.split(" ").some(w => w.startsWith(v)) || x.al.some(a => a.startsWith(v)))
+    .sort((x, y) => (y.n.toLowerCase().startsWith(raw()) - x.n.toLowerCase().startsWith(raw())) || (y.k.startsWith(v) - x.k.startsWith(v)) || x.n.localeCompare(y.n, "de")).slice(0, 5);
+  const raw = () => inp.value.trim().toLowerCase();
   inp.oninput = () => {
-    const v = norm(inp.value); sug.replaceChildren(); if (v.length < 2) return;
-    names.filter(x => x.k.startsWith(v) || x.al.some(a => a.startsWith(v))).slice(0, 6).forEach(x => {
-      const b = h("button", "", esc(x.n)); b.type = "button"; b.onclick = () => tryAdd(x.iso); sug.append(b);
+    const v = norm(inp.value); sug.replaceChildren(); say("");
+    if (!v) return;
+    matches(v).forEach((x, i) => {
+      const b = h("button", i === 0 ? "first" : "", esc(x.n)); b.type = "button";
+      b.onpointerdown = e => e.preventDefault();   // keep the keyboard open
+      b.onclick = () => tryAdd(x.iso); sug.append(b);
     });
   };
   const submit = () => {
     const v = norm(inp.value); if (!v) return;
-    const iso = LOOKUP[v] || (names.filter(x => x.k.startsWith(v)).length === 1 ? names.find(x => x.k.startsWith(v)).iso : null);
+    const iso = LOOKUP[v] || (matches(v)[0] || {}).iso;
     if (!iso) { say(`„${inp.value}“ kenne ich nicht als Land mit Landgrenzen.`, true); return; }
     tryAdd(iso);
   };
+  row.querySelector("#bAdd").onpointerdown = e => e.preventDefault();
   row.querySelector("#bAdd").onclick = submit;
   inp.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); submit(); } };
   giveUp.onclick = () => finish(false);
@@ -924,14 +1008,22 @@ const GAMES = [
   { id: "pin", name: "Nadelwurf", hue: "--wax", desc: "Setz die Nadel auf der leeren Weltkarte so nah wie möglich.", rounds: 5, per: 100, gen: genPin, view: viewPin },
   { id: "border", name: "Grenzgänger", hue: "--moss", desc: "Über Landgrenzen von A nach B, mit möglichst wenigen Ländern.", rounds: 5, per: 100, gen: genBorder, view: viewBorder },
   { id: "flag", name: "Flaggen-Mix", hue: "--pink", desc: "Zwei halbe Flaggen, eine neue. Welche stecken drin?", rounds: 5, per: 100, gen: genFlag, view: viewFlag },
-  { id: "nord", name: "Nördlicher?", hue: "--navy", desc: "Zwei bekannte Orte. Welcher liegt weiter im Norden, Süden, Osten oder Westen?", rounds: 5, per: 100, gen: genNord, view: viewNord },
+  { id: "nord", name: "Kompass", hue: "--navy", desc: "Zwei Orte, eine Himmelsrichtung: Was liegt nördlicher, südlicher, östlicher oder westlicher?", rounds: 5, per: 100, gen: genNord, view: viewNord },
   { id: "shape", name: "Umriss", hue: "--grape", desc: "Nur die Silhouette eines Landes. Welches ist es?", rounds: 5, per: 100, gen: genShape, view: viewShape },
-  { id: "size", name: "Größer?", hue: "--ochre", dark: true, desc: "Zwei Länder, eine Frage: Welches hat mehr Fläche?", rounds: 5, per: 100, gen: genSize, view: viewSize },
+  { id: "size", name: "Flächenduell", hue: "--ochre", dark: true, desc: "Zwei Länder, eine Frage: Welches hat mehr Fläche?", rounds: 5, per: 100, gen: genSize, view: viewSize },
 ];
 const MAX_DAY = GAMES.length * 500;
+const HOWTO = {
+  pin: ["Du bekommst eine Stadt oder Sehenswürdigkeit genannt, dazu als Tipp das Land.", "Tippe auf die Weltkarte, wo der Ort liegt, und bestätige mit „Nadel setzen“.", "Je näher du dran bist, desto mehr Punkte. Zoomen geht mit zwei Fingern oder mit + und −."],
+  border: ["Start- und Zielland stehen fest. Finde einen Weg über Landgrenzen dorthin.", "Tippe nacheinander Länder ein, die an deinen bisherigen Weg grenzen.", "Der kürzeste Weg bringt 100 Punkte, jedes Land zu viel kostet 25."],
+  flag: ["Eine Flagge, zusammengesetzt aus zwei halben Flaggen.", "Wähle für jede Hälfte das passende Land und tippe auf „Prüfen“.", "Jede richtige Hälfte bringt 50 Punkte."],
+  nord: ["Zwei Orte und eine Himmelsrichtung, der Kompass zeigt sie dir an.", "Tippe den Ort an, der weiter in diese Richtung liegt.", "Danach siehst du beide Orte auf der Karte."],
+  shape: ["Du siehst nur den Umriss eines Landes, ohne Nachbarn.", "Wähle aus vier Ländern das richtige.", "Norden ist immer oben, die Größe ist aber nicht maßstabsgetreu."],
+  size: ["Zwei Länder treten gegeneinander an.", "Tippe auf das Land mit der größeren Fläche.", "Danach siehst du beide Umrisse im selben Maßstab nebeneinander."],
+};
 
 /* ================= state & persistence ================= */
-let saved = { days: {}, prog: null, bananas: 0, bananaDay: null };   // days: {date: {gameId: score}}, prog: {date, g: {gameId: {i, pts}}}, bananas: jokers left, bananaDay: last day one was earned
+let saved = { days: {}, prog: null, bananas: 0, bananaDay: null, seen: {} };   // days: {date: {gameId: score}}, prog: {date, g: {gameId: {i, pts}}}, bananas: jokers left, bananaDay: last day one was earned
 let run = null, mapsAlive = [];
 const T = () => dkey(today());
 function prog() {
@@ -939,9 +1031,9 @@ function prog() {
   return saved.prog;
 }
 function normalize(d) {
-  const s = { days: {}, prog: null, bananas: 0, bananaDay: null };
+  const s = { days: {}, prog: null, bananas: 0, bananaDay: null, seen: {} };
   if (!d) return s;
-  s.bananas = Math.max(0, d.bananas | 0); s.bananaDay = d.bananaDay || null;
+  s.bananas = Math.max(0, d.bananas | 0); s.bananaDay = d.bananaDay || null; s.seen = { ...(d.seen || {}) };
   for (const k in d.days || {}) s.days[k] = { ...d.days[k] };
   if (d.prog && d.prog.date) { s.prog = { date: d.prog.date, g: {} }; for (const k in d.prog.g || {}) s.prog.g[k] = { i: d.prog.g[k].i || 0, pts: [...(d.prog.g[k].pts || [])], rev: [...(d.prog.g[k].rev || [])] }; }
   return s;
@@ -971,11 +1063,13 @@ function hub() {
   const played = GAMES.filter(g => g.id in day).length;
   app.innerHTML = "";
   const head = h("header", "brand", `${ICONS.rose}<div><h1>Geoaffe</h1><p>Nr. ${no} · ${esc(t.toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "long" }))}</p></div>
-    <div class="total"><b>${fmtInt(total)}</b><span>von ${fmtInt(MAX_DAY)}</span></div>`);
+    ${scoreRing(total)}`);
   app.append(head);
   if (awardBanana()) toast("Alle sechs geschafft: eine Banane für dich! 🍌");
   app.append(h("div", "daybar", `<span class="pill">Neue Spiele in <b id="cd">${countdown()}</b></span>
-    <span class="pill banana${saved.bananas ? "" : " empty"}" title="Joker: Wer an einem Tag alle sechs Spiele schafft, bekommt eine Banane">🍌 <b>${saved.bananas}</b> Joker</span>`));
+    <button type="button" class="pill banana${saved.bananas ? "" : " empty"}" id="bananaBtn">🍌 <b>${saved.bananas}</b> Joker</button>`));
+  app.querySelector("#bananaBtn").onclick = bananaInfo;
+  countUp(app.querySelector(".score b"), total);
   app.append(h("div", "voyage", `<span class="trail"><i style="width:${played / GAMES.length * 100}%"></i></span><span>${played} von ${GAMES.length} gespielt</span>`));
   const grid = h("div", "grid");
   for (const g of GAMES) {
@@ -990,19 +1084,10 @@ function hub() {
   }
   app.append(grid);
   if (played === GAMES.length) {
-    const sc = h("div", "card", `<div class="row between"><h2>Alle sechs geschafft</h2><span class="mono" style="font-size:20px;font-weight:600">${fmtInt(total)} Punkte</span></div>
-      <div class="row between"><span class="muted">Neue Runden ab Mitternacht</span><button class="btn primary" type="button" id="share">Ergebnis kopieren</button></div>`);
-    sc.querySelector("#share").onclick = share;
+    const sc = h("div", "card done-card", `<span class="big-emoji">🏆</span><div><h2>Alle sechs geschafft!</h2><p class="muted">${fmtInt(total)} von ${fmtInt(MAX_DAY)} Punkten · neue Spiele ab Mitternacht</p></div>`);
     app.append(sc);
   }
   app.append(statsCard());
-  app.append(h("details", "", `<summary>Regeln und Daten</summary><ul>
-    <li>Jeden Tag gibt es für alle dieselben Runden. Jedes Spiel hat 5 Level mit je bis zu 100 Punkten, also bis zu 500 Punkte pro Spiel und 3.000 am Tag.</li>
-    <li>Nördlicher? nutzt nur bekannte Städte und Orte. Entfernungen sind Luftlinie auf der Erdkugel (Großkreis), gemessen zwischen den Stadtzentren.</li>
-    <li>Umriss und Größer? zeigen jedes Land ohne weit entfernte Überseegebiete (die USA also ohne Alaska und Hawaii). Die Umrisse sind flächentreu gezeichnet. Flächen: Land- und Binnenwasserfläche nach offiziellen Angaben.</li>
-    <li>Grenzgänger zählt Landgrenzen, so wie sie auf der Karte zu sehen sind. Überseegebiete zählen nicht (Frankreich grenzt hier also nicht an Brasilien). Der Kosovo ist als eigenes Land dabei, Somaliland gehört zu Somalia.</li>
-    <li>Bananen-Joker: Wer an einem Tag alle sechs Spiele beendet, bekommt eine Banane. Mit einer Banane löst du eine einzelne Frage sofort richtig und bekommst die vollen Punkte dafür. In Übungsrunden gibt es keine Joker.</li>
-    <li>Karten: Natural Earth. Städte geprüft mit GeoNames. Flaggen: flag-icons.</li></ul>`));
   const reset = h("details", "", `<summary>Zurücksetzen</summary><div class="row" style="margin-top:12px">
     <button class="btn" type="button" id="rsToday">Heute neu spielen</button><button class="btn danger" type="button" id="rsAll">Alles löschen</button></div>`);
   reset.querySelector("#rsToday").onclick = () => {
@@ -1016,6 +1101,40 @@ function hub() {
   app.append(reset);
   const note = h("p", "note", ""); note.id = "note"; app.append(note);
   setNote(noteText);
+}
+
+// daily score as a ring that fills up
+function scoreRing(total) {
+  const r = 34, len = 2 * Math.PI * r, f = Math.min(1, total / MAX_DAY);
+  return `<div class="score" title="Punkte heute"><svg viewBox="0 0 80 80" aria-hidden="true"><defs><linearGradient id="ringG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc21a"/><stop offset="1" stop-color="#ff6a1f"/></linearGradient></defs>
+    <circle class="bg" cx="40" cy="40" r="${r}"/><circle class="fg" cx="40" cy="40" r="${r}" stroke-dasharray="${len}" stroke-dashoffset="${len}" style="--off:${len * (1 - f)}"/></svg>
+    <div><b>0</b><span>von ${fmtInt(MAX_DAY)}</span></div></div>`;
+}
+function countUp(el, to) {
+  if (!el) return;
+  if (!to || matchMedia("(prefers-reduced-motion: reduce)").matches) { el.textContent = fmtInt(to); return; }
+  const t0 = performance.now(), step = t => { const k = Math.min(1, (t - t0) / 700); el.textContent = fmtInt(to * (1 - (1 - k) ** 3)); if (k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+// pop-up card on top of the page
+function modal(html, btnText = "Alles klar") {
+  const bg = h("div", "modal-bg"), box = h("div", "modal", html);
+  const ok = h("button", "btn dark wide", btnText); ok.type = "button";
+  const close = () => { bg.classList.add("out"); setTimeout(() => bg.remove(), 180); };
+  ok.onclick = close; bg.onclick = e => { if (e.target === bg) close(); };
+  box.append(ok); bg.append(box); document.body.append(bg);
+  setTimeout(() => ok.focus({ preventScroll: true }), 50);
+}
+function bananaInfo() {
+  modal(`<span class="big-emoji">🍌</span><h2>Bananen-Joker</h2>
+    <ul class="steps"><li>Schaffst du an einem Tag <b>alle sechs Spiele</b>, bekommst du eine Banane.</li>
+    <li>Eine Banane ist ein <b>Joker</b>: Im Spiel auf „Joker einsetzen“ tippen, und die aktuelle Frage ist sofort richtig gelöst. Das gibt die vollen 100 Punkte.</li>
+    <li>Bananen kannst du sammeln und einsetzen, wann du willst. Nur in Übungsrunden gibt es keine Joker.</li></ul>
+    <p class="have">Du hast gerade <b>${saved.bananas}</b> ${saved.bananas === 1 ? "Banane" : "Bananen"}.</p>`);
+}
+function howTo(g) {
+  modal(`<span class="big-ic" style="--hue:var(${g.hue})">${ICONS[g.id]}</span><h2>So geht ${esc(g.name)}</h2>
+    <ul class="steps">${HOWTO[g.id].map(t => `<li>${esc(t)}</li>`).join("")}</ul><p class="have">5 Level, jedes bringt bis zu 100 Punkte.</p>`, "Los geht's");
 }
 
 // one banana per day for finishing all six games
@@ -1045,17 +1164,6 @@ function statsCard() {
     <div><b>${fmtInt(best)}</b><span>Bester Tag</span></div><div><b style="font-size:14px;line-height:1.9">${esc(strongest)}</b><span>Stärkstes Spiel</span></div></div>`);
 }
 
-function share() {
-  const day = saved.days[T()] || {};
-  const total = GAMES.reduce((a, g) => a + (day[g.id] || 0), 0);
-  const text = `Geoaffe Nr. ${dayNo(today())}\n` + GAMES.map(g => `${g.name} ${fmtInt(day[g.id] || 0)}`).join("\n") + `\nGesamt ${fmtInt(total)} / ${fmtInt(MAX_DAY)}`;
-  const fallback = () => {
-    const ta = document.createElement("textarea"); ta.value = text; ta.style.cssText = "position:fixed;opacity:0"; document.body.append(ta); ta.select();
-    let ok = false; try { ok = document.execCommand("copy"); } catch {} ta.remove(); toast(ok ? "Ergebnis kopiert" : "Kopieren ging nicht.");
-  };
-  try { navigator.clipboard.writeText(text).then(() => toast("Ergebnis kopiert"), fallback); } catch { fallback(); }
-}
-
 function openGame(id, practice) {
   const g = GAMES.find(x => x.id === id);
   const seed = practice ? Math.floor(Math.random() * 2 ** 31) : hashSeed(dayNo(today()), id, "kompass");
@@ -1064,13 +1172,15 @@ function openGame(id, practice) {
   const doneToday = !practice && (id in (saved.days[T()] || {}));
   run = { g, qs, i: doneToday ? g.rounds : p.i, pts: [...p.pts], rev: [...(p.rev || [])], practice };
   if (run.i >= g.rounds) endScreen(); else question();
+  if (!saved.seen[id]) { saved.seen[id] = true; persist(); howTo(g); }
   window.scrollTo(0, 0);
 }
 
 function topbar() {
   const { g, i, pts } = run;
-  const bar = h("div", "topbar", `<button class="back" type="button">${ICONS.back}Übersicht</button><h2>${esc(g.name)}${run.practice ? ' <span class="chip soft">Übung</span>' : ""}</h2><span class="sc">${fmtInt(pts.reduce((a, b) => a + b, 0))}</span>`);
+  const bar = h("div", "topbar", `<button class="back" type="button" aria-label="Zur Übersicht">${ICONS.back}</button><h2>${esc(g.name)}${run.practice ? ' <span class="chip soft">Übung</span>' : ""}</h2><button class="help" type="button" aria-label="So geht das Spiel">?</button><span class="sc">${fmtInt(pts.reduce((a, b) => a + b, 0))}</span>`);
   bar.querySelector(".back").onclick = hub;
+  bar.querySelector(".help").onclick = () => howTo(g);
   const dots = h("div", "dots");
   for (let k = 0; k < g.rounds; k++) {
     const v = pts[k];
@@ -1198,6 +1308,7 @@ hub();
       for (const k in saved.days) remote.days[k] = { ...(remote.days[k] || {}), ...saved.days[k] };
       const cnt = s => s.prog && s.prog.date === T() ? Object.values(s.prog.g).reduce((a, x) => a + x.i, 0) : -1;
       if (cnt(saved) > cnt(remote)) remote.prog = saved.prog;
+      remote.seen = { ...remote.seen, ...saved.seen };
       if ((saved.bananaDay || "") > (remote.bananaDay || "")) { remote.bananas = saved.bananas; remote.bananaDay = saved.bananaDay; }
       saved = remote;
     }

@@ -21,18 +21,17 @@ Die App läuft komplett im Browser, braucht kein Konto und lässt sich auf dem H
 
 | Spiel | Worum es geht | Level |
 |---|---|---|
-| **Nadelwurf** | Eine Stadt oder Sehenswürdigkeit wird genannt. Du setzt eine Nadel auf der unbeschrifteten Weltkarte. Je näher, desto mehr Punkte. | 5 |
-| **Grenzgänger** | Finde einen Landweg von Land A nach Land B, nur über gemeinsame Landgrenzen. Land auf der Karte antippen oder eintippen. Weniger Länder bringen mehr Punkte. | 5 |
+| **Nadelwurf** | Eine Stadt oder Sehenswürdigkeit wird genannt, das Land gibt es als Tipp dazu. Du setzt eine Nadel auf der unbeschrifteten Weltkarte. Je näher, desto mehr Punkte. | 5 |
+| **Grenzgänger** | Finde einen Landweg von Land A nach Land B, nur über gemeinsame Landgrenzen. Länder eintippen, die Vorschläge helfen dabei. Weniger Länder bringen mehr Punkte. | 5 |
 | **Flaggen-Mix** | Zwei halbe Flaggen sind zu einer zusammengesetzt. Welche zwei Länder stecken drin? | 5 |
-| **Nördlicher?** | Zwei bekannte Orte. Welcher liegt weiter im Norden, Süden, Osten oder Westen? | 5 |
+| **Kompass** | Zwei bekannte Orte und eine Himmelsrichtung, die ein Kompass anzeigt: Was ist nördlicher, südlicher, östlicher oder westlicher? | 5 |
 | **Umriss** | Ein Land wird nur als Silhouette gezeigt. Welches ist es? Vier Antworten zur Auswahl. | 5 |
-| **Größer?** | Zwei Länder: Welches hat die größere Fläche? Danach siehst du beide Umrisse im selben Maßstab. | 5 |
+| **Flächenduell** | Zwei Länder mit Flagge treten an: Welches hat die größere Fläche? Danach siehst du beide Umrisse im selben Maßstab. | 5 |
 
 ## Funktionen
 
 - Tägliche Runden mit fester Nummer, für alle gleich, dazu ein Übungsmodus mit unbegrenzt vielen Runden
 - Punkte pro Spiel, Tagesfortschritt und Statistik (gespielte Tage, Serie, bester Tag, stärkstes Spiel)
-- Ergebnis kopieren und im Chat teilen
 - Installierbar als App (PWA) auf iPhone, Android und Desktop
 - Offline spielbar dank Service Worker
 - Der Spielstand wird lokal im Browser gespeichert
@@ -72,10 +71,10 @@ Den Ordnerinhalt auf einen beliebigen statischen Hoster legen, zum Beispiel Netl
 ## Daten und Genauigkeit
 
 - **Weltkarte und Ländergrenzen:** Natural Earth (1:50 Mio.). Die Nachbarschaften für den Grenzgänger sind aus den gemeinsamen Grenzlinien der Karte berechnet und von Hand gegengeprüft. Regeln: Überseegebiete zählen nicht (Frankreich grenzt also nicht an Brasilien). Der Kosovo ist als eigenes Land dabei, Somaliland zählt zu Somalia. Die rund 150 m lange Grenze Botswana–Sambia ist ergänzt.
-- **Städte:** Alle Koordinaten sind mit dem GeoNames-Datensatz abgeglichen. Für Nadelwurf und Nördlicher? werden nur bekannte Städte und Sehenswürdigkeiten verwendet.
+- **Städte:** Alle Koordinaten sind mit dem GeoNames-Datensatz abgeglichen. Für Nadelwurf und Kompass werden nur bekannte Städte und Sehenswürdigkeiten verwendet.
 - **Entfernungen:** Luftlinie auf der Erdkugel (Haversine-Formel, mittlerer Erdradius 6.371 km)
-- **Umrisse (Umriss, Größer?):** flächentreue Projektion (Lambert azimutal), zentriert auf das jeweilige Land. Weit entfernte Überseegebiete fehlen (USA ohne Alaska und Hawaii, Norwegen ohne Spitzbergen), Inselketten wie Indonesien bleiben vollständig.
-- **Flächen (Größer?):** offizielle Gesamtfläche inklusive Binnengewässer. Im Spiel kommen nur Länder vor, bei denen der gezeichnete Umriss höchstens 10 % von dieser Fläche abweicht.
+- **Umrisse (Umriss, Flächenduell):** flächentreue Projektion (Lambert azimutal), zentriert auf das jeweilige Land. Weit entfernte Überseegebiete fehlen (USA ohne Alaska und Hawaii, Norwegen ohne Spitzbergen), Inselketten wie Indonesien bleiben vollständig.
+- **Flächen (Flächenduell):** offizielle Gesamtfläche inklusive Binnengewässer. Im Spiel kommen nur Länder vor, bei denen der gezeichnete Umriss höchstens 10 % von dieser Fläche abweicht.
 
 ## Quellen und Lizenzen
 

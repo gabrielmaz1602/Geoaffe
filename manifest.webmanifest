@@ -1,7 +1,7 @@
 {
   "name": "Geoaffe",
   "short_name": "Geoaffe",
-  "description": "Tägliche Geografie-Spiele: Nadelwurf, Grenzgänger, Flaggen-Mix, Nördlicher?, Umriss und Größer?.",
+  "description": "Tägliche Geografie-Spiele: Nadelwurf, Grenzgänger, Flaggen-Mix, Kompass, Umriss und Flächenduell.",
   "lang": "de",
   "start_url": "./",
   "scope": "./",
