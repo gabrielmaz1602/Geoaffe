@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#eef5ff">
 <meta name="description" content="Tägliche Geografie-Spiele: Nadelwurf, Grenzgänger, Flaggen-Mix, Nördlicher?, Umriss und Größer?.">
 <link rel="manifest" href="manifest.webmanifest">
@@ -66,6 +66,11 @@ body {
   padding-block: 18px 64px; -webkit-tap-highlight-color: transparent;
 }
 button, input { font: inherit; color: inherit; letter-spacing: inherit; }
+/* app feel: no text selection, no long-press callouts, no double-tap zoom, no rubber-band scroll */
+html { overscroll-behavior: none; -webkit-text-size-adjust: 100%; }
+body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
+img, svg { -webkit-user-drag: none; }
+input { -webkit-user-select: text; user-select: text; }
 button:focus-visible, input:focus-visible { outline: 3px solid var(--wax); outline-offset: 2px; }
 .wrap { max-width: 540px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
 .label { font-family: var(--f-head); font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-2); }
@@ -259,6 +264,30 @@ details ul { margin: 10px 0 2px; padding-left: 18px; display: flex; flex-directi
 .vs { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%) rotate(-8deg); z-index: 2; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center;
   font-family: var(--f-head); font-weight: 700; font-size: 19px; color: var(--ink); background: var(--ochre); border: 4px solid #fff; box-shadow: 0 4px 0 var(--ochre-dk); pointer-events: none; transition: transform .3s, opacity .3s; }
 .duel.over .vs { transform: translate(-50%, -50%) rotate(-8deg) scale(.6); opacity: 0; }
+
+/* review */
+.review { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.review li { display: grid; grid-template-columns: auto auto 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 16px; background: var(--good-soft); }
+.review li.mid { background: color-mix(in srgb, var(--ochre) 18%, #fff); }
+.review li.bad { background: var(--bad-soft); }
+.review .mark { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 800; background: var(--good); }
+.review li.mid .mark { background: var(--ochre-dk); }
+.review li.bad .mark { background: var(--bad); }
+.review .rtxt { display: flex; flex-direction: column; min-width: 0; font-size: 13.5px; line-height: 1.3; color: var(--ink-2); }
+.review .rtxt small { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); }
+.review .rtxt b { color: var(--ink); font-size: 14.5px; }
+.review .rtxt .right { color: var(--moss-dk); font-weight: 800; }
+.review .rpts { font-family: var(--f-mono); font-weight: 700; }
+.rpic { display: block; }
+.rpic.outline { width: 60px; height: 46px; }
+.rpic.outline svg { width: 100%; height: 100%; }
+.rpic.outline path { fill: var(--grape); }
+.rpic.duo { display: flex; flex-direction: column; gap: 3px; }
+.rpic.duo img { width: 34px; height: 24px; object-fit: cover; border-radius: 4px; box-shadow: 0 0 0 1px var(--line); }
+.rpic.mix { position: relative; width: 52px; height: 39px; border-radius: 6px; overflow: hidden; box-shadow: 0 0 0 1px var(--line); }
+.rpic.mix img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.review li:not(:has(.rpic)) { grid-template-columns: auto 1fr auto; }
+.btn.danger { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 40%, #fff); }
 
 /* end screen */
 .end { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; padding: 8px 0; }
@@ -544,7 +573,7 @@ function viewNord(q, host, answer) {
       const m = new GeoMap(fb);
       m.pins = [a, b].map(c2 => ({ ll: [c2.lon, c2.lat], color: c2 === win ? css("--good") : css("--ink-2"), label: c2.n }));
       m.lines = [a, b].map(c2 => ({ geo: ns ? parallel(c2.lat) : meridian(c2.lon), color: c2 === win ? css("--good") : css("--ink-2"), width: 1.2, dash: [4, 4] }));
-      answer(ok ? 100 : 0, ok ? "Richtig!" : "Leider falsch", fb, () => m.zoomToPoints([[a.lon, a.lat], [b.lon, b.lat]], 0, 60));
+      answer(ok ? 100 : 0, ok ? "Richtig!" : "Leider falsch", fb, () => m.zoomToPoints([[a.lon, a.lat], [b.lon, b.lat]], 0, 60), { q: `Weiter ${DIRS[dir]}: ${a.n} oder ${b.n}?`, you: c.n, right: win.n });
     };
     opts.append(btn);
   }
@@ -577,7 +606,7 @@ function viewPin(q, host, answer) {
     m.lines = [{ geo: { type: "LineString", coordinates: [guess, [q.lon, q.lat]] }, color: css("--wax"), width: 2, dash: [5, 4] }];
     m.zoomToPoints([guess, [q.lon, q.lat]], 700, 50);
     const fb = h("div", "", `<p>${km < 25 ? "Fast genau getroffen." : `Du lagst <b>${fmtInt(km)} km</b> daneben.`}</p><p class="muted" style="font-size:14px">${esc(q.n)}: ${fmtLat(q.lat)}, ${fmtLon(q.lon)}</p>`);
-    answer(pts, km < 100 ? "Volltreffer!" : km < 600 ? "Nicht schlecht" : km < 2000 ? "Grob in der Nähe" : "Weit daneben", fb);
+    answer(pts, km < 100 ? "Volltreffer!" : km < 600 ? "Nicht schlecht" : km < 2000 ? "Grob in der Nähe" : "Weit daneben", fb, null, { q: `Wo liegt ${q.n}?`, you: km < 25 ? "Genau getroffen" : `${fmtInt(km)} km daneben` });
   };
   host.joker = () => { guess = [q.lon, q.lat]; btn.disabled = false; btn.click(); };
 }
@@ -645,7 +674,7 @@ function viewShape(q, host, answer) {
       const fb = h("div", "", `<p>Das ist <b>${esc(nameOf(q.iso))}</b>.</p>`);
       const m = new GeoMap(fb);
       m.fills = new Map([[q.iso, css("--grape")]]);
-      answer(ok ? 100 : 0, ok ? "Richtig!" : "Leider falsch", fb, () => { m.draw(); m.zoomToFeatures([q.iso], 0); });
+      answer(ok ? 100 : 0, ok ? "Richtig!" : "Leider falsch", fb, () => { m.draw(); m.zoomToFeatures([q.iso], 0); }, { q: "Welches Land ist das?", you: nameOf(c), right: nameOf(q.iso), pic: { t: "shape", iso: q.iso } });
     };
     opts.append(btn);
   }
@@ -706,7 +735,7 @@ function viewSize(q, host, answer) {
       const ratio = Math.max(AREA[a], AREA[b]) / Math.min(AREA[a], AREA[b]);
       const fb = h("div", "", `<div class="sizes">${fig(a)}${fig(b)}</div>
         <p class="muted" style="margin-top:8px">${esc(nameOf(win))} ist rund ${ratio < 1.95 ? `${Math.round((ratio - 1) * 100)} %` : "doppelt so"} größer. Beide Umrisse im selben Maßstab.</p>`);
-      answer(ok ? 100 : 0, ok ? "Richtig!" : "Leider falsch", fb);
+      answer(ok ? 100 : 0, ok ? "Richtig!" : "Leider falsch", fb, null, { q: `${nameOf(a)} oder ${nameOf(b)}: Welches ist größer?`, you: nameOf(c), right: nameOf(win), pic: { t: "duel", a, b } });
     };
     btns.push(btn);
   }
@@ -804,7 +833,7 @@ function viewBorder(q, host, answer) {
     if (ok) route.innerHTML = route.innerHTML.replace("→ ··· →", "→");
     const fb = h("div", "", `<p>${ok ? (g === q.k ? "Perfekt, kürzer geht es nicht." : `Geschafft mit ${g} Ländern. Der kürzeste Weg hat ${q.k}.`) : "Kein Weg gefunden."}</p>
       <p class="muted">Ein kürzester Weg: ${q.path.map(c => esc(nameOf(c))).join(" → ")}</p>`);
-    answer(pts, ok ? (g === q.k ? "Kürzester Weg!" : "Ziel erreicht") : "Nicht geschafft", fb);
+    answer(pts, ok ? (g === q.k ? "Kürzester Weg!" : "Ziel erreicht") : "Nicht geschafft", fb, null, { q: `${nameOf(q.s)} → ${nameOf(q.e)}`, you: ok ? `${g} ${g === 1 ? "Land" : "Länder"}: ${chain.map(nameOf).join(", ")}` : "Nicht geschafft", right: `${q.k} ${q.k === 1 ? "Land" : "Länder"}: ${q.path.slice(1, -1).map(nameOf).join(", ")}` });
   }
   const names = Object.keys(ADJ).map(iso => ({ iso, n: nameOf(iso), k: norm(nameOf(iso)), al: (CN[iso].a || []).map(norm) }));
   inp.oninput = () => {
@@ -885,7 +914,8 @@ function viewFlag(q, host, answer) {
     }));
     const pts = (ok.a ? 50 : 0) + (ok.b ? 50 : 0);
     const fb = h("div", "", `<div class="minis"><figure><img src="${FLAGS[q.a]}" alt=""><figcaption>${esc(DATA.flagNames[q.a])}</figcaption></figure><figure><img src="${FLAGS[q.b]}" alt=""><figcaption>${esc(DATA.flagNames[q.b])}</figcaption></figure></div>`);
-    answer(pts, pts === 100 ? "Beide richtig!" : pts === 50 ? "Eine richtig" : "Beide falsch", fb);
+    const fn = c => DATA.flagNames[c] || "–";
+    answer(pts, pts === 100 ? "Beide richtig!" : pts === 50 ? "Eine richtig" : "Beide falsch", fb, null, { q: "Welche zwei Flaggen?", you: `${fn(sel.a)} + ${fn(sel.b)}`, right: `${fn(q.a)} + ${fn(q.b)}`, pic: { t: "flag", a: q.a, b: q.b, v } });
   };
   host.joker = () => { sel.a = q.a; sel.b = q.b; btn.disabled = false; btn.click(); };
 }
@@ -913,7 +943,7 @@ function normalize(d) {
   if (!d) return s;
   s.bananas = Math.max(0, d.bananas | 0); s.bananaDay = d.bananaDay || null;
   for (const k in d.days || {}) s.days[k] = { ...d.days[k] };
-  if (d.prog && d.prog.date) { s.prog = { date: d.prog.date, g: {} }; for (const k in d.prog.g || {}) s.prog.g[k] = { i: d.prog.g[k].i || 0, pts: [...(d.prog.g[k].pts || [])] }; }
+  if (d.prog && d.prog.date) { s.prog = { date: d.prog.date, g: {} }; for (const k in d.prog.g || {}) s.prog.g[k] = { i: d.prog.g[k].i || 0, pts: [...(d.prog.g[k].pts || [])], rev: [...(d.prog.g[k].rev || [])] }; }
   return s;
 }
 const LS = "kompass-v1";
@@ -973,6 +1003,17 @@ function hub() {
     <li>Grenzgänger zählt Landgrenzen, so wie sie auf der Karte zu sehen sind. Überseegebiete zählen nicht (Frankreich grenzt hier also nicht an Brasilien). Der Kosovo ist als eigenes Land dabei, Somaliland gehört zu Somalia.</li>
     <li>Bananen-Joker: Wer an einem Tag alle sechs Spiele beendet, bekommt eine Banane. Mit einer Banane löst du eine einzelne Frage sofort richtig und bekommst die vollen Punkte dafür. In Übungsrunden gibt es keine Joker.</li>
     <li>Karten: Natural Earth. Städte geprüft mit GeoNames. Flaggen: flag-icons.</li></ul>`));
+  const reset = h("details", "", `<summary>Zurücksetzen</summary><div class="row" style="margin-top:12px">
+    <button class="btn" type="button" id="rsToday">Heute neu spielen</button><button class="btn danger" type="button" id="rsAll">Alles löschen</button></div>`);
+  reset.querySelector("#rsToday").onclick = () => {
+    if (!confirm("Die heutigen Spiele zurücksetzen? Deine Punkte von heute werden gelöscht.")) return;
+    delete saved.days[T()]; saved.prog = null; persist(); hub(); toast("Heute ist zurückgesetzt");
+  };
+  reset.querySelector("#rsAll").onclick = () => {
+    if (!confirm("Wirklich alles löschen? Punkte, Statistik, Serie und Bananen sind danach weg.")) return;
+    saved = normalize(null); persist(); hub(); toast("Alles zurückgesetzt");
+  };
+  app.append(reset);
   const note = h("p", "note", ""); note.id = "note"; app.append(note);
   setNote(noteText);
 }
@@ -1019,9 +1060,9 @@ function openGame(id, practice) {
   const g = GAMES.find(x => x.id === id);
   const seed = practice ? Math.floor(Math.random() * 2 ** 31) : hashSeed(dayNo(today()), id, "kompass");
   const qs = g.gen(rngFrom(seed));
-  const p = practice ? { i: 0, pts: [] } : (prog().g[id] || { i: 0, pts: [] });
+  const p = practice ? { i: 0, pts: [], rev: [] } : (prog().g[id] || { i: 0, pts: [], rev: [] });
   const doneToday = !practice && (id in (saved.days[T()] || {}));
-  run = { g, qs, i: doneToday ? g.rounds : p.i, pts: [...p.pts], practice };
+  run = { g, qs, i: doneToday ? g.rounds : p.i, pts: [...p.pts], rev: [...(p.rev || [])], practice };
   if (run.i >= g.rounds) endScreen(); else question();
   window.scrollTo(0, 0);
 }
@@ -1060,11 +1101,12 @@ function question() {
   }
   app.append(host);
   const q = run.qs[run.i];
-  run.g.view(q, host, (points, title, fbNode, after) => {
+  run.g.view(q, host, (points, title, fbNode, after, rv = {}) => {
     if (joker) joker.remove();
-    if (usedJoker) title = "Joker eingesetzt 🍌";
+    if (usedJoker) { title = "Joker eingesetzt 🍌"; rv.you = "🍌 Joker"; }
     run.pts.push(points);
-    if (!run.practice) { prog().g[run.g.id] = { i: run.i + 1, pts: [...run.pts] }; persist(); }
+    run.rev.push({ ...rv, pts: points });
+    if (!run.practice) { prog().g[run.g.id] = { i: run.i + 1, pts: [...run.pts], rev: [...run.rev] }; persist(); }
     // refresh header score + dots
     const [nb, nd] = topbar(); bar.replaceWith(nb); dots.replaceWith(nd);
     const good = points >= run.g.per * .75, mid = points > 0;
@@ -1105,7 +1147,27 @@ function endScreen() {
   }
   if (earned) box.append(h("p", "intro", `🍌 Alle sechs Spiele geschafft! Du bekommst eine Banane als Joker. Du hast jetzt ${saved.bananas}.`));
   app.append(box);
+  if (run.rev.length) app.append(reviewCard(run.rev, g));
   window.scrollTo(0, 0);
+}
+
+// what you answered in each level, next to the right answer
+function reviewPic(pic) {
+  if (!pic) return "";
+  if (pic.t === "shape") return `<span class="rpic outline">${shapeSvg(pic.iso, 60, 46)}</span>`;
+  if (pic.t === "duel") return `<span class="rpic duo"><img src="${flagOf(pic.a)}" alt=""><img src="${flagOf(pic.b)}" alt=""></span>`;
+  if (pic.t === "flag") return `<span class="rpic mix"><img src="${FLAGS[pic.a]}" alt="" style="clip-path:${pic.v ? "inset(0 50% 0 0)" : "inset(0 0 50% 0)"}"><img src="${FLAGS[pic.b]}" alt="" style="clip-path:${pic.v ? "inset(0 0 0 50%)" : "inset(50% 0 0 0)"}"></span>`;
+  return "";
+}
+function reviewCard(rev, g) {
+  const rows = rev.map((r, i) => {
+    const cls = r.pts >= g.per * .75 ? "good" : r.pts > 0 ? "mid" : "bad";
+    const showRight = r.right && cls !== "good";
+    return `<li class="${cls}"><span class="mark">${cls === "good" ? "✓" : cls === "mid" ? "~" : "✗"}</span>${reviewPic(r.pic)}
+      <span class="rtxt"><small>Level ${i + 1}</small><b>${esc(r.q || "")}</b><span>Deine Antwort: ${esc(r.you || "–")}</span>${showRight ? `<span class="right">Richtig: ${esc(r.right)}</span>` : ""}</span>
+      <span class="rpts">+${r.pts}</span></li>`;
+  }).join("");
+  return h("div", "card", `<h2>Deine Antworten</h2><ul class="review">${rows}</ul>`);
 }
 
 let tt;
@@ -1155,6 +1217,8 @@ window.__kompass = { get maps() { return mapsAlive; }, KNOWN, FCODES, PLACES, FA
 })();
 </script>
 <script>
+// iOS ignores user-scalable=no in Safari, so block the pinch gesture itself (maps handle their own zoom via touch events)
+document.addEventListener("gesturestart", e => e.preventDefault());
 if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 </script>
 </body>
