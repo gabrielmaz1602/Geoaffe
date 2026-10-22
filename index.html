@@ -76,7 +76,8 @@ body {
 }
 button, input { font: inherit; color: inherit; letter-spacing: inherit; }
 /* app feel: no text selection, no long-press callouts, no double-tap zoom, no rubber-band scroll */
-html { overscroll-behavior: none; -webkit-text-size-adjust: 100%; }
+html { overscroll-behavior: none; -webkit-text-size-adjust: 100%; scrollbar-width: none; }
+::-webkit-scrollbar { display: none; width: 0; height: 0; }
 body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
 img, svg { -webkit-user-drag: none; }
 input { -webkit-user-select: text; user-select: text; }
@@ -1161,7 +1162,8 @@ function normalize(d) {
   // earlier versions stored "system" without the player picking it
   if (!s.settings.themeChosen) s.settings.theme = "light";
   const av = d.avatar || {}; s.avatar = { pick: av.pick || DEFAULT_AVATAR.pick, bg: av.bg | 0, name: av.name || "" };
-  if (!AVATARS.some(x => x[0] === s.avatar.pick)) s.avatar.pick = DEFAULT_AVATAR.pick;   // older builder avatars s.cloud = d.cloud && d.cloud.refresh ? { ...d.cloud } : null;
+  if (!AVATARS.some(x => x[0] === s.avatar.pick)) s.avatar.pick = DEFAULT_AVATAR.pick;   // older builder avatars
+  s.cloud = d.cloud && d.cloud.refresh ? { ...d.cloud } : null;
   for (const k in d.days || {}) s.days[k] = { ...d.days[k] };
   if (d.prog && d.prog.date) { s.prog = { date: d.prog.date, g: {} }; for (const k in d.prog.g || {}) s.prog.g[k] = { i: d.prog.g[k].i || 0, pts: [...(d.prog.g[k].pts || [])], rev: [...(d.prog.g[k].rev || [])] }; }
   return s;
