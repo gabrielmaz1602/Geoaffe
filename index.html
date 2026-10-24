@@ -952,8 +952,8 @@ function genShape(r) {
 function viewShape(q, host, answer) {
   host.append(h("p", "q", "Welches Land hat <b>diesen Umriss</b>?"));
   const sil = silhouette(q.iso, 400, 270);
-  const pic = h("div", "mystery mcard", `<div class="mi"><div class="face mfront"><span class="mtitle">Welche Insel?</span><span class="mq">?</span>${sil.front}<span class="mfoot">Norden ist oben · nicht maßstabsgetreu</span></div>
-    <div class="face mback"><span class="mtitle"></span>${sil.back}<span class="mfoot"></span></div></div>`); host.append(pic);
+  const pic = h("div", "mystery mcard", `<div class="mi"><div class="face mfront"><span class="mq">?</span>${sil.front}</div>
+    <div class="face mback"><span class="mtitle"></span>${sil.back}</div></div>`); host.append(pic);
   const opts = h("div", "opts");
   for (const c of q.opts) {
     const btn = h("button", "opt", `<b>${esc(nameOf(c))}</b>`); btn.type = "button";
@@ -962,9 +962,9 @@ function viewShape(q, host, answer) {
       const ok = c === q.iso;
       btn.classList.add(ok ? "good" : "bad");
       if (!ok) opts.children[q.opts.indexOf(q.iso)].classList.add("good");
-      pic.querySelector(".mback .mtitle").textContent = nameOf(q.iso); pic.querySelector(".mback .mfoot").textContent = regionOf(q.iso) || "";
+      pic.querySelector(".mback .mtitle").textContent = nameOf(q.iso);
       pic.classList.add(ok ? "good" : "bad", "revealed");
-      const fb = h("div", "reveal", `${flagImg(q.iso)}<div><small>Das ist</small><b>${esc(nameOf(q.iso))}</b><span>${esc(regionOf(q.iso) || "")}</span></div>`);
+      const fb = h("div", "reveal", `${flagImg(q.iso)}<div><small>Das ist</small><b>${esc(nameOf(q.iso))}</b></div>`);
       answer(ok ? 100 : 0, ok ? "Richtig!" : "Leider falsch", fb, null, { q: "Welches Land ist das?", you: nameOf(c), right: nameOf(q.iso), pic: { t: "shape", iso: q.iso } });
     };
     opts.append(btn);
