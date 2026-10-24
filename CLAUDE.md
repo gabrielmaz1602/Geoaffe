@@ -38,4 +38,5 @@ Tägliche Geografie-Spiele (wie Wordle): 6 Spiele à 5 Level, je Level bis 100 P
 - „Heute neu spielen“ vor dem Store-Launch verstecken.
 - Für den App Store: Entwicklerkonto (99 €/Jahr), Push-Benachrichtigungen, Abo (RevenueCat) + Werbung (AdMob), Offline nur für Pro, Exklusiv-Spiele für Pro, Store-Screenshots.
 - Spielideen für Pro (Hangman, Hauptstadt-Sprint, Geo-Wordle): siehe `IDEEN.md`.
+- **Android später (Gabriel: im Hinterkopf behalten):** Capacitor-Android-Projekt dazulegen, Google Play 25 $ einmalig; neue private Konten brauchen 14 Tage Test mit 12 Testern – früh einplanen. RevenueCat/AdMob/Supabase funktionieren auch dort.
 - Name „Geoaffe“ auf Markenrechte prüfen. Schummelschutz für die Welt-Rangliste, falls nötig.
