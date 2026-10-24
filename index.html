@@ -548,12 +548,12 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 
 /* Hangman */
 .bananabox { position: relative; display: flex; flex-direction: column; align-items: center; margin: -4px 0 -6px; }
-.banana { width: min(70%, 240px); height: auto; overflow: visible; }
-.banana .slice { transition: opacity .3s, transform .3s; transform-box: fill-box; transform-origin: center; }
-.banana .tip { transition: opacity .3s; }
-.banana .tip.eaten { opacity: 0; }
-.banana .slice.eaten { opacity: 0; transform: scale(.4) rotate(20deg); }
-.bananabox.chomp .banana { animation: shake .45s; }
+.hbanana { width: min(70%, 240px); height: auto; overflow: visible; }
+.hbanana .slice { transition: opacity .3s, transform .3s; transform-box: fill-box; transform-origin: center; }
+.hbanana .tip { transition: opacity .3s; }
+.hbanana .tip.eaten { opacity: 0; }
+.hbanana .slice.eaten { opacity: 0; transform: scale(.4) rotate(20deg); }
+.bananabox.chomp .hbanana { animation: shake .45s; }
 .lives { font-size: 13px; font-weight: 800; color: var(--ink-2); }
 .hword { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; padding: 4px 0; }
 .hw { display: flex; gap: 5px; }
@@ -1135,7 +1135,7 @@ function bananaSvg() {
   const cx = 120, cy = -60, R = 150, p = a => [cx + R * Math.cos(a * Math.PI / 180), cy + R * Math.sin(a * Math.PI / 180)];
   const seg = i => { const a0 = 140 - i * 16.5, a1 = a0 - 16.5, [x0, y0] = p(a0), [x1, y1] = p(a1); return `M${x0.toFixed(1)} ${y0.toFixed(1)} A${R} ${R} 0 0 0 ${x1.toFixed(1)} ${y1.toFixed(1)}`; };
   const [sx, sy] = p(140), [ex, ey] = p(140 - 6 * 16.5);
-  return `<svg class="banana" viewBox="0 0 240 110" aria-hidden="true"><path d="M${sx - 6} ${sy - 4} l-10 -6" stroke="#7a5230" stroke-width="9" stroke-linecap="round"/><circle class="tip" cx="${ex + 3}" cy="${ey - 2}" r="5" fill="#5b3a1e"/>
+  return `<svg class="hbanana" viewBox="0 0 240 110" aria-hidden="true"><path d="M${sx - 6} ${sy - 4} l-10 -6" stroke="#7a5230" stroke-width="9" stroke-linecap="round"/><circle class="tip" cx="${ex + 3}" cy="${ey - 2}" r="5" fill="#5b3a1e"/>
     ${[0, 1, 2, 3, 4, 5].map(i => `<g class="slice" data-i="${i}"><path d="${seg(i)}" stroke="#d99a00" stroke-width="34" fill="none"/><path d="${seg(i)}" stroke="#ffd43b" stroke-width="27" fill="none"/><path d="${seg(i)}" stroke="#fff3a6" stroke-width="5" fill="none" transform="translate(0 -7)" opacity=".7"/></g>`).join("")}</svg>`;
 }
 function viewHang(q, host, answer) {
