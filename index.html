@@ -519,15 +519,25 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 .ta .qhead { background: var(--wax); }
 .tb .qhead { background: var(--navy); }
 .qhead b { color: #fff; font-family: var(--f-head); font-weight: 700; font-size: 21px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.qhead i { color: #fff; font-style: normal; font-weight: 800; font-size: 13px; background: rgba(255,255,255,.28); border-radius: 8px; padding: 1px 8px; flex-shrink: 0; }
+.qres { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: 20px; color: #fff; background: rgba(255,255,255,.3); transform: scale(0); transition: transform .35s cubic-bezier(.2,1.6,.4,1); }
+.qres:not(:empty) { transform: scale(1); }
+.qcard.good, .qcard.bad { transform: rotate(0) scale(1.02); }
+.qcard.good { border-color: var(--good); box-shadow: 0 5px 0 var(--moss-dk); background: var(--good-soft); }
+.qcard.good .qhead { background: var(--good); }
+.qcard.good .qflag { border-bottom-color: var(--good); }
+.qcard.good .qv { color: var(--moss-dk); }
+.qcard.bad { border-color: var(--bad); box-shadow: 0 5px 0 #c73333; background: var(--bad-soft); }
+.qcard.bad .qhead { background: var(--bad); }
+.qcard.bad .qflag { border-bottom-color: var(--bad); filter: saturate(.6); }
+.qcard.bad .qv { color: #c73333; }
+.quartett.over .qcard:not(.good):not(.bad) { opacity: .55; }
 .qflag { display: block; width: 100%; height: clamp(110px, 19vh, 170px); object-fit: cover; border-bottom: 3px solid var(--line); }
 .qrow { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 10px 14px 12px; }
 .qrow small { color: var(--ink-2); font-weight: 800; font-size: 15px; }
 .qv { font-family: var(--f-mono); font-weight: 700; font-size: 20px; letter-spacing: .12em; }
 .ta .qv { color: var(--wax-dk); } .tb .qv { color: var(--navy-dk); }
 .qv.open { letter-spacing: 0; animation: pop .4s cubic-bezier(.2,1.5,.4,1); }
-.qcard.good { background: var(--good-soft); }
-.qcard .crown { position: absolute; top: -26px; right: 70px; transform: scale(0) rotate(-20deg); font-size: 36px; font-style: normal; transition: transform .45s cubic-bezier(.2,1.6,.4,1) .15s; }
+.qcard .crown { position: absolute; top: -26px; right: 64px; transform: scale(0) rotate(-20deg); font-size: 36px; font-style: normal; transition: transform .45s cubic-bezier(.2,1.6,.4,1) .15s; }
 .qcard.winner .crown { transform: scale(1) rotate(12deg); }
 .qor { align-self: center; margin: -6px 0; z-index: 2; background: var(--ink); color: var(--paper); font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; border-radius: 999px; padding: 4px 14px; border: 3px solid var(--paper); }
 
@@ -1008,7 +1018,7 @@ function viewSize(q, host, answer) {
   const duel = h("div", "quartett"), btns = [];
   for (const c of [a, b]) {
     const team = c === a ? "ta" : "tb";
-    const btn = h("button", `opt qcard ${team}`, `<span class="qhead"><b>${esc(nameOf(c))}</b><i>${run.i + 1}${c === a ? "A" : "B"}</i></span>
+    const btn = h("button", `opt qcard ${team}`, `<span class="qhead"><b>${esc(nameOf(c))}</b><i class="qres"></i></span>
       <img class="qflag" src="${flagOf(c)}" alt="">
       <span class="qrow qarea"><small>Fläche</small><b class="qv">???</b></span><i class="crown">👑</i>`); btn.type = "button";
     btn.onclick = () => {
@@ -1018,6 +1028,7 @@ function viewSize(q, host, answer) {
       if (!ok) btns[[a, b].indexOf(win)].classList.add("good");
       btns[[a, b].indexOf(win)].classList.add("winner");
       btns.forEach((x, i) => { const v = x.querySelector(".qv"); v.textContent = fmtArea(AREA[[a, b][i]]); v.classList.add("open"); });
+      btns.forEach(x => { const r = x.querySelector(".qres"); if (x.classList.contains("good")) r.textContent = "✓"; else if (x.classList.contains("bad")) r.textContent = "✗"; });
       duel.classList.add("over");
       const ratio = Math.max(AREA[a], AREA[b]) / Math.min(AREA[a], AREA[b]), top = Math.max(AREA[a], AREA[b]);
       const bar = c2 => `<div class="bar ${c2 === a ? "ta" : "tb"}${c2 === win ? " win" : ""}"><span class="lbl">${c2 === win ? "👑 " : ""}${esc(nameOf(c2))}<em>${fmtArea(AREA[c2])}</em></span>
