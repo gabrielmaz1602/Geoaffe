@@ -14,7 +14,7 @@ create table if not exists public.profiles (
 create table if not exists public.results (
   user_id uuid not null references public.profiles(id) on delete cascade,
   day int not null,                                   -- Geoaffe-Nummer des Tages (Nr. 1 = 1. Januar 2026)
-  game text not null check (game in ('pin', 'border', 'flag', 'nord', 'shape', 'size')),
+  game text not null,
   score int not null check (score between 0 and 500),
   created_at timestamptz not null default now(),
   primary key (user_id, day, game)
@@ -27,6 +27,10 @@ create table if not exists public.friendships (
   primary key (user_id, friend_id),
   check (user_id <> friend_id)
 );
+
+-- erlaubte Spiele (bei neuen Spielen hier ergänzen und erneut ausführen)
+alter table public.results drop constraint if exists results_game_check;
+alter table public.results add constraint results_game_check check (game in ('pin', 'border', 'flag', 'nord', 'shape', 'size', 'hang', 'wordle'));
 
 alter table public.profiles enable row level security;
 alter table public.results enable row level security;
