@@ -1310,8 +1310,10 @@ function friendsPage() {
   app.append(me, add, board, share);
   share.querySelector("#fShare").onclick = shareImage;
   let myCode = "";
-  rpc("my_profile").then(d => { myCode = (d && d[0] && d[0].friend_code) || ""; me.querySelector("#myCode").textContent = myCode || "–"; })
-    .catch(e => { me.querySelector("#myCode").textContent = "–"; if (e.status === 401 || e.status === 403) { saved.cloud = null; persist(); friendsPage(); } });
+  // the online profile can be gone (deleted on the server, expired sign-in): then start over with "Mitmachen"
+  const lost = () => { saved.cloud = null; persist(); friendsPage(); toast("Dein Online-Profil gibt es nicht mehr. Mach einfach neu mit."); };
+  rpc("my_profile").then(d => { myCode = (d && d[0] && d[0].friend_code) || ""; if (!myCode) return lost(); me.querySelector("#myCode").textContent = myCode; })
+    .catch(e => { me.querySelector("#myCode").textContent = "–"; if (e.status === 400 || e.status === 401 || e.status === 403) lost(); });
   me.querySelector("#fInvite").onclick = () => invite(myCode);
   const inp = add.querySelector("#fCode"), msg = add.querySelector("#fMsg");
   inp.value = pendingCode; pendingCode = "";
