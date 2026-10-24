@@ -459,56 +459,32 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 .opt.good, .half .choices button.good, .shape.good { animation: bump .35s; }
 .fb.bad { animation: pop .3s cubic-bezier(.2,1.4,.4,1), shake .45s .15s; }
 
-/* Umriss: mystery card (flips to the flag-filled country) or stage with spotlight */
+/* Umriss: the country as an island on the sea; the card flips to the flag-filled island */
 .mystery { perspective: 1200px; }
 .mystery .mi { position: relative; width: 100%; aspect-ratio: 4 / 3; transform-style: preserve-3d; transition: transform .75s cubic-bezier(.3,1.25,.5,1); }
-.mystery .face { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 26px; display: flex; flex-direction: column; align-items: center; padding: 14px 16px 12px; overflow: hidden; }
+.mystery .face { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 26px; display: flex; flex-direction: column; align-items: center; padding: 14px 16px 12px; overflow: hidden;
+  color: #fff; border: 6px solid #fff; box-shadow: 0 6px 0 var(--edge);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='26'%3E%3Cpath d='M0 13 q16 -9 32 0 t32 0' fill='none' stroke='white' stroke-opacity='.22' stroke-width='2.5'/%3E%3C/svg%3E") 0 0 / 64px 26px, radial-gradient(circle at 30% 22%, #7fd3ff, #2a86dc 75%); }
+:root[data-theme="dark"] .mystery .face { border-color: #2a2a2e; background-color: #1b4f86; }
 .mystery .face svg { flex: 1; width: 100%; min-height: 0; overflow: visible; }
 .mystery path { stroke-linejoin: round; }
-.mystery .mtitle { font-family: var(--f-head); font-weight: 700; font-size: 15px; letter-spacing: .1em; text-transform: uppercase; }
-.mystery .mfoot { font-size: 11.5px; font-weight: 800; opacity: .75; }
-.mystery .mq { position: absolute; right: 14px; top: 10px; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; font-family: var(--f-head); font-weight: 700; font-size: 24px; background: var(--ochre); color: var(--ink); box-shadow: 0 3px 0 var(--ochre-dk); transform: rotate(10deg); }
-.mystery .ol { fill: none; stroke: var(--ink); stroke-width: 3; }
+.mystery .shallow { fill: rgba(255,255,255,.28); stroke: rgba(255,255,255,.28); stroke-width: 30; }
+.mystery .beach { fill: #f6dfa6; stroke: #f6dfa6; stroke-width: 11; }
+.mystery .sil { fill: #6cc24a; stroke: #4f9d33; stroke-width: 2; }
+.mystery .ol { fill: none; stroke: #1d2742; stroke-width: 3; }
 .mystery .solid { fill: var(--grape); }
+.mystery .mtitle { font-family: var(--f-head); font-weight: 700; font-size: 16px; letter-spacing: .08em; text-transform: uppercase; text-shadow: 0 2px 0 rgba(0,0,0,.18); }
+.mystery .mfoot { font-size: 12px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,.3); }
+.mystery .mq { position: absolute; right: 14px; top: 10px; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; font-family: var(--f-head); font-weight: 700; font-size: 24px; background: var(--ochre); color: var(--ink); box-shadow: 0 3px 0 var(--ochre-dk); transform: rotate(10deg); }
 .mystery.mcard { transform: rotate(-1.5deg); }
-.mystery.mcard .mfront { color: #fff; border: 6px solid #fff; box-shadow: 0 6px 0 var(--edge);
-  background: radial-gradient(rgba(255,255,255,.2) 2px, transparent 2.6px) 0 0 / 18px 18px, linear-gradient(145deg, #a983ff, #6a3ce0); }
-.mystery.mcard .mfront .sil { fill: #241a4d; }
-.mystery.mcard .mfront .sh { fill: rgba(0,0,0,.18); }
-.mystery.mcard .mfront svg { animation: hover 3s ease-in-out infinite; }
+.mystery .mfront svg { animation: hover 3s ease-in-out infinite; }
 @keyframes hover { 50% { transform: translateY(-5px); } }
-.mystery.mcard .mback { transform: rotateY(180deg); background: radial-gradient(color-mix(in srgb, var(--ink) 7%, transparent) 2px, transparent 2.6px) 0 0 / 18px 18px, var(--card); border: 6px solid var(--card); box-shadow: 0 6px 0 var(--edge); color: var(--ink); }
-.mystery.mcard .mback .sh { fill: rgba(29,39,66,.15); }
-.mystery.mcard.revealed .mi { transform: rotateY(180deg); }
-.mystery.mcard.good .mback { border-color: var(--good); box-shadow: 0 6px 0 var(--moss-dk); }
-.mystery.mcard.bad .mback { border-color: var(--bad); box-shadow: 0 6px 0 #c73333; }
-.mystery.stage .face { box-shadow: 0 6px 0 #0b0e17; }
-.mystery.stage .mfront { color: #ffe08a; background: radial-gradient(ellipse 48% 52% at 50% 56%, #fff4c9 0, #ffd66b 38%, rgba(255,214,107,0) 72%), linear-gradient(#262d45, #0f121c); }
-.mystery.stage .mfront::before { content: ""; position: absolute; left: 10px; right: 10px; top: 8px; height: 10px; background: radial-gradient(circle, #ffe08a 3px, transparent 3.5px) 0 0 / 20px 10px; opacity: .9; }
-.mystery.stage .mtitle { margin-top: 12px; text-shadow: 0 0 12px rgba(255,214,107,.6); }
-.mystery.stage .mfront .sil { fill: #141826; }
-.mystery.stage .mfront .sh { fill: rgba(0,0,0,.25); }
-.mystery.stage .mq { display: none; }
-.mystery.stage .mback { background: radial-gradient(ellipse 60% 60% at 50% 55%, #fffbe8, #ffe9a8); color: var(--ink); opacity: 0; transition: opacity .7s; }
-.mystery.stage .mback .sh { fill: rgba(0,0,0,.12); }
-.mystery.stage .mback .mtitle { margin-top: 12px; }
-.mystery.stage.revealed .mback { opacity: 1; }
-.mystery.stage.good .mback { box-shadow: inset 0 0 0 5px var(--good), 0 6px 0 var(--moss-dk); }
-.mystery.stage.bad .mback { box-shadow: inset 0 0 0 5px var(--bad), 0 6px 0 #c73333; }
+.mystery .mback { transform: rotateY(180deg); }
+.mystery.revealed .mi { transform: rotateY(180deg); }
+.mystery.good .mback { border-color: var(--good); box-shadow: 0 6px 0 var(--moss-dk); }
+.mystery.bad .mback { border-color: var(--bad); box-shadow: 0 6px 0 #c73333; }
 
 /* Flächenduell: boxing corners, overlay and bars */
-.sizeduel .fighter { position: relative; overflow: visible; padding-top: 34px; }
-.sizeduel .fighter:nth-child(1) { background: linear-gradient(180deg, color-mix(in srgb, var(--wax) 18%, var(--surf)) 0 30px, var(--card) 30px); border-color: color-mix(in srgb, var(--wax) 40%, var(--surf)); box-shadow: 0 4px 0 color-mix(in srgb, var(--wax) 55%, var(--surf)); }
-.sizeduel .fighter:nth-child(3) { background: linear-gradient(180deg, color-mix(in srgb, var(--navy) 20%, var(--surf)) 0 30px, var(--card) 30px); border-color: color-mix(in srgb, var(--navy) 45%, var(--surf)); box-shadow: 0 4px 0 color-mix(in srgb, var(--navy) 60%, var(--surf)); }
-.sizeduel .corner { position: absolute; top: 7px; left: 0; right: 0; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
-.sizeduel .fighter:nth-child(1) .corner { color: var(--wax-dk); }
-.sizeduel .fighter:nth-child(3) .corner { color: var(--navy-dk); }
-.sizeduel .fighter.good { background: var(--good-soft); }
-.sizeduel .crown { position: absolute; top: -30px; left: 50%; transform: translateX(-50%) scale(0) rotate(-20deg); font-size: 34px; font-style: normal; transition: transform .45s cubic-bezier(.2,1.6,.4,1) .15s; }
-.sizeduel .fighter.winner .crown { transform: translateX(-50%) scale(1) rotate(-8deg); }
-.sizeduel .fighter.winner .corner { opacity: 0; }
-.sizeduel { margin-top: 18px; }
-.sizeduel-unused-vs { width: 62px; height: 62px; font-size: 20px; border-radius: 0; background: var(--ochre); border: 0; box-shadow: none; clip-path: polygon(50% 0, 61% 33%, 98% 30%, 70% 55%, 84% 96%, 50% 72%, 16% 96%, 30% 55%, 2% 30%, 39% 33%); filter: drop-shadow(0 3px 0 var(--ochre-dk)); }
 .sizeresult { display: flex; flex-direction: column; gap: 12px; }
 .overlay { position: relative; background: var(--card); border-radius: 18px; padding: 10px; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink) 6%, transparent); }
 .overlay svg { display: block; width: 100%; height: auto; }
@@ -532,27 +508,34 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 .verdict { margin: 2px 0 0; font-size: 15px; }
 .verdict b { color: var(--moss-dk); }
 
-/* Flächenduell: balance scale */
-.balwrap { margin: 0 -4px -8px; }
-.balance { display: block; width: 100%; height: auto; overflow: visible; }
-.balance .post, .balance .beam rect, .balance .beam circle { fill: var(--ochre); stroke: var(--ochre-dk); stroke-width: 2.5; }
-.balance .pivot { fill: var(--ochre-dk); stroke: #fff; stroke-width: 3; }
-.balance .rope { stroke: var(--ink-3); stroke-width: 2; fill: none; }
-.balance .bowl { fill: var(--ochre); stroke: var(--ochre-dk); stroke-width: 2.5; }
-.balance .pan svg path { stroke-width: 1.4; stroke-linejoin: round; }
-.balance .pa svg path { fill: var(--wax); stroke: var(--wax-dk); }
-.balance .pb svg path { fill: var(--navy); stroke: var(--navy-dk); }
-.balance .beam { transform-box: view-box; transform-origin: 170px 40px; animation: wob 2.6s ease-in-out infinite; transition: transform .9s cubic-bezier(.3,1.6,.5,1); }
-.balance .pa { animation: wobA 2.6s ease-in-out infinite; transition: transform .9s cubic-bezier(.3,1.6,.5,1); }
-.balance .pb { animation: wobB 2.6s ease-in-out infinite; transition: transform .9s cubic-bezier(.3,1.6,.5,1); }
-@keyframes wob { 0%, 100% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } }
-@keyframes wobA { 0%, 100% { transform: translateY(5.7px); } 50% { transform: translateY(-5.7px); } }
-@keyframes wobB { 0%, 100% { transform: translateY(-5.7px); } 50% { transform: translateY(5.7px); } }
-.tip-a .beam, .tip-a .pa, .tip-a .pb, .tip-b .beam, .tip-b .pa, .tip-b .pb { animation: none; }
-.tip-a .beam { transform: rotate(-9deg); } .tip-a .pa { transform: translateY(20px); } .tip-a .pb { transform: translateY(-20px); }
-.tip-b .beam { transform: rotate(9deg); } .tip-b .pa { transform: translateY(-20px); } .tip-b .pb { transform: translateY(20px); }
-.sizeduel { margin-top: 0; }
-.sizeduel .fighter img { width: 78%; }
+/* Flächenduell: Quartett cards */
+.quartett { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+.qcard { position: relative; padding: 0; gap: 0; align-items: stretch; text-align: left; border-radius: 20px; overflow: visible; border-width: 3px; }
+.qcard:nth-child(1) { transform: rotate(-2deg); }
+.qcard:nth-child(2) { transform: rotate(2deg); }
+.qcard.ta { border-color: var(--wax); box-shadow: 0 5px 0 var(--wax-dk); }
+.qcard.tb { border-color: var(--navy); box-shadow: 0 5px 0 var(--navy-dk); }
+.qhead { display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 16px 16px 0 0; color: #fff; }
+.ta .qhead { background: var(--wax); }
+.tb .qhead { background: var(--navy); }
+.qhead b { color: #fff; font-family: var(--f-head); font-weight: 700; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qhead i { color: #fff; font-style: normal; font-weight: 800; font-size: 12px; background: rgba(255,255,255,.28); border-radius: 8px; padding: 1px 7px; flex-shrink: 0; }
+.qflag { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-bottom: 3px solid var(--line); }
+.qsil { display: block; height: 70px; padding: 6px 0 2px; background: radial-gradient(color-mix(in srgb, var(--ink) 9%, transparent) 1.5px, transparent 2px) 0 0 / 12px 12px; }
+.qsil svg { display: block; width: 100%; height: 100%; }
+.qsil path { stroke-width: 1.4; stroke-linejoin: round; }
+.ta .qsil path { fill: var(--wax); stroke: var(--wax-dk); }
+.tb .qsil path { fill: var(--navy); stroke: var(--navy-dk); }
+.qrow { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; padding: 7px 10px; border-top: 2px dashed var(--line); font-size: 13px; }
+.qrow small { color: var(--ink-2); font-weight: 700; font-size: 12px; }
+.qrow b { font-weight: 800; font-size: 13px; white-space: nowrap; }
+.qarea { padding-bottom: 10px; }
+.qv { font-family: var(--f-mono); letter-spacing: .1em; }
+.ta .qv { color: var(--wax-dk); } .tb .qv { color: var(--navy-dk); }
+.qv.open { letter-spacing: 0; animation: pop .4s cubic-bezier(.2,1.5,.4,1); }
+.qcard.good { background: var(--good-soft); }
+.qcard .crown { position: absolute; top: -30px; left: 50%; transform: translateX(-50%) scale(0) rotate(-20deg); font-size: 34px; font-style: normal; transition: transform .45s cubic-bezier(.2,1.6,.4,1) .15s; }
+.qcard.winner .crown { transform: translateX(-50%) scale(1) rotate(-8deg); }
 
 /* end screen */
 .end { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; padding: 8px 0; }
@@ -926,7 +909,6 @@ function shapeSvg(iso, w, h, scale = null) {
   return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Umriss"><path d="${d3.geoPath(p)(shape)}"/></svg>`;
 }
 // country silhouette for Umriss: dark shadow version (question) and flag-filled version (answer)
-const SHAPE_LOOK = "mcard";   // "mcard" = Mystery-Karte zum Umdrehen, "stage" = Bühne mit Scheinwerfer
 let silSeq = 0;
 function silhouette(iso, w, h, fit = 0.8) {
   const { shape } = shapeOf(iso), p = shapeProj(iso);
@@ -935,21 +917,10 @@ function silhouette(iso, w, h, fit = 0.8) {
   p.scale(k).translate([w / 2 - k * (x0 + x1) / 2, h / 2 - k * (y0 + y1) / 2]);
   const path = d3.geoPath(p), d = path(shape), [[bx0, by0], [bx1, by1]] = path.bounds(shape), id = "sil" + silSeq++;
   const flag = FLAGS[iso.toLowerCase()];
-  const front = `<svg viewBox="0 0 ${w} ${h}" aria-hidden="true"><path class="sh" d="${d}" transform="translate(5 7)"/><path class="sil" d="${d}"/></svg>`;
-  const back = `<svg viewBox="0 0 ${w} ${h}" aria-hidden="true"><defs><clipPath id="${id}"><path d="${d}"/></clipPath></defs><path class="sh" d="${d}" transform="translate(5 7)"/>
+  const front = `<svg viewBox="0 0 ${w} ${h}" aria-hidden="true"><path class="shallow" d="${d}"/><path class="beach" d="${d}"/><path class="sil" d="${d}"/></svg>`;
+  const back = `<svg viewBox="0 0 ${w} ${h}" aria-hidden="true"><defs><clipPath id="${id}"><path d="${d}"/></clipPath></defs><path class="shallow" d="${d}"/><path class="beach" d="${d}"/>
     ${flag ? `<image href="${flag}" x="${bx0}" y="${by0}" width="${bx1 - bx0}" height="${by1 - by0}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/>` : `<path class="solid" d="${d}"/>`}<path class="ol" d="${d}"/></svg>`;
   return { front, back };
-}
-// balance scale for Flächenduell: one country in each pan (not to scale), tips towards the bigger one after the answer
-function balanceSvg(a, b) {
-  const pan = (iso, x, cls) => `<g class="pan ${cls}"><path class="rope" d="M${x} 40 L${x - 50} 120 M${x} 40 L${x + 50} 120"/>
-    ${shapeSvg(iso, 96, 66).replace(/<svg viewBox="0 0 96 66"[^>]*>/, `<svg x="${x - 48}" y="56" width="96" height="66" viewBox="0 0 96 66">`)}
-    <path class="bowl" d="M${x - 60} 120 h120 a60 22 0 0 1 -120 0z"/></g>`;
-  return `<svg class="balance" viewBox="0 0 340 172" aria-hidden="true">
-    <rect class="post" x="165" y="40" width="10" height="112" rx="5"/><rect class="post" x="126" y="150" width="88" height="14" rx="7"/>
-    ${pan(a, 40, "pa")}${pan(b, 300, "pb")}
-    <g class="beam"><rect x="34" y="35" width="272" height="10" rx="5"/><circle cx="40" cy="40" r="7"/><circle cx="300" cy="40" r="7"/></g>
-    <circle class="pivot" cx="170" cy="40" r="11"/></svg>`;
 }
 // two countries in the same scale, both centred on the same point (Flächenduell)
 function overlaySvg(a, b, w, h) {
@@ -981,7 +952,7 @@ function genShape(r) {
 function viewShape(q, host, answer) {
   host.append(h("p", "q", "Welches Land hat <b>diesen Umriss</b>?"));
   const sil = silhouette(q.iso, 400, 270);
-  const pic = h("div", `mystery ${SHAPE_LOOK}`, `<div class="mi"><div class="face mfront"><span class="mtitle">${SHAPE_LOOK === "stage" ? "Wer bin ich?" : "Mystery-Land"}</span><span class="mq">?</span>${sil.front}<span class="mfoot">Norden ist oben · nicht maßstabsgetreu</span></div>
+  const pic = h("div", "mystery mcard", `<div class="mi"><div class="face mfront"><span class="mtitle">Welche Insel?</span><span class="mq">?</span>${sil.front}<span class="mfoot">Norden ist oben · nicht maßstabsgetreu</span></div>
     <div class="face mback"><span class="mtitle"></span>${sil.back}<span class="mfoot"></span></div></div>`); host.append(pic);
   const opts = h("div", "opts");
   for (const c of q.opts) {
@@ -1040,17 +1011,20 @@ function viewSize(q, host, answer) {
   const { a, b } = q;
   const win = AREA[a] > AREA[b] ? a : b;
   host.append(h("p", "q", "Welches Land ist <b>größer</b>?"));
-  const bal = h("div", "balwrap", balanceSvg(a, b)); host.append(bal);
-  const duel = h("div", "duel sizeduel"), btns = [];
+  const duel = h("div", "quartett"), btns = [];
   for (const c of [a, b]) {
-    const btn = h("button", "opt fighter", `<span class="corner">${c === a ? "Blaue Ecke" : "Orange Ecke"}</span><img src="${flagOf(c)}" alt=""><b>${esc(nameOf(c))}</b><span>${esc(regionOf(c) || "")}</span><i class="crown">👑</i>`); btn.type = "button";
+    const team = c === a ? "ta" : "tb";
+    const btn = h("button", `opt qcard ${team}`, `<span class="qhead"><b>${esc(nameOf(c))}</b><i>${run.i + 1}${c === a ? "A" : "B"}</i></span>
+      <img class="qflag" src="${flagOf(c)}" alt=""><span class="qsil">${shapeSvg(c, 120, 64)}</span>
+      <span class="qrow"><small>Kontinent</small><b>${esc(regionOf(c) || "–")}</b></span>
+      <span class="qrow qarea"><small>Fläche</small><b class="qv">???</b></span><i class="crown">👑</i>`); btn.type = "button";
     btn.onclick = () => {
       btns.forEach(x => x.disabled = true);
       const ok = c === win;
       btn.classList.add(ok ? "good" : "bad");
       if (!ok) btns[[a, b].indexOf(win)].classList.add("good");
       btns[[a, b].indexOf(win)].classList.add("winner");
-      bal.classList.add(win === a ? "tip-a" : "tip-b");
+      btns.forEach((x, i) => { const v = x.querySelector(".qv"); v.textContent = fmtArea(AREA[[a, b][i]]); v.classList.add("open"); });
       duel.classList.add("over");
       const ratio = Math.max(AREA[a], AREA[b]) / Math.min(AREA[a], AREA[b]), top = Math.max(AREA[a], AREA[b]);
       const bar = c2 => `<div class="bar ${c2 === a ? "ta" : "tb"}${c2 === win ? " win" : ""}"><span class="lbl">${c2 === win ? "👑 " : ""}${esc(nameOf(c2))}<em>${fmtArea(AREA[c2])}</em></span>
