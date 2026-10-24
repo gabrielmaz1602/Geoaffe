@@ -508,34 +508,28 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 .verdict { margin: 2px 0 0; font-size: 15px; }
 .verdict b { color: var(--moss-dk); }
 
-/* Flächenduell: Quartett cards */
-.quartett { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
-.qcard { position: relative; padding: 0; gap: 0; align-items: stretch; text-align: left; border-radius: 20px; overflow: visible; border-width: 3px; }
-.qcard:nth-child(1) { transform: rotate(-2deg); }
-.qcard:nth-child(2) { transform: rotate(2deg); }
+/* Flächenduell: two Quartett cards stacked, full width */
+.quartett { display: flex; flex-direction: column; align-items: stretch; gap: 0; margin-top: 10px; }
+.qcard { position: relative; padding: 0; gap: 0; align-items: stretch; text-align: left; border-radius: 22px; overflow: visible; border-width: 3px; }
+.qcard:nth-child(1) { transform: rotate(-1deg); }
+.qcard:nth-child(3) { transform: rotate(1deg); }
 .qcard.ta { border-color: var(--wax); box-shadow: 0 5px 0 var(--wax-dk); }
 .qcard.tb { border-color: var(--navy); box-shadow: 0 5px 0 var(--navy-dk); }
-.qhead { display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 16px 16px 0 0; color: #fff; }
+.qhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 18px 18px 0 0; }
 .ta .qhead { background: var(--wax); }
 .tb .qhead { background: var(--navy); }
-.qhead b { color: #fff; font-family: var(--f-head); font-weight: 700; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.qhead i { color: #fff; font-style: normal; font-weight: 800; font-size: 12px; background: rgba(255,255,255,.28); border-radius: 8px; padding: 1px 7px; flex-shrink: 0; }
-.qflag { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-bottom: 3px solid var(--line); }
-.qsil { display: block; height: 70px; padding: 6px 0 2px; background: radial-gradient(color-mix(in srgb, var(--ink) 9%, transparent) 1.5px, transparent 2px) 0 0 / 12px 12px; }
-.qsil svg { display: block; width: 100%; height: 100%; }
-.qsil path { stroke-width: 1.4; stroke-linejoin: round; }
-.ta .qsil path { fill: var(--wax); stroke: var(--wax-dk); }
-.tb .qsil path { fill: var(--navy); stroke: var(--navy-dk); }
-.qrow { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; padding: 7px 10px; border-top: 2px dashed var(--line); font-size: 13px; }
-.qrow small { color: var(--ink-2); font-weight: 700; font-size: 12px; }
-.qrow b { font-weight: 800; font-size: 13px; white-space: nowrap; }
-.qarea { padding-bottom: 10px; }
-.qv { font-family: var(--f-mono); letter-spacing: .1em; }
+.qhead b { color: #fff; font-family: var(--f-head); font-weight: 700; font-size: 21px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qhead i { color: #fff; font-style: normal; font-weight: 800; font-size: 13px; background: rgba(255,255,255,.28); border-radius: 8px; padding: 1px 8px; flex-shrink: 0; }
+.qflag { display: block; width: 100%; height: clamp(110px, 19vh, 170px); object-fit: cover; border-bottom: 3px solid var(--line); }
+.qrow { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 10px 14px 12px; }
+.qrow small { color: var(--ink-2); font-weight: 800; font-size: 15px; }
+.qv { font-family: var(--f-mono); font-weight: 700; font-size: 20px; letter-spacing: .12em; }
 .ta .qv { color: var(--wax-dk); } .tb .qv { color: var(--navy-dk); }
 .qv.open { letter-spacing: 0; animation: pop .4s cubic-bezier(.2,1.5,.4,1); }
 .qcard.good { background: var(--good-soft); }
-.qcard .crown { position: absolute; top: -30px; left: 50%; transform: translateX(-50%) scale(0) rotate(-20deg); font-size: 34px; font-style: normal; transition: transform .45s cubic-bezier(.2,1.6,.4,1) .15s; }
-.qcard.winner .crown { transform: translateX(-50%) scale(1) rotate(-8deg); }
+.qcard .crown { position: absolute; top: -26px; right: 70px; transform: scale(0) rotate(-20deg); font-size: 36px; font-style: normal; transition: transform .45s cubic-bezier(.2,1.6,.4,1) .15s; }
+.qcard.winner .crown { transform: scale(1) rotate(12deg); }
+.qor { align-self: center; margin: -6px 0; z-index: 2; background: var(--ink); color: var(--paper); font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; border-radius: 999px; padding: 4px 14px; border: 3px solid var(--paper); }
 
 /* end screen */
 .end { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; padding: 8px 0; }
@@ -1015,8 +1009,7 @@ function viewSize(q, host, answer) {
   for (const c of [a, b]) {
     const team = c === a ? "ta" : "tb";
     const btn = h("button", `opt qcard ${team}`, `<span class="qhead"><b>${esc(nameOf(c))}</b><i>${run.i + 1}${c === a ? "A" : "B"}</i></span>
-      <img class="qflag" src="${flagOf(c)}" alt=""><span class="qsil">${shapeSvg(c, 120, 64)}</span>
-      <span class="qrow"><small>Kontinent</small><b>${esc(regionOf(c) || "–")}</b></span>
+      <img class="qflag" src="${flagOf(c)}" alt="">
       <span class="qrow qarea"><small>Fläche</small><b class="qv">???</b></span><i class="crown">👑</i>`); btn.type = "button";
     btn.onclick = () => {
       btns.forEach(x => x.disabled = true);
@@ -1036,7 +1029,7 @@ function viewSize(q, host, answer) {
     };
     btns.push(btn);
   }
-  duel.append(...btns);
+  duel.append(btns[0], h("span", "qor", "oder"), btns[1]);
   host.append(duel);
   host.joker = () => btns[[a, b].indexOf(win)].click();
 }
