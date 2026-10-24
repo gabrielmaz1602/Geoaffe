@@ -459,6 +459,63 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 .opt.good, .half .choices button.good, .shape.good { animation: bump .35s; }
 .fb.bad { animation: pop .3s cubic-bezier(.2,1.4,.4,1), shake .45s .15s; }
 
+/* Umriss: sticker on a sea chart */
+.shape.chart { position: relative; overflow: hidden; border: 0; padding: 26px;
+  background: repeating-linear-gradient(0deg, transparent 0 39px, rgba(255,255,255,.35) 39px 41px), repeating-linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,.35) 39px 41px), radial-gradient(circle at 30% 20%, #cfeaff, #8fcaf5); box-shadow: 0 5px 0 #6fb0e0; }
+:root[data-theme="dark"] .shape.chart { background: repeating-linear-gradient(0deg, transparent 0 39px, rgba(255,255,255,.06) 39px 41px), repeating-linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,.06) 39px 41px), radial-gradient(circle at 30% 20%, #23374d, #121c27); box-shadow: 0 5px 0 #000; }
+.shape.chart svg { transform: rotate(-4deg); filter: drop-shadow(0 8px 0 rgba(29, 39, 66, .18)); animation: stick .55s cubic-bezier(.2,1.5,.4,1); }
+@keyframes stick { from { transform: rotate(-25deg) scale(.4); opacity: 0; } }
+.shape.chart path { stroke-linejoin: round; }
+.shape.chart .edge { fill: #fff; stroke: #fff; stroke-width: 18; }
+.shape.chart .fill { stroke: #5a2fd0; stroke-width: 2; transition: fill .3s; }
+.shape.chart .shine { fill: none; stroke: rgba(255,255,255,.5); stroke-width: 3; transform: translate(-2px, -2px); }
+.shape.chart.good .fill { fill: var(--good); stroke: var(--moss-dk); }
+.shape.chart.bad .fill { fill: var(--bad); stroke: #c73333; }
+.shape.chart.good svg, .shape.chart.bad svg { animation: wiggle .5s; }
+@keyframes wiggle { 25% { transform: rotate(2deg) scale(1.04); } 60% { transform: rotate(-7deg); } }
+.north { position: absolute; right: 14px; top: 12px; width: 42px; height: 42px; border-radius: 50%; background: var(--card); box-shadow: 0 3px 0 rgba(29,39,66,.15); display: grid; place-items: center; font-family: var(--f-head); font-weight: 700; font-size: 12px; color: var(--ink); padding-bottom: 14px; }
+.north i { position: absolute; left: 50%; top: 18px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 16px solid var(--bad); transform: translateX(-50%); }
+.scale { position: absolute; left: 14px; bottom: 12px; background: rgba(255,255,255,.75); color: var(--ink-2); border-radius: 999px; padding: 2px 10px; font-size: 11.5px; font-weight: 800; }
+:root[data-theme="dark"] .scale { background: rgba(0,0,0,.4); }
+.qmark { position: absolute; left: 12px; top: 10px; width: 36px; height: 36px; border-radius: 12px; background: var(--ochre); color: var(--ink); display: grid; place-items: center; font-family: var(--f-head); font-weight: 700; font-size: 22px; transform: rotate(-10deg); box-shadow: 0 3px 0 var(--ochre-dk); }
+.shape.chart.good .qmark { content: ""; background: var(--good); color: #fff; box-shadow: 0 3px 0 var(--moss-dk); }
+
+/* Flächenduell: boxing corners, overlay and bars */
+.sizeduel .fighter { position: relative; overflow: visible; padding-top: 34px; }
+.sizeduel .fighter:nth-child(1) { background: linear-gradient(180deg, color-mix(in srgb, var(--wax) 18%, var(--surf)) 0 30px, var(--card) 30px); border-color: color-mix(in srgb, var(--wax) 40%, var(--surf)); box-shadow: 0 4px 0 color-mix(in srgb, var(--wax) 55%, var(--surf)); }
+.sizeduel .fighter:nth-child(3) { background: linear-gradient(180deg, color-mix(in srgb, var(--navy) 20%, var(--surf)) 0 30px, var(--card) 30px); border-color: color-mix(in srgb, var(--navy) 45%, var(--surf)); box-shadow: 0 4px 0 color-mix(in srgb, var(--navy) 60%, var(--surf)); }
+.sizeduel .corner { position: absolute; top: 7px; left: 0; right: 0; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.sizeduel .fighter:nth-child(1) .corner { color: var(--wax-dk); }
+.sizeduel .fighter:nth-child(3) .corner { color: var(--navy-dk); }
+.sizeduel .fighter.good { background: var(--good-soft); }
+.sizeduel .crown { position: absolute; top: -30px; left: 50%; transform: translateX(-50%) scale(0) rotate(-20deg); font-size: 34px; font-style: normal; transition: transform .45s cubic-bezier(.2,1.6,.4,1) .15s; }
+.sizeduel .fighter.winner .crown { transform: translateX(-50%) scale(1) rotate(-8deg); }
+.sizeduel .fighter.winner .corner { opacity: 0; }
+.sizeduel { margin-top: 18px; }
+.sizeduel .vs { width: 62px; height: 62px; font-size: 20px; border-radius: 0; background: var(--ochre); border: 0; box-shadow: none; clip-path: polygon(50% 0, 61% 33%, 98% 30%, 70% 55%, 84% 96%, 50% 72%, 16% 96%, 30% 55%, 2% 30%, 39% 33%); filter: drop-shadow(0 3px 0 var(--ochre-dk)); }
+.sizeresult { display: flex; flex-direction: column; gap: 12px; }
+.overlay { position: relative; background: var(--card); border-radius: 18px; padding: 10px; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink) 6%, transparent); }
+.overlay svg { display: block; width: 100%; height: auto; }
+.overlay path { stroke-linejoin: round; stroke-width: 2; animation: fadein .6s both; }
+.overlay .ta { fill: color-mix(in srgb, var(--wax) 55%, transparent); stroke: var(--wax-dk); }
+.overlay .tb { fill: color-mix(in srgb, var(--navy) 60%, transparent); stroke: var(--navy-dk); }
+.overlay path:nth-child(2) { animation-delay: .35s; }
+@keyframes fadein { from { opacity: 0; transform: scale(.9); transform-origin: center; } }
+.overlay .tag-a, .overlay .tag-b { position: absolute; top: 10px; font-size: 12px; font-weight: 800; color: #fff; border-radius: 999px; padding: 2px 10px; }
+.overlay .tag-a { left: 10px; background: var(--wax); }
+.overlay .tag-b { right: 10px; background: var(--navy); }
+.bars { display: flex; flex-direction: column; gap: 8px; }
+.bar { display: grid; grid-template-columns: 1fr; gap: 3px; }
+.bar .lbl { font-weight: 800; font-size: 14px; display: flex; justify-content: space-between; gap: 8px; }
+.bar .lbl em { font-style: normal; font-family: var(--f-mono); font-weight: 600; color: var(--ink-2); }
+.bar .track { height: 18px; border-radius: 999px; background: color-mix(in srgb, var(--ink) 8%, transparent); overflow: hidden; }
+.bar .track i { display: block; height: 100%; width: var(--w); border-radius: 999px; animation: grow .9s cubic-bezier(.2,.8,.2,1) .3s both; }
+.bar.ta .track i { background: var(--wax); }
+.bar.tb .track i { background: var(--navy); }
+@keyframes grow { from { width: 0; } }
+.verdict { margin: 2px 0 0; font-size: 15px; }
+.verdict b { color: var(--moss-dk); }
+
 /* end screen */
 .end { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; padding: 8px 0; }
 .end .big { font-family: var(--f-mono); font-weight: 700; font-size: 72px; line-height: 1; color: var(--navy); }
@@ -830,6 +887,29 @@ function shapeSvg(iso, w, h, scale = null) {
   p.scale(k).translate([w / 2 - k * (x0 + x1) / 2, h / 2 - k * (y0 + y1) / 2]);
   return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Umriss"><path d="${d3.geoPath(p)(shape)}"/></svg>`;
 }
+// country as a sticker: gradient fill, thick white edge, soft shadow (Umriss)
+let stickerSeq = 0;
+function stickerSvg(iso, w, h) {
+  const { shape } = shapeOf(iso), p = shapeProj(iso);
+  const [[x0, y0], [x1, y1]] = d3.geoPath(p).bounds(shape);
+  const k = 0.8 * Math.min(w / (x1 - x0), h / (y1 - y0));
+  p.scale(k).translate([w / 2 - k * (x0 + x1) / 2, h / 2 - k * (y0 + y1) / 2]);
+  const id = "stk" + stickerSeq++, d = d3.geoPath(p)(shape);
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Umriss"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#b48cff"/><stop offset="1" stop-color="#6c3ee0"/></linearGradient></defs>
+    <path class="edge" d="${d}"/><path class="fill" d="${d}" fill="url(#${id})"/><path class="shine" d="${d}"/></svg>`;
+}
+// two countries in the same scale, both centred on the same point (Flächenduell)
+function overlaySvg(a, b, w, h) {
+  const k = sharedScale([a, b], w, h) * 0.8;
+  const one = (iso, cls) => {
+    const { shape } = shapeOf(iso), p = shapeProj(iso).scale(k);
+    const c = d3.geoPath(p).centroid(shape); p.translate([w / 2 - c[0], h / 2 - c[1]]);
+    return `<path class="${cls}" d="${d3.geoPath(p)(shape)}"/>`;
+  };
+  const big = AREA[a] >= AREA[b] ? a : b, small = big === a ? b : a;
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Größenvergleich">${one(big, big === a ? "ta" : "tb")}${one(small, small === a ? "ta" : "tb")}</svg>`;
+}
 // common scale that fits the larger of several countries into w × h
 function sharedScale(isos, w, h) {
   return d3.min(isos, iso => { const [[x0, y0], [x1, y1]] = d3.geoPath(shapeProj(iso)).bounds(shapeOf(iso).shape); return 0.92 * Math.min(w / (x1 - x0), h / (y1 - y0)); });
@@ -848,8 +928,7 @@ function genShape(r) {
 }
 function viewShape(q, host, answer) {
   host.append(h("p", "q", "Welches Land hat <b>diesen Umriss</b>?"));
-  host.append(h("p", "sub", "Nicht maßstabsgetreu · Norden ist oben"));
-  const pic = h("div", "shape", shapeSvg(q.iso, 400, 300)); host.append(pic);
+  const pic = h("div", "shape chart", `${stickerSvg(q.iso, 400, 300)}<span class="north" aria-label="Norden ist oben"><i></i>N</span><span class="scale">nicht maßstabsgetreu</span><span class="qmark">?</span>`); host.append(pic);
   const opts = h("div", "opts");
   for (const c of q.opts) {
     const btn = h("button", "opt", `<b>${esc(nameOf(c))}</b>`); btn.type = "button";
@@ -906,21 +985,22 @@ function viewSize(q, host, answer) {
   const { a, b } = q;
   const win = AREA[a] > AREA[b] ? a : b;
   host.append(h("p", "q", "Welches Land ist <b>größer</b>?"));
-  host.append(h("p", "sub", "Gemessen an der Fläche"));
-  const duel = h("div", "duel"), btns = [];
+  const duel = h("div", "duel sizeduel"), btns = [];
   for (const c of [a, b]) {
-    const btn = h("button", "opt fighter", `<img src="${flagOf(c)}" alt=""><b>${esc(nameOf(c))}</b><span>${esc(regionOf(c) || "")}</span>`); btn.type = "button";
+    const btn = h("button", "opt fighter", `<span class="corner">${c === a ? "Blaue Ecke" : "Orange Ecke"}</span><img src="${flagOf(c)}" alt=""><b>${esc(nameOf(c))}</b><span>${esc(regionOf(c) || "")}</span><i class="crown">👑</i>`); btn.type = "button";
     btn.onclick = () => {
       btns.forEach(x => x.disabled = true);
       const ok = c === win;
       btn.classList.add(ok ? "good" : "bad");
       if (!ok) btns[[a, b].indexOf(win)].classList.add("good");
+      btns[[a, b].indexOf(win)].classList.add("winner");
       duel.classList.add("over");
-      const k = sharedScale([a, b], 160, 140);
-      const fig = c2 => `<figure style="--c:var(${c2 === win ? "--good" : "--ink-3"})">${shapeSvg(c2, 160, 140, k).replace("<path", `<path fill="var(--c)" stroke="color-mix(in srgb, var(--c) 75%, #000)"`)}<figcaption>${esc(nameOf(c2))}<span>${fmtArea(AREA[c2])}</span></figcaption></figure>`;
-      const ratio = Math.max(AREA[a], AREA[b]) / Math.min(AREA[a], AREA[b]);
-      const fb = h("div", "", `<div class="sizes">${fig(a)}${fig(b)}</div>
-        <p class="muted" style="margin-top:8px">${esc(nameOf(win))} ist rund ${ratio < 1.95 ? `${Math.round((ratio - 1) * 100)} %` : "doppelt so"} größer.</p>`);
+      const ratio = Math.max(AREA[a], AREA[b]) / Math.min(AREA[a], AREA[b]), top = Math.max(AREA[a], AREA[b]);
+      const bar = c2 => `<div class="bar ${c2 === a ? "ta" : "tb"}${c2 === win ? " win" : ""}"><span class="lbl">${c2 === win ? "👑 " : ""}${esc(nameOf(c2))}<em>${fmtArea(AREA[c2])}</em></span>
+        <span class="track"><i style="--w:${(AREA[c2] / top * 100).toFixed(1)}%"></i></span></div>`;
+      const fb = h("div", "sizeresult", `<div class="overlay">${overlaySvg(a, b, 320, 220)}<span class="tag-a">${esc(nameOf(a))}</span><span class="tag-b">${esc(nameOf(b))}</span></div>
+        <div class="bars">${bar(a)}${bar(b)}</div>
+        <p class="verdict">${esc(nameOf(win))} ist rund <b>${ratio < 1.95 ? `${Math.round((ratio - 1) * 100)} %` : "doppelt so"}</b> größer.</p>`);
       answer(ok ? 100 : 0, ok ? "Richtig!" : "Leider falsch", fb, null, { q: `${nameOf(a)} oder ${nameOf(b)}: Welches ist größer?`, you: nameOf(c), right: nameOf(win), pic: { t: "duel", a, b } });
     };
     btns.push(btn);
