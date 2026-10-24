@@ -1,6 +1,6 @@
 # Geoaffe
 
-Tägliche Geografie-Spiele (wie Wordle): 6 Spiele à 5 Level, je Level bis 100 Punkte (500 pro Spiel, 3.000 pro Tag). Für alle gleich, neu ab Mitternacht. Eigentümer: Gabriel – **kein Entwickler**.
+Tägliche Geografie-Spiele (wie Wordle): 8 Spiele à 5 Level, je Level bis 100 Punkte (500 pro Spiel, 4.000 pro Tag). Für alle gleich, neu ab Mitternacht. Eigentümer: Gabriel – **kein Entwickler**.
 
 ## Zusammenarbeit mit Gabriel
 
@@ -12,7 +12,8 @@ Tägliche Geografie-Spiele (wie Wordle): 6 Spiele à 5 Level, je Level bis 100 P
 ## Aufbau
 
 - `index.html`: die ganze App (CSS, Spiele, Screens) in einer Datei, kein Build-Schritt. `data.js`: Städte, Länder, Nachbarn, Flaggen, Weltkarte (sehr groß, nur gezielt lesen).
-- Spiele (`GAMES` in index.html): Nadelwurf `pin`, Grenzgänger `border`, Flaggen-Mix `flag`, Kompass `nord`, Umriss `shape`, Flächenduell `size`.
+- Spiele (`GAMES` in index.html): Nadelwurf `pin`, Grenzgänger `border`, Flaggen-Mix `flag`, Kompass `nord`, Umriss `shape` (Insel auf Wasser, danach mit Flagge gefüllt), Flächenduell `size` (Quartett-Karten), dazu die Pro-Spiele (Abzeichen PRO, vorerst für alle) Hangman `hang` (Banane wird gegessen) und Länderjagd `wordle` (Geo-Wordle). Neue Spiel-IDs auch in `supabase/schema.sql` (results_game_check) erlauben.
+- CSS-Klassen eindeutig benennen: mehrfach ist es passiert, dass neue Klassen alte (`back`, `card`, `banana`) überschrieben haben.
 - Spielstand nur im Browser (`localStorage`, Schlüssel `kompass-v1`): Punkte, Bananen-Joker, Einstellungen, Avatar.
 - Freunde & Ranglisten (freiwillig): Supabase, Projekt `fienrzyyzmontvwudaqj` (Frankfurt), anonyme Anmeldung. Datenbank + Regeln in `supabase/schema.sql`. In der App steht nur der öffentliche publishable Key.
 - Avatare: 30 Bilder in `avatars/*.webp` (640 px, Kopf mittig im Kreis). Neue Bilder: Gabriel lässt ChatGPT ein Raster erzeugen, Claude schneidet aus, skaliert per Real-ESRGAN (Anime-Modell) hoch und richtet aus.
@@ -37,6 +38,6 @@ Tägliche Geografie-Spiele (wie Wordle): 6 Spiele à 5 Level, je Level bis 100 P
 - Name + Kontaktadresse für Datenschutz („Verantwortlich: Angaben folgen“) und Impressum fehlen noch.
 - „Heute neu spielen“ vor dem Store-Launch verstecken.
 - Für den App Store: Entwicklerkonto (99 €/Jahr), Push-Benachrichtigungen, Abo (RevenueCat) + Werbung (AdMob), Offline nur für Pro, Exklusiv-Spiele für Pro, Store-Screenshots.
-- Spielideen für Pro (Hangman, Hauptstadt-Sprint, Geo-Wordle): siehe `IDEEN.md`.
+- Pro-Spiele gebaut: Hangman + Länderjagd. Weitere Idee: Hauptstadt-Sprint (`IDEEN.md`).
 - **Android später (Gabriel: im Hinterkopf behalten):** Capacitor-Android-Projekt dazulegen, Google Play 25 $ einmalig; neue private Konten brauchen 14 Tage Test mit 12 Testern – früh einplanen. RevenueCat/AdMob/Supabase funktionieren auch dort.
 - Name „Geoaffe“ auf Markenrechte prüfen. Schummelschutz für die Welt-Rangliste, falls nötig.
