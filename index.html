@@ -554,9 +554,11 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 
 /* Hangman */
 .bananabox { position: relative; display: flex; flex-direction: column; align-items: center; margin: -4px 0 -6px; }
-.hbanana { width: min(76%, 270px); height: auto; overflow: visible; }
-.hbanana .bite, .hbanana .edge { transform-box: fill-box; transform-origin: center; transform: scale(0); transition: transform .35s cubic-bezier(.2,1.5,.4,1); }
+.hbanana { width: min(80%, 300px); height: auto; overflow: visible; }
+.hbanana .bite, .hbanana .edge { transform: scale(0); transition: transform .3s cubic-bezier(.3,1.6,.5,1) .08s; }
 .hbanana .bite.on, .hbanana .edge.on { transform: scale(1); }
+.hbanana .crumbs circle { transform-box: fill-box; transform-origin: center; animation: bancrumb .85s cubic-bezier(.3,.6,.6,1) forwards; }
+@keyframes bancrumb { 0% { transform: translate(0, 0) scale(.4); opacity: 0; } 15% { opacity: 1; } 40% { transform: translate(calc(var(--dx) * .5), var(--up)) scale(1) rotate(90deg); } 100% { transform: translate(var(--dx), 120px) scale(.7) rotate(240deg); opacity: 0; } }
 .bananabox.chomp .hbanana { animation: shake .45s; }
 .lives { font-size: 13px; font-weight: 800; color: var(--ink-2); }
 .hword { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; padding: 4px 0; }
@@ -1136,34 +1138,41 @@ function genHang(r) {
   const caps = shuffle(r, HANG_CAPS.filter(c => !cs.some(x => x.iso === c))).slice(0, 2).map(iso => ({ kind: "stadt", iso, word: CAPITALS[iso] }));
   return shuffle(r, [...cs, ...caps]);
 }
-// a cartoon banana; every mistake takes a round bite out of it, starting at the tip (the stem end stays)
+// the banana picture (img/banana.webp); every mistake takes a bite out of it, starting at the tip (the stem stays)
 let banSeq = 0;
+const BAN_BITES = [[596, 246, 84], [522, 296, 74], [456, 333, 80], [390, 357, 82], [324, 368, 82], [258, 364, 82]];   // x, y, radius in picture pixels
 function bananaSvg() {
   const id = "ban" + banSeq++;
-  const bez = (p0, p1, p2, p3, t) => [0, 1].map(k => (1 - t) ** 3 * p0[k] + 3 * (1 - t) ** 2 * t * p1[k] + 3 * (1 - t) * t * t * p2[k] + t ** 3 * p3[k]);
-  const O = [[34, 40], [62, 132], [206, 132], [242, 30]], I = [[234, 34], [200, 92], [86, 96], [50, 32]];
-  const body = `M34 40 C62 132 206 132 242 30 C246 24 240 22 234 34 C200 92 86 96 50 32 C46 26 36 28 34 40 Z`;
-  // bite centres along the middle of the banana, from the tip towards the stem
-  const bites = [0.96, 0.82, 0.68, 0.55, 0.42, 0.3].map(t => { const a = bez(...O, t), b = bez(...I, 1 - t); return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2 + 2]; });
-  const circles = (r, cls) => bites.map(([x, y], i) => `<circle class="${cls}" data-i="${i}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}"/>`).join("");
-  return `<svg class="hbanana" viewBox="0 0 270 130" aria-hidden="true">
+  // a bite = one big circle plus two small ones on the stem side, so the edge looks like tooth marks
+  const parts = ([x, y, r]) => { const k = 1 / Math.hypot(x - 120, y - 300), tx = (120 - x) * k, ty = (300 - y) * k;
+    return [[x, y, r], [x + tx * r * .78 - ty * r * .45, y + ty * r * .78 + tx * r * .45, r * .36], [x + tx * r * .78 + ty * r * .45, y + ty * r * .78 - tx * r * .45, r * .36]]; };
+  const bites = (grow, cls, extra = "") => BAN_BITES.map((b, i) => `<g class="${cls}" data-i="${i}" style="transform-origin:${b[0]}px ${b[1]}px">${parts(b).map(([x, y, r]) =>
+    `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(r + grow).toFixed(1)}"${extra}/>`).join("")}</g>`).join("");
+  return `<svg class="hbanana" viewBox="0 70 600 400" aria-hidden="true">
     <defs>
-      <linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe680"/><stop offset=".55" stop-color="#ffd02b"/><stop offset="1" stop-color="#f2b000"/></linearGradient>
-      <clipPath id="${id}c"><path d="${body}"/></clipPath>
-      <mask id="${id}m"><rect width="270" height="130" fill="#fff"/><g fill="#000">${circles(27, "bite")}</g></mask>
-      <mask id="${id}r"><rect width="270" height="130" fill="#fff"/><g fill="#000">${circles(22.5, "bite")}</g></mask>
+      <mask id="${id}m" maskUnits="userSpaceOnUse" x="0" y="0" width="600" height="529"><rect width="600" height="529" fill="#fff"/><g fill="#000">${bites(0, "bite")}</g></mask>
+      <mask id="${id}s" maskUnits="userSpaceOnUse" x="0" y="0" width="600" height="529"><image href="img/banana-mask.png" width="600" height="529"/></mask>
     </defs>
-    <ellipse cx="140" cy="122" rx="92" ry="6" fill="rgba(29,39,66,.1)"/>
-    <g mask="url(#${id}m)">
-      <path d="${body}" fill="url(#${id}g)" stroke="#5b3a14" stroke-width="5" stroke-linejoin="round"/>
-      <g clip-path="url(#${id}c)"><path d="M70 70 C104 102 176 104 214 66" fill="none" stroke="#fff6c2" stroke-width="6" stroke-linecap="round" opacity=".8"/>
-      <path d="M84 96 C120 114 168 114 202 94" fill="none" stroke="#c98f00" stroke-width="3" stroke-linecap="round" opacity=".6"/>
-      <circle cx="120" cy="84" r="2.6" fill="#8a5a14" opacity=".55"/><circle cx="176" cy="96" r="2.2" fill="#8a5a14" opacity=".5"/><circle cx="150" cy="78" r="1.8" fill="#8a5a14" opacity=".45"/></g>
-      <path class="bnub" d="M240 30 l6 -9" stroke="#5b3a14" stroke-width="7" stroke-linecap="round"/>
-    </g>
-    <g clip-path="url(#${id}c)" mask="url(#${id}r)"><g fill="none" stroke="#fff3b8" stroke-width="9">${circles(27, "edge")}</g></g>
-    <path d="M38 38 C30 26 24 16 30 8 C34 4 40 6 42 12 C44 20 46 28 48 34" fill="#7cae3a" stroke="#4a3216" stroke-width="5" stroke-linejoin="round"/>
+    <ellipse cx="300" cy="455" rx="200" ry="11" fill="rgba(29,39,66,.1)"/>
+    <image href="img/banana.webp" width="600" height="529" mask="url(#${id}m)"/>
+    <g mask="url(#${id}s)"><g mask="url(#${id}m)" fill="none">
+      ${bites(6, "edge", ' stroke="#fff3c4" stroke-width="12"')}
+      ${bites(1.5, "edge", ' stroke="#3a2206" stroke-width="5"')}
+    </g></g>
+    <g class="crumbs"></g>
   </svg>`;
+}
+// little banana crumbs flying off a new bite
+function banCrumbs(svg, i) {
+  const [x, y] = BAN_BITES[i], g = svg.querySelector(".crumbs");
+  for (let k = 0; k < 7; k++) {
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 5 + Math.random() * 6);
+    c.setAttribute("fill", k % 3 ? "#fff3c4" : "#ffd21f"); c.setAttribute("stroke", "#3a2206"); c.setAttribute("stroke-width", 2.5);
+    c.style.setProperty("--dx", `${(Math.random() - .3) * 160}px`); c.style.setProperty("--up", `${-30 - Math.random() * 50}px`);
+    c.style.animationDelay = `${Math.random() * 60}ms`;
+    g.append(c); setTimeout(() => c.remove(), 900);
+  }
 }
 function viewHang(q, host, answer) {
   const word = q.word, letters = new Set([...word].filter(ch => /[\p{L}]/u.test(ch)).map(letterOf));
@@ -1177,7 +1186,6 @@ function viewHang(q, host, answer) {
     wordEl.innerHTML = word.split(" ").map(w => `<span class="hw">${[...w].map(ch => /[\p{L}]/u.test(ch)
       ? `<i class="${guessed.has(letterOf(ch)) || over ? "on" : ""}${over && !guessed.has(letterOf(ch)) ? " miss" : ""}">${guessed.has(letterOf(ch)) || over ? esc(ch.toUpperCase()) : ""}</i>` : `<i class="sep">${esc(ch)}</i>`).join("")}</span>`).join("");
     ban.querySelectorAll(".bite, .edge").forEach(c => c.classList.toggle("on", +c.dataset.i < wrong));
-    ban.querySelector(".bnub").style.display = wrong ? "none" : "";
     ban.querySelector(".lives").textContent = `${HANG_LIVES - wrong} von ${HANG_LIVES} Bissen übrig`;
   };
   const finish = ok => {
@@ -1192,7 +1200,7 @@ function viewHang(q, host, answer) {
     guessed.add(L);
     const key = kb.querySelector(`[data-l="${L}"]`), hit = letters.has(L);
     key.classList.add(hit ? "hit" : "miss"); key.disabled = true;
-    if (!hit) { wrong++; haptic("bad"); ban.classList.remove("chomp"); void ban.offsetWidth; ban.classList.add("chomp"); }
+    if (!hit) { wrong++; haptic("bad"); ban.classList.remove("chomp"); void ban.offsetWidth; ban.classList.add("chomp"); banCrumbs(ban.querySelector("svg"), wrong - 1); }
     draw();
     if ([...letters].every(x => guessed.has(x))) finish(true);
     else if (wrong >= HANG_LIVES) finish(false);
