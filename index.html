@@ -553,13 +553,13 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 .gcard .pro { position: absolute; top: 10px; right: 10px; font-family: var(--f-head); font-weight: 700; font-size: 11px; letter-spacing: .08em; color: var(--ink); background: linear-gradient(135deg, #ffe066, #ffb703); border-radius: 999px; padding: 2px 8px; box-shadow: 0 2px 0 rgba(0,0,0,.15); }
 
 /* Hangman */
-.bananabox { position: relative; display: flex; flex-direction: column; align-items: center; margin: -4px 0 -6px; }
-.banrow { display: flex; justify-content: center; gap: 2px; margin: 4px 0 2px; }
-.banrow img { width: min(13vw, 54px); height: auto; transition: filter .3s, opacity .3s; }
-.banrow img.gone { filter: grayscale(1); opacity: .28; }
-.banrow img.drop { animation: bandrop .55s ease-out; }
+.hangtop { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: -6px; }
+.hangtop .tip { margin: 0; }
+.banrow { display: flex; gap: 1px; margin-left: auto; }
+.banrow img { width: 24px; height: auto; transition: filter .3s, opacity .3s; }
+.banrow img.gone { filter: grayscale(1); opacity: .25; }
+.banrow img.drop { animation: bandrop .5s ease-out; }
 @keyframes bandrop { 0% { transform: none; } 30% { transform: translateY(-10px) rotate(-14deg) scale(1.15); } 60% { transform: translateY(4px) rotate(10deg) scale(.9); } 100% { transform: none; } }
-.lives { font-size: 13px; font-weight: 800; color: var(--ink-2); }
 .hword { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; padding: 4px 0; }
 .hw { display: flex; gap: 5px; }
 .hword i { width: 26px; height: 36px; display: grid; place-items: center; font-style: normal; font-family: var(--f-head); font-weight: 700; font-size: 22px; border-bottom: 4px solid var(--ink-3); color: var(--ink); }
@@ -1140,8 +1140,7 @@ function genHang(r) {
 function viewHang(q, host, answer) {
   const word = q.word, letters = new Set([...word].filter(ch => /[\p{L}]/u.test(ch)).map(letterOf));
   host.append(h("p", "q", q.kind === "land" ? "Welches <b>Land</b> wird gesucht?" : "Welche <b>Hauptstadt</b> wird gesucht?"));
-  host.append(h("p", "tip", q.kind === "land" ? `💡 Tipp: <b>${esc(regionOf(q.iso) || "")}</b>` : `💡 Tipp: <b>${esc(nameOf(q.iso))}</b>`));
-  const ban = h("div", "bananabox", `<div class="banrow" aria-hidden="true">${'<img src="img/banana.webp" alt="">'.repeat(HANG_LIVES)}</div><span class="lives"></span>`); host.append(ban);
+  const ban = h("div", "hangtop", `<p class="tip">💡 Tipp: <b>${esc(q.kind === "land" ? regionOf(q.iso) || "" : nameOf(q.iso))}</b></p><div class="banrow" role="img">${'<img src="img/banana.webp" alt="">'.repeat(HANG_LIVES)}</div>`); host.append(ban);
   const wordEl = h("div", "hword"); host.append(wordEl);
   const kb = h("div", "keys"); host.append(kb);
   const guessed = new Set(); let wrong = 0, over = false;
@@ -1149,7 +1148,7 @@ function viewHang(q, host, answer) {
     wordEl.innerHTML = word.split(" ").map(w => `<span class="hw">${[...w].map(ch => /[\p{L}]/u.test(ch)
       ? `<i class="${guessed.has(letterOf(ch)) || over ? "on" : ""}${over && !guessed.has(letterOf(ch)) ? " miss" : ""}">${guessed.has(letterOf(ch)) || over ? esc(ch.toUpperCase()) : ""}</i>` : `<i class="sep">${esc(ch)}</i>`).join("")}</span>`).join("");
     ban.querySelectorAll(".banrow img").forEach((b, i) => b.classList.toggle("gone", i >= HANG_LIVES - wrong));   // lost from the right
-    ban.querySelector(".lives").textContent = `${HANG_LIVES - wrong} von ${HANG_LIVES} Bananen übrig`;
+    ban.querySelector(".banrow").setAttribute("aria-label", `${HANG_LIVES - wrong} von ${HANG_LIVES} Bananen übrig`);
   };
   const finish = ok => {
     over = true; kb.querySelectorAll("button").forEach(b => b.disabled = true); draw();
