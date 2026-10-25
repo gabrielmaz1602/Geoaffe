@@ -553,13 +553,11 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 .gcard .pro { position: absolute; top: 10px; right: 10px; font-family: var(--f-head); font-weight: 700; font-size: 11px; letter-spacing: .08em; color: var(--ink); background: linear-gradient(135deg, #ffe066, #ffb703); border-radius: 999px; padding: 2px 8px; box-shadow: 0 2px 0 rgba(0,0,0,.15); }
 
 /* Hangman */
-.hangtop { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: -6px; }
+.hangtop { display: flex; margin-top: -6px; }
 .hangtop .tip { margin: 0; }
-.banrow { display: flex; gap: 1px; margin-left: auto; }
-.banrow img { width: 24px; height: auto; transition: filter .3s, opacity .3s; }
-.banrow img.gone { filter: grayscale(1); opacity: .25; }
-.banrow img.drop { animation: bandrop .5s ease-out; }
-@keyframes bandrop { 0% { transform: none; } 30% { transform: translateY(-10px) rotate(-14deg) scale(1.15); } 60% { transform: translateY(4px) rotate(10deg) scale(.9); } 100% { transform: none; } }
+.topbar .hmiss { font-family: var(--f-mono); font-weight: 700; font-size: 16px; color: var(--ink-2); background: var(--surf); border: 2px solid var(--line); border-radius: 999px; padding: 2px 11px; }
+.topbar .hmiss.flash { animation: hmissflash .6s; }
+@keyframes hmissflash { 0%, 60% { background: var(--bad); border-color: var(--bad); color: #fff; transform: scale(1.12); } 100% { transform: none; } }
 .hword { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; padding: 4px 0; }
 .hw { display: flex; gap: 5px; }
 .hword i { width: 26px; height: 36px; display: grid; place-items: center; font-style: normal; font-family: var(--f-head); font-weight: 700; font-size: 22px; border-bottom: 4px solid var(--ink-3); color: var(--ink); }
@@ -1140,21 +1138,23 @@ function genHang(r) {
 function viewHang(q, host, answer) {
   const word = q.word, letters = new Set([...word].filter(ch => /[\p{L}]/u.test(ch)).map(letterOf));
   host.append(h("p", "q", q.kind === "land" ? "Welches <b>Land</b> wird gesucht?" : "Welche <b>Hauptstadt</b> wird gesucht?"));
-  const ban = h("div", "hangtop", `<p class="tip">💡 Tipp: <b>${esc(q.kind === "land" ? regionOf(q.iso) || "" : nameOf(q.iso))}</b></p><div class="banrow" role="img">${'<img src="img/banana.webp" alt="">'.repeat(HANG_LIVES)}</div>`); host.append(ban);
+  const ban = h("div", "hangtop", `<p class="tip">💡 Tipp: <b>${esc(q.kind === "land" ? regionOf(q.iso) || "" : nameOf(q.iso))}</b></p>`); host.append(ban);
+  // mistakes counter next to the score in the top bar
+  document.querySelector(".topbar .hmiss")?.remove();
+  const miss = h("span", "hmiss"); document.querySelector(".topbar .help")?.before(miss);
   const wordEl = h("div", "hword"); host.append(wordEl);
   const kb = h("div", "keys"); host.append(kb);
   const guessed = new Set(); let wrong = 0, over = false;
   const draw = () => {
     wordEl.innerHTML = word.split(" ").map(w => `<span class="hw">${[...w].map(ch => /[\p{L}]/u.test(ch)
       ? `<i class="${guessed.has(letterOf(ch)) || over ? "on" : ""}${over && !guessed.has(letterOf(ch)) ? " miss" : ""}">${guessed.has(letterOf(ch)) || over ? esc(ch.toUpperCase()) : ""}</i>` : `<i class="sep">${esc(ch)}</i>`).join("")}</span>`).join("");
-    ban.querySelectorAll(".banrow img").forEach((b, i) => b.classList.toggle("gone", i >= HANG_LIVES - wrong));   // lost from the right
-    ban.querySelector(".banrow").setAttribute("aria-label", `${HANG_LIVES - wrong} von ${HANG_LIVES} Bananen übrig`);
+    miss.textContent = `${wrong}/${HANG_LIVES}`; miss.setAttribute("aria-label", `${wrong} von ${HANG_LIVES} Fehlern`);
   };
   const finish = ok => {
     over = true; kb.querySelectorAll("button").forEach(b => b.disabled = true); draw();
     const pts = ok ? Math.max(25, 100 - wrong * 15) : 0;
     const fb = h("div", "reveal", `${flagImg(q.iso)}<div><small>${q.kind === "land" ? "Gesucht war" : `Hauptstadt von ${esc(nameOf(q.iso))}`}</small><b>${esc(word)}</b></div>`);
-    answer(pts, ok ? (wrong === 0 ? "Fehlerfrei!" : "Geschafft!") : "Alle Bananen weg", fb, null,
+    answer(pts, ok ? (wrong === 0 ? "Fehlerfrei!" : "Geschafft!") : "Leider nicht geschafft", fb, null,
       { q: q.kind === "land" ? "Gesuchtes Land" : `Hauptstadt von ${nameOf(q.iso)}`, you: ok ? `${wrong} ${wrong === 1 ? "Fehler" : "Fehler"}` : "Nicht geschafft", right: word });
   };
   const press = L => {
@@ -1162,7 +1162,7 @@ function viewHang(q, host, answer) {
     guessed.add(L);
     const key = kb.querySelector(`[data-l="${L}"]`), hit = letters.has(L);
     key.classList.add(hit ? "hit" : "miss"); key.disabled = true;
-    if (!hit) { wrong++; haptic("bad"); const b = ban.querySelectorAll(".banrow img")[HANG_LIVES - wrong]; b.classList.remove("drop"); void b.offsetWidth; b.classList.add("drop"); }
+    if (!hit) { wrong++; haptic("bad"); miss.classList.remove("flash"); void miss.offsetWidth; miss.classList.add("flash"); }
     draw();
     if ([...letters].every(x => guessed.has(x))) finish(true);
     else if (wrong >= HANG_LIVES) finish(false);
@@ -1437,7 +1437,7 @@ const GAMES = [
   { id: "nord", name: "Kompass", hue: "--navy", desc: "Zwei Orte, eine Himmelsrichtung: Was liegt nördlicher, südlicher, östlicher oder westlicher?", rounds: 5, per: 100, gen: genNord, view: viewNord },
   { id: "shape", name: "Umriss", hue: "--grape", desc: "Nur die Silhouette eines Landes. Welches ist es?", rounds: 5, per: 100, gen: genShape, view: viewShape },
   { id: "size", name: "Flächenduell", hue: "--ochre", dark: true, desc: "Zwei Länder, eine Frage: Welches hat mehr Fläche?", rounds: 5, per: 100, gen: genSize, view: viewSize },
-  { id: "hang", name: "Hangman", hue: "--teal", pro: true, desc: "Land oder Hauptstadt Buchstabe für Buchstabe erraten, bevor alle Bananen weg sind.", rounds: 5, per: 100, gen: genHang, view: viewHang },
+  { id: "hang", name: "Hangman", hue: "--teal", pro: true, desc: "Land oder Hauptstadt Buchstabe für Buchstabe erraten, mit höchstens 6 Fehlern.", rounds: 5, per: 100, gen: genHang, view: viewHang },
   { id: "wordle", name: "Länderjagd", hue: "--cherry", pro: true, desc: "Finde das gesuchte Land in sechs Versuchen, mit Entfernung und Richtung als Hinweis.", rounds: 5, per: 100, gen: genJagd, view: viewJagd },
 ];
 const MAX_DAY = GAMES.length * 500;
@@ -1447,7 +1447,7 @@ const HOWTO = {
   flag: ["Eine Flagge, zusammengesetzt aus zwei halben Flaggen.", "Wähle für jede Hälfte das passende Land und tippe auf „Prüfen“.", "Jede richtige Hälfte bringt 50 Punkte."],
   nord: ["Zwei Orte und eine Himmelsrichtung, der Kompass zeigt sie dir an.", "Tippe den Ort an, der weiter in diese Richtung liegt.", "Danach siehst du beide Orte auf der Karte."],
   shape: ["Du siehst nur den Umriss eines Landes, ohne Nachbarn.", "Wähle aus vier Ländern das richtige.", "Norden ist immer oben, die Größe ist aber nicht maßstabsgetreu."],
-  hang: ["Gesucht ist ein Land oder eine Hauptstadt, oben steht ein Tipp.", "Tippe Buchstaben an. Umlaute zählen mit: A deckt auch Ä auf.", "Jeder falsche Buchstabe kostet eine Banane. Nach 6 Fehlern sind alle weg."],
+  hang: ["Gesucht ist ein Land oder eine Hauptstadt, oben steht ein Tipp.", "Tippe Buchstaben an. Umlaute zählen mit: A deckt auch Ä auf.", "Oben siehst du deine Fehler. Nach 6 Fehlern ist die Runde vorbei."],
   wordle: ["Gesucht ist ein Land, du hast 6 Versuche.", "Tippe ein Land ein. Du erfährst, wie weit es vom gesuchten entfernt ist und in welcher Richtung das Ziel liegt.", "Je weniger Versuche, desto mehr Punkte. Die Karte färbt deine Tipps von rot (weit) bis grün (nah)."],
   size: ["Zwei Länder treten gegeneinander an.", "Tippe auf das Land mit der größeren Fläche.", "Danach siehst du beide Umrisse im selben Maßstab nebeneinander."],
 };
