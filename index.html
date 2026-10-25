@@ -833,7 +833,9 @@ const PLACES = [...FAMOUS, ...FAMOUS_MARKS];
 /* --- Kompass --- */
 const DIRS = { N: "nördlicher", S: "südlicher", O: "östlicher", W: "westlicher" };
 // a flag picture for a country code, or a globe when we have no flag
-const flagImg = cc => FLAGS[String(cc).toLowerCase()] ? `<img src="${FLAGS[String(cc).toLowerCase()]}" alt="">` : `<span class="noflag">🌍</span>`;
+// places without their own flag image use the flag of the country shown with them (Hongkong is labelled "China")
+const FLAG_ALIAS = { hk: "cn" };
+const flagImg = cc => { const k = FLAG_ALIAS[String(cc).toLowerCase()] || String(cc).toLowerCase(); return FLAGS[k] ? `<img src="${FLAGS[k]}" alt="">` : `<span class="noflag">🌍</span>`; };
 function compassSvg(dir) {
   const pos = { N: [60, 15], O: [105, 60], S: [60, 105], W: [15, 60] }, ang = { N: 0, O: 90, S: 180, W: 270 }[dir];
   const ticks = d3.range(0, 360, 15).map(a => { const r1 = a % 90 ? 44 : 40, t = a * Math.PI / 180; return `<line x1="${60 + r1 * Math.sin(t)}" y1="${60 - r1 * Math.cos(t)}" x2="${60 + 48 * Math.sin(t)}" y2="${60 - 48 * Math.cos(t)}"/>`; }).join("");
