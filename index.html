@@ -376,6 +376,7 @@ details ul { margin: 10px 0 2px; padding-left: 18px; display: flex; flex-directi
 .tabbar button { flex: 1; max-width: 160px; border: 0; background: none; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 4px; border-radius: 14px; color: var(--ink-3); font-size: 11.5px; font-weight: 800; cursor: pointer; }
 .tabbar button svg { width: 26px; height: 26px; }
 .tabbar button.on { color: var(--wax); background: color-mix(in srgb, var(--wax) 10%, var(--surf)); }
+body:not(.has-tabs) { padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }   /* game screens: less empty space so a level fits on one screen */
 body.has-tabs .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
 body.has-tabs { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 .pagehead h1 { margin: 6px 0 0; font-size: 34px; color: var(--wax); }
@@ -514,17 +515,22 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 .verdict b { color: var(--moss-dk); }
 
 /* Flächenduell: two Quartett cards stacked, full width, neutral colours so only the flags are colourful */
-.quartett { display: flex; flex-direction: column; align-items: stretch; gap: 0; margin-top: 10px; }
+.quartett { display: flex; flex-direction: column; align-items: stretch; gap: 0; margin-top: 4px; }
 .qcard { position: relative; padding: 0; gap: 0; align-items: stretch; text-align: left; border-radius: 22px; overflow: visible; border-width: 3px; border-color: var(--line); box-shadow: 0 5px 0 var(--edge); }
 .qcard:nth-child(1) { transform: rotate(-1deg); }
 .qcard:nth-child(3) { transform: rotate(1deg); }
-.qhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 18px 18px 0 0; background: var(--paper-2); }
-.qhead b { color: var(--ink); font-family: var(--f-head); font-weight: 700; font-size: 21px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 18px 18px 0 0; background: var(--paper-2); }
+.qhead b { color: var(--ink); font-family: var(--f-head); font-weight: 700; font-size: 19px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .qres { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: 20px; color: #fff; background: rgba(255,255,255,.3); transform: scale(0); transition: transform .35s cubic-bezier(.2,1.6,.4,1); }
 .qres:not(:empty) { transform: scale(1); }
-.qflagbox { display: flex; justify-content: center; align-items: center; padding: 12px; border-bottom: 2px dashed var(--line); }
-.qflag { display: block; height: clamp(96px, 16vh, 140px); width: auto; aspect-ratio: 4 / 3; border-radius: 10px; box-shadow: 0 0 0 1px var(--line), 0 4px 0 var(--edge); }
-.qrow { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 10px 14px 12px; }
+.qflagbox { display: flex; justify-content: center; align-items: center; gap: 14px; padding: 10px 12px; border-bottom: 2px dashed var(--line); }
+.qshape { flex: 0 1 auto; height: clamp(64px, 11vh, 100px); aspect-ratio: 4 / 3; }
+.qshape svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.qshape path { fill: var(--ink-3); stroke: var(--ink-2); stroke-width: 1.2; stroke-linejoin: round; }
+.qcard.good .qshape path { fill: var(--good); stroke: var(--moss-dk); }
+.qcard.bad .qshape path { fill: var(--bad); stroke: #c73333; }
+.qflag { display: block; flex-shrink: 0; height: clamp(64px, 11vh, 100px); width: auto; aspect-ratio: 4 / 3; border-radius: 10px; box-shadow: 0 0 0 1px var(--line), 0 4px 0 var(--edge); }
+.qrow { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 8px 14px 9px; }
 .qrow small { color: var(--ink-2); font-weight: 800; font-size: 15px; }
 .qv { font-family: var(--f-mono); font-weight: 700; font-size: 20px; letter-spacing: .12em; color: var(--ink); }
 .qv.open { letter-spacing: 0; animation: pop .4s cubic-bezier(.2,1.5,.4,1); }
@@ -1066,7 +1072,7 @@ function viewSize(q, host, answer) {
   const duel = h("div", "quartett"), btns = [];
   for (const c of [a, b]) {
     const btn = h("button", "opt qcard", `<span class="qhead"><b>${esc(nameOf(c))}</b><i class="qres"></i></span>
-      <span class="qflagbox"><img class="qflag" src="${flagOf(c)}" alt=""></span>
+      <span class="qflagbox"><img class="qflag" src="${flagOf(c)}" alt=""><span class="qshape">${shapeSvg(c, 120, 90)}</span></span>
       <span class="qrow qarea"><small>Fläche</small><b class="qv">???</b></span><i class="crown">👑</i>`); btn.type = "button";
     btn.onclick = () => {
       btns.forEach(x => x.disabled = true);
