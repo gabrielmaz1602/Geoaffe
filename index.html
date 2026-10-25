@@ -554,11 +554,9 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 
 /* Hangman */
 .bananabox { position: relative; display: flex; flex-direction: column; align-items: center; margin: -4px 0 -6px; }
-.hbanana { width: min(70%, 240px); height: auto; overflow: visible; }
-.hbanana .slice { transition: opacity .3s, transform .3s; transform-box: fill-box; transform-origin: center; }
-.hbanana .tip { transition: opacity .3s; }
-.hbanana .tip.eaten { opacity: 0; }
-.hbanana .slice.eaten { opacity: 0; transform: scale(.4) rotate(20deg); }
+.hbanana { width: min(76%, 270px); height: auto; overflow: visible; }
+.hbanana .bite, .hbanana .edge { transform-box: fill-box; transform-origin: center; transform: scale(0); transition: transform .35s cubic-bezier(.2,1.5,.4,1); }
+.hbanana .bite.on, .hbanana .edge.on { transform: scale(1); }
 .bananabox.chomp .hbanana { animation: shake .45s; }
 .lives { font-size: 13px; font-weight: 800; color: var(--ink-2); }
 .hword { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; padding: 4px 0; }
@@ -1138,18 +1136,39 @@ function genHang(r) {
   const caps = shuffle(r, HANG_CAPS.filter(c => !cs.some(x => x.iso === c))).slice(0, 2).map(iso => ({ kind: "stadt", iso, word: CAPITALS[iso] }));
   return shuffle(r, [...cs, ...caps]);
 }
+// a cartoon banana; every mistake takes a round bite out of it, starting at the tip (the stem end stays)
+let banSeq = 0;
 function bananaSvg() {
-  // six slices along an arc: each mistake eats one
-  const cx = 120, cy = -60, R = 150, p = a => [cx + R * Math.cos(a * Math.PI / 180), cy + R * Math.sin(a * Math.PI / 180)];
-  const seg = i => { const a0 = 140 - i * 16.5, a1 = a0 - 16.5, [x0, y0] = p(a0), [x1, y1] = p(a1); return `M${x0.toFixed(1)} ${y0.toFixed(1)} A${R} ${R} 0 0 0 ${x1.toFixed(1)} ${y1.toFixed(1)}`; };
-  const [sx, sy] = p(140), [ex, ey] = p(140 - 6 * 16.5);
-  return `<svg class="hbanana" viewBox="0 0 240 110" aria-hidden="true"><path d="M${sx - 6} ${sy - 4} l-10 -6" stroke="#7a5230" stroke-width="9" stroke-linecap="round"/><circle class="tip" cx="${ex + 3}" cy="${ey - 2}" r="5" fill="#5b3a1e"/>
-    ${[0, 1, 2, 3, 4, 5].map(i => `<g class="slice" data-i="${i}"><path d="${seg(i)}" stroke="#d99a00" stroke-width="34" fill="none"/><path d="${seg(i)}" stroke="#ffd43b" stroke-width="27" fill="none"/><path d="${seg(i)}" stroke="#fff3a6" stroke-width="5" fill="none" transform="translate(0 -7)" opacity=".7"/></g>`).join("")}</svg>`;
+  const id = "ban" + banSeq++;
+  const bez = (p0, p1, p2, p3, t) => [0, 1].map(k => (1 - t) ** 3 * p0[k] + 3 * (1 - t) ** 2 * t * p1[k] + 3 * (1 - t) * t * t * p2[k] + t ** 3 * p3[k]);
+  const O = [[34, 40], [62, 132], [206, 132], [242, 30]], I = [[234, 34], [200, 92], [86, 96], [50, 32]];
+  const body = `M34 40 C62 132 206 132 242 30 C246 24 240 22 234 34 C200 92 86 96 50 32 C46 26 36 28 34 40 Z`;
+  // bite centres along the middle of the banana, from the tip towards the stem
+  const bites = [0.96, 0.82, 0.68, 0.55, 0.42, 0.3].map(t => { const a = bez(...O, t), b = bez(...I, 1 - t); return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2 + 2]; });
+  const circles = (r, cls) => bites.map(([x, y], i) => `<circle class="${cls}" data-i="${i}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}"/>`).join("");
+  return `<svg class="hbanana" viewBox="0 0 270 130" aria-hidden="true">
+    <defs>
+      <linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe680"/><stop offset=".55" stop-color="#ffd02b"/><stop offset="1" stop-color="#f2b000"/></linearGradient>
+      <clipPath id="${id}c"><path d="${body}"/></clipPath>
+      <mask id="${id}m"><rect width="270" height="130" fill="#fff"/><g fill="#000">${circles(27, "bite")}</g></mask>
+      <mask id="${id}r"><rect width="270" height="130" fill="#fff"/><g fill="#000">${circles(22.5, "bite")}</g></mask>
+    </defs>
+    <ellipse cx="140" cy="122" rx="92" ry="6" fill="rgba(29,39,66,.1)"/>
+    <g mask="url(#${id}m)">
+      <path d="${body}" fill="url(#${id}g)" stroke="#5b3a14" stroke-width="5" stroke-linejoin="round"/>
+      <g clip-path="url(#${id}c)"><path d="M70 70 C104 102 176 104 214 66" fill="none" stroke="#fff6c2" stroke-width="6" stroke-linecap="round" opacity=".8"/>
+      <path d="M84 96 C120 114 168 114 202 94" fill="none" stroke="#c98f00" stroke-width="3" stroke-linecap="round" opacity=".6"/>
+      <circle cx="120" cy="84" r="2.6" fill="#8a5a14" opacity=".55"/><circle cx="176" cy="96" r="2.2" fill="#8a5a14" opacity=".5"/><circle cx="150" cy="78" r="1.8" fill="#8a5a14" opacity=".45"/></g>
+      <path class="bnub" d="M240 30 l6 -9" stroke="#5b3a14" stroke-width="7" stroke-linecap="round"/>
+    </g>
+    <g clip-path="url(#${id}c)" mask="url(#${id}r)"><g fill="none" stroke="#fff3b8" stroke-width="9">${circles(27, "edge")}</g></g>
+    <path d="M38 38 C30 26 24 16 30 8 C34 4 40 6 42 12 C44 20 46 28 48 34" fill="#7cae3a" stroke="#4a3216" stroke-width="5" stroke-linejoin="round"/>
+  </svg>`;
 }
 function viewHang(q, host, answer) {
   const word = q.word, letters = new Set([...word].filter(ch => /[\p{L}]/u.test(ch)).map(letterOf));
   host.append(h("p", "q", q.kind === "land" ? "Welches <b>Land</b> wird gesucht?" : "Welche <b>Hauptstadt</b> wird gesucht?"));
-  host.append(h("p", "tip", q.kind === "land" ? `💡 Tipp: <b>${esc(regionOf(q.iso) || "")}</b>` : `💡 Tipp: Hauptstadt von <b>${esc(nameOf(q.iso))}</b>`));
+  host.append(h("p", "tip", q.kind === "land" ? `💡 Tipp: <b>${esc(regionOf(q.iso) || "")}</b>` : `💡 Tipp: <b>${esc(nameOf(q.iso))}</b>`));
   const ban = h("div", "bananabox", `${bananaSvg()}<span class="lives"></span>`); host.append(ban);
   const wordEl = h("div", "hword"); host.append(wordEl);
   const kb = h("div", "keys"); host.append(kb);
@@ -1157,8 +1176,8 @@ function viewHang(q, host, answer) {
   const draw = () => {
     wordEl.innerHTML = word.split(" ").map(w => `<span class="hw">${[...w].map(ch => /[\p{L}]/u.test(ch)
       ? `<i class="${guessed.has(letterOf(ch)) || over ? "on" : ""}${over && !guessed.has(letterOf(ch)) ? " miss" : ""}">${guessed.has(letterOf(ch)) || over ? esc(ch.toUpperCase()) : ""}</i>` : `<i class="sep">${esc(ch)}</i>`).join("")}</span>`).join("");
-    ban.querySelectorAll(".slice").forEach(g => g.classList.toggle("eaten", 5 - g.dataset.i < wrong));   // eaten from the tip, the stem stays
-    ban.querySelector(".tip").classList.toggle("eaten", wrong > 0);
+    ban.querySelectorAll(".bite, .edge").forEach(c => c.classList.toggle("on", +c.dataset.i < wrong));
+    ban.querySelector(".bnub").style.display = wrong ? "none" : "";
     ban.querySelector(".lives").textContent = `${HANG_LIVES - wrong} von ${HANG_LIVES} Bissen übrig`;
   };
   const finish = ok => {
