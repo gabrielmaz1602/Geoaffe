@@ -553,10 +553,10 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 .gcard .pro { position: absolute; top: 10px; right: 10px; font-family: var(--f-head); font-weight: 700; font-size: 11px; letter-spacing: .08em; color: var(--ink); background: linear-gradient(135deg, #ffe066, #ffb703); border-radius: 999px; padding: 2px 8px; box-shadow: 0 2px 0 rgba(0,0,0,.15); }
 
 /* Hangman */
-.hangtop { display: flex; margin-top: -6px; }
+.hangtop { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: -6px; }
 .hangtop .tip { margin: 0; }
-.topbar .hmiss { font-family: var(--f-mono); font-weight: 700; font-size: 16px; color: var(--ink-2); background: var(--surf); border: 2px solid var(--line); border-radius: 999px; padding: 2px 11px; }
-.topbar .hmiss.flash { animation: hmissflash .6s; }
+.hmiss { margin-left: auto; transform-origin: right center; font-family: var(--f-mono); font-weight: 700; font-size: 16px; color: var(--ink-2); background: var(--surf); border: 2px solid var(--line); border-radius: 999px; padding: 2px 11px; }
+.hmiss.flash { animation: hmissflash .6s; }
 @keyframes hmissflash { 0%, 60% { background: var(--bad); border-color: var(--bad); color: #fff; transform: scale(1.12); } 100% { transform: none; } }
 .hword { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; padding: 4px 0; }
 .hw { display: flex; gap: 5px; }
@@ -1139,9 +1139,7 @@ function viewHang(q, host, answer) {
   const word = q.word, letters = new Set([...word].filter(ch => /[\p{L}]/u.test(ch)).map(letterOf));
   host.append(h("p", "q", q.kind === "land" ? "Welches <b>Land</b> wird gesucht?" : "Welche <b>Hauptstadt</b> wird gesucht?"));
   const ban = h("div", "hangtop", `<p class="tip">💡 Tipp: <b>${esc(q.kind === "land" ? regionOf(q.iso) || "" : nameOf(q.iso))}</b></p>`); host.append(ban);
-  // mistakes counter next to the score in the top bar
-  document.querySelector(".topbar .hmiss")?.remove();
-  const miss = h("span", "hmiss"); document.querySelector(".topbar .help")?.before(miss);
+  const miss = h("span", "hmiss"); ban.append(miss);   // mistakes counter, right of the tip
   const wordEl = h("div", "hword"); host.append(wordEl);
   const kb = h("div", "keys"); host.append(kb);
   const guessed = new Set(); let wrong = 0, over = false;
