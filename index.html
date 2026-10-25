@@ -554,12 +554,11 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 
 /* Hangman */
 .bananabox { position: relative; display: flex; flex-direction: column; align-items: center; margin: -4px 0 -6px; }
-.hbanana { width: min(80%, 300px); height: auto; overflow: visible; }
-.hbanana .bite, .hbanana .edge { transform: scale(0); transition: transform .3s cubic-bezier(.3,1.6,.5,1) .08s; }
-.hbanana .bite.on, .hbanana .edge.on { transform: scale(1); }
-.hbanana .crumbs circle { transform-box: fill-box; transform-origin: center; animation: bancrumb .85s cubic-bezier(.3,.6,.6,1) forwards; }
-@keyframes bancrumb { 0% { transform: translate(0, 0) scale(.4); opacity: 0; } 15% { opacity: 1; } 40% { transform: translate(calc(var(--dx) * .5), var(--up)) scale(1) rotate(90deg); } 100% { transform: translate(var(--dx), 120px) scale(.7) rotate(240deg); opacity: 0; } }
-.bananabox.chomp .hbanana { animation: shake .45s; }
+.banrow { display: flex; justify-content: center; gap: 2px; margin: 4px 0 2px; }
+.banrow img { width: min(13vw, 54px); height: auto; transition: filter .3s, opacity .3s; }
+.banrow img.gone { filter: grayscale(1); opacity: .28; }
+.banrow img.drop { animation: bandrop .55s ease-out; }
+@keyframes bandrop { 0% { transform: none; } 30% { transform: translateY(-10px) rotate(-14deg) scale(1.15); } 60% { transform: translateY(4px) rotate(10deg) scale(.9); } 100% { transform: none; } }
 .lives { font-size: 13px; font-weight: 800; color: var(--ink-2); }
 .hword { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; padding: 4px 0; }
 .hw { display: flex; gap: 5px; }
@@ -1138,61 +1137,25 @@ function genHang(r) {
   const caps = shuffle(r, HANG_CAPS.filter(c => !cs.some(x => x.iso === c))).slice(0, 2).map(iso => ({ kind: "stadt", iso, word: CAPITALS[iso] }));
   return shuffle(r, [...cs, ...caps]);
 }
-// the banana picture (img/banana.webp); every mistake takes a bite out of it, starting at the tip (the stem stays)
-let banSeq = 0;
-const BAN_BITES = [[596, 246, 84], [522, 296, 74], [456, 333, 80], [390, 357, 82], [324, 368, 82], [258, 364, 82]];   // x, y, radius in picture pixels
-function bananaSvg() {
-  const id = "ban" + banSeq++;
-  // a bite = one big circle plus two small ones on the stem side, so the edge looks like tooth marks
-  const parts = ([x, y, r]) => { const k = 1 / Math.hypot(x - 120, y - 300), tx = (120 - x) * k, ty = (300 - y) * k;
-    return [[x, y, r], [x + tx * r * .78 - ty * r * .45, y + ty * r * .78 + tx * r * .45, r * .36], [x + tx * r * .78 + ty * r * .45, y + ty * r * .78 - tx * r * .45, r * .36]]; };
-  const bites = (grow, cls, extra = "") => BAN_BITES.map((b, i) => `<g class="${cls}" data-i="${i}" style="transform-origin:${b[0]}px ${b[1]}px">${parts(b).map(([x, y, r]) =>
-    `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(r + grow).toFixed(1)}"${extra}/>`).join("")}</g>`).join("");
-  return `<svg class="hbanana" viewBox="0 70 600 400" aria-hidden="true">
-    <defs>
-      <mask id="${id}m" maskUnits="userSpaceOnUse" x="0" y="0" width="600" height="529"><rect width="600" height="529" fill="#fff"/><g fill="#000">${bites(0, "bite")}</g></mask>
-      <mask id="${id}s" maskUnits="userSpaceOnUse" x="0" y="0" width="600" height="529"><image href="img/banana-mask.png" width="600" height="529"/></mask>
-    </defs>
-    <ellipse cx="300" cy="455" rx="200" ry="11" fill="rgba(29,39,66,.1)"/>
-    <image href="img/banana.webp" width="600" height="529" mask="url(#${id}m)"/>
-    <g mask="url(#${id}s)"><g mask="url(#${id}m)" fill="none">
-      ${bites(6, "edge", ' stroke="#fff3c4" stroke-width="12"')}
-      ${bites(1.5, "edge", ' stroke="#3a2206" stroke-width="5"')}
-    </g></g>
-    <g class="crumbs"></g>
-  </svg>`;
-}
-// little banana crumbs flying off a new bite
-function banCrumbs(svg, i) {
-  const [x, y] = BAN_BITES[i], g = svg.querySelector(".crumbs");
-  for (let k = 0; k < 7; k++) {
-    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 5 + Math.random() * 6);
-    c.setAttribute("fill", k % 3 ? "#fff3c4" : "#ffd21f"); c.setAttribute("stroke", "#3a2206"); c.setAttribute("stroke-width", 2.5);
-    c.style.setProperty("--dx", `${(Math.random() - .3) * 160}px`); c.style.setProperty("--up", `${-30 - Math.random() * 50}px`);
-    c.style.animationDelay = `${Math.random() * 60}ms`;
-    g.append(c); setTimeout(() => c.remove(), 900);
-  }
-}
 function viewHang(q, host, answer) {
   const word = q.word, letters = new Set([...word].filter(ch => /[\p{L}]/u.test(ch)).map(letterOf));
   host.append(h("p", "q", q.kind === "land" ? "Welches <b>Land</b> wird gesucht?" : "Welche <b>Hauptstadt</b> wird gesucht?"));
   host.append(h("p", "tip", q.kind === "land" ? `💡 Tipp: <b>${esc(regionOf(q.iso) || "")}</b>` : `💡 Tipp: <b>${esc(nameOf(q.iso))}</b>`));
-  const ban = h("div", "bananabox", `${bananaSvg()}<span class="lives"></span>`); host.append(ban);
+  const ban = h("div", "bananabox", `<div class="banrow" aria-hidden="true">${'<img src="img/banana.webp" alt="">'.repeat(HANG_LIVES)}</div><span class="lives"></span>`); host.append(ban);
   const wordEl = h("div", "hword"); host.append(wordEl);
   const kb = h("div", "keys"); host.append(kb);
   const guessed = new Set(); let wrong = 0, over = false;
   const draw = () => {
     wordEl.innerHTML = word.split(" ").map(w => `<span class="hw">${[...w].map(ch => /[\p{L}]/u.test(ch)
       ? `<i class="${guessed.has(letterOf(ch)) || over ? "on" : ""}${over && !guessed.has(letterOf(ch)) ? " miss" : ""}">${guessed.has(letterOf(ch)) || over ? esc(ch.toUpperCase()) : ""}</i>` : `<i class="sep">${esc(ch)}</i>`).join("")}</span>`).join("");
-    ban.querySelectorAll(".bite, .edge").forEach(c => c.classList.toggle("on", +c.dataset.i < wrong));
-    ban.querySelector(".lives").textContent = `${HANG_LIVES - wrong} von ${HANG_LIVES} Bissen übrig`;
+    ban.querySelectorAll(".banrow img").forEach((b, i) => b.classList.toggle("gone", i >= HANG_LIVES - wrong));   // lost from the right
+    ban.querySelector(".lives").textContent = `${HANG_LIVES - wrong} von ${HANG_LIVES} Bananen übrig`;
   };
   const finish = ok => {
     over = true; kb.querySelectorAll("button").forEach(b => b.disabled = true); draw();
     const pts = ok ? Math.max(25, 100 - wrong * 15) : 0;
     const fb = h("div", "reveal", `${flagImg(q.iso)}<div><small>${q.kind === "land" ? "Gesucht war" : `Hauptstadt von ${esc(nameOf(q.iso))}`}</small><b>${esc(word)}</b></div>`);
-    answer(pts, ok ? (wrong === 0 ? "Fehlerfrei!" : "Geschafft!") : "Banane aufgegessen", fb, null,
+    answer(pts, ok ? (wrong === 0 ? "Fehlerfrei!" : "Geschafft!") : "Alle Bananen weg", fb, null,
       { q: q.kind === "land" ? "Gesuchtes Land" : `Hauptstadt von ${nameOf(q.iso)}`, you: ok ? `${wrong} ${wrong === 1 ? "Fehler" : "Fehler"}` : "Nicht geschafft", right: word });
   };
   const press = L => {
@@ -1200,7 +1163,7 @@ function viewHang(q, host, answer) {
     guessed.add(L);
     const key = kb.querySelector(`[data-l="${L}"]`), hit = letters.has(L);
     key.classList.add(hit ? "hit" : "miss"); key.disabled = true;
-    if (!hit) { wrong++; haptic("bad"); ban.classList.remove("chomp"); void ban.offsetWidth; ban.classList.add("chomp"); banCrumbs(ban.querySelector("svg"), wrong - 1); }
+    if (!hit) { wrong++; haptic("bad"); const b = ban.querySelectorAll(".banrow img")[HANG_LIVES - wrong]; b.classList.remove("drop"); void b.offsetWidth; b.classList.add("drop"); }
     draw();
     if ([...letters].every(x => guessed.has(x))) finish(true);
     else if (wrong >= HANG_LIVES) finish(false);
@@ -1475,7 +1438,7 @@ const GAMES = [
   { id: "nord", name: "Kompass", hue: "--navy", desc: "Zwei Orte, eine Himmelsrichtung: Was liegt nördlicher, südlicher, östlicher oder westlicher?", rounds: 5, per: 100, gen: genNord, view: viewNord },
   { id: "shape", name: "Umriss", hue: "--grape", desc: "Nur die Silhouette eines Landes. Welches ist es?", rounds: 5, per: 100, gen: genShape, view: viewShape },
   { id: "size", name: "Flächenduell", hue: "--ochre", dark: true, desc: "Zwei Länder, eine Frage: Welches hat mehr Fläche?", rounds: 5, per: 100, gen: genSize, view: viewSize },
-  { id: "hang", name: "Hangman", hue: "--teal", pro: true, desc: "Land oder Hauptstadt Buchstabe für Buchstabe erraten, bevor die Banane aufgegessen ist.", rounds: 5, per: 100, gen: genHang, view: viewHang },
+  { id: "hang", name: "Hangman", hue: "--teal", pro: true, desc: "Land oder Hauptstadt Buchstabe für Buchstabe erraten, bevor alle Bananen weg sind.", rounds: 5, per: 100, gen: genHang, view: viewHang },
   { id: "wordle", name: "Länderjagd", hue: "--cherry", pro: true, desc: "Finde das gesuchte Land in sechs Versuchen, mit Entfernung und Richtung als Hinweis.", rounds: 5, per: 100, gen: genJagd, view: viewJagd },
 ];
 const MAX_DAY = GAMES.length * 500;
@@ -1485,7 +1448,7 @@ const HOWTO = {
   flag: ["Eine Flagge, zusammengesetzt aus zwei halben Flaggen.", "Wähle für jede Hälfte das passende Land und tippe auf „Prüfen“.", "Jede richtige Hälfte bringt 50 Punkte."],
   nord: ["Zwei Orte und eine Himmelsrichtung, der Kompass zeigt sie dir an.", "Tippe den Ort an, der weiter in diese Richtung liegt.", "Danach siehst du beide Orte auf der Karte."],
   shape: ["Du siehst nur den Umriss eines Landes, ohne Nachbarn.", "Wähle aus vier Ländern das richtige.", "Norden ist immer oben, die Größe ist aber nicht maßstabsgetreu."],
-  hang: ["Gesucht ist ein Land oder eine Hauptstadt, oben steht ein Tipp.", "Tippe Buchstaben an. Umlaute zählen mit: A deckt auch Ä auf.", "Jeder falsche Buchstabe kostet einen Bissen von der Banane. Nach 6 Fehlern ist sie weg."],
+  hang: ["Gesucht ist ein Land oder eine Hauptstadt, oben steht ein Tipp.", "Tippe Buchstaben an. Umlaute zählen mit: A deckt auch Ä auf.", "Jeder falsche Buchstabe kostet eine Banane. Nach 6 Fehlern sind alle weg."],
   wordle: ["Gesucht ist ein Land, du hast 6 Versuche.", "Tippe ein Land ein. Du erfährst, wie weit es vom gesuchten entfernt ist und in welcher Richtung das Ziel liegt.", "Je weniger Versuche, desto mehr Punkte. Die Karte färbt deine Tipps von rot (weit) bis grün (nah)."],
   size: ["Zwei Länder treten gegeneinander an.", "Tippe auf das Land mit der größeren Fläche.", "Danach siehst du beide Umrisse im selben Maßstab nebeneinander."],
 };

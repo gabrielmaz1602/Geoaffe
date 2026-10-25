@@ -12,7 +12,7 @@ Tägliche Geografie-Spiele (wie Wordle): 8 Spiele à 5 Level, je Level bis 100 P
 ## Aufbau
 
 - `index.html`: die ganze App (CSS, Spiele, Screens) in einer Datei, kein Build-Schritt. `data.js`: Städte, Länder, Nachbarn, Flaggen, Weltkarte (sehr groß, nur gezielt lesen).
-- Spiele (`GAMES` in index.html): Nadelwurf `pin`, Grenzgänger `border`, Flaggen-Mix `flag`, Kompass `nord`, Umriss `shape` (Insel auf Wasser, danach mit Flagge gefüllt), Flächenduell `size` (Quartett-Karten), dazu die Pro-Spiele (Abzeichen PRO, vorerst für alle) Hangman `hang` (Banane `img/banana.webp` von ChatGPT, Bisse per SVG-Maske mit Krümeln; Biss-Positionen in `BAN_BITES`) und Länderjagd `wordle` (Geo-Wordle). Neue Spiel-IDs auch in `supabase/schema.sql` (results_game_check) erlauben.
+- Spiele (`GAMES` in index.html): Nadelwurf `pin`, Grenzgänger `border`, Flaggen-Mix `flag`, Kompass `nord`, Umriss `shape` (Insel auf Wasser, danach mit Flagge gefüllt), Flächenduell `size` (Quartett-Karten), dazu die Pro-Spiele (Abzeichen PRO, vorerst für alle) Hangman `hang` (Leiste aus 6 Bananen `img/banana.webp`, bei jedem Fehler wird eine grau) und Länderjagd `wordle` (Geo-Wordle). Neue Spiel-IDs auch in `supabase/schema.sql` (results_game_check) erlauben.
 - CSS-Klassen eindeutig benennen: mehrfach ist es passiert, dass neue Klassen alte (`back`, `card`, `banana`) überschrieben haben.
 - Spielstand nur im Browser (`localStorage`, Schlüssel `kompass-v1`): Punkte, Bananen-Joker, Einstellungen, Avatar.
 - Freunde & Ranglisten (freiwillig): Supabase, Projekt `fienrzyyzmontvwudaqj` (Frankfurt), anonyme Anmeldung. Datenbank + Regeln in `supabase/schema.sql`. In der App steht nur der öffentliche publishable Key.
