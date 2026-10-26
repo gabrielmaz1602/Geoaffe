@@ -37,6 +37,7 @@ Tägliche Geografie-Spiele (wie Wordle): 8 Spiele à 5 Level, je Level bis 100 P
 
 - Name + Kontaktadresse für Datenschutz („Verantwortlich: Angaben folgen“) und Impressum fehlen noch.
 - „Heute neu spielen“ ist versteckt: 5× auf die Versionsnummer in den Einstellungen tippen schaltet den Testmodus an/aus.
+- Pro, gesperrte Pro-Spiele, Werbe-Platzhalter (nach jedem Spiel) und das Bananen-Video (1× pro 24 Std.) gibt es vorerst **nur im Testmodus** (`storeMode()` in index.html); alle anderen spielen wie bisher alles frei. Zum Store-Launch in `isPro` das `!storeMode() ||` entfernen. Im Testmodus: Karte „Testmodus“ mit Pro an/aus und Video-Timer zurücksetzen.
 - Für den App Store: Entwicklerkonto (99 €/Jahr), Push-Benachrichtigungen, Abo (RevenueCat) + Werbung (AdMob), Offline nur für Pro, Exklusiv-Spiele für Pro, Store-Screenshots.
 - Pro-Spiele gebaut: Hangman + Länderradar. Weitere Idee: Hauptstadt-Sprint (`IDEEN.md`).
 - **Android später (Gabriel: im Hinterkopf behalten):** Capacitor-Android-Projekt dazulegen, Google Play 25 $ einmalig; neue private Konten brauchen 14 Tage Test mit 12 Testern – früh einplanen. RevenueCat/AdMob/Supabase funktionieren auch dort.

@@ -1569,8 +1569,10 @@ const GAMES = [
   { id: "hang", name: "Hangman", hue: "--teal", pro: true, desc: "Land oder Hauptstadt Buchstabe für Buchstabe erraten, bevor die Banane aufgegessen ist.", rounds: 5, per: 100, gen: genHang, view: viewHang },
   { id: "wordle", name: "Länderradar", hue: "--cherry", pro: true, desc: "Finde das gesuchte Land in sechs Versuchen, mit Entfernung und Richtung als Hinweis.", rounds: 5, per: 100, gen: genJagd, view: viewJagd },
 ];
-// Pro: later set by the App Store purchase (RevenueCat); for now only via the test switch
-const isPro = () => !!saved.pro;
+// Pro: later set by the App Store purchase (RevenueCat). Until the launch, locks, ads and the banana video
+// only exist in test mode (tap the version 5×); everyone else plays as before. For the launch: drop the "!tester ||".
+const storeMode = () => !!saved.settings.tester;
+const isPro = () => !storeMode() || !!saved.pro;
 const LOCK_SVG = '<svg class="lockbig" viewBox="0 0 74 86" aria-hidden="true"><path d="M18 38V26a19 19 0 0 1 38 0v12" fill="none" stroke="#2b2f3a" stroke-width="15" stroke-linecap="round"/><path d="M18 38V26a19 19 0 0 1 38 0v12" fill="none" stroke="#cfd5df" stroke-width="7" stroke-linecap="round"/><rect x="4" y="36" width="66" height="46" rx="12" fill="#ffc531" stroke="#2b2f3a" stroke-width="4"/><circle cx="37" cy="55" r="7" fill="#2b2f3a"/><path d="M37 58v12" stroke="#2b2f3a" stroke-width="6" stroke-linecap="round"/><path d="M12 44h50" stroke="#ffe07a" stroke-width="4" stroke-linecap="round"/></svg>';
 const myGames = () => GAMES.filter(g => !g.pro || isPro());   // the games this player has today
 const maxDay = () => myGames().length * 500;
@@ -1638,7 +1640,7 @@ function hub() {
   app.append(head);
   if (awardBanana()) toast("Alle Spiele geschafft: eine Banane für dich! 🍌");
   app.append(h("div", "daybar", `<span class="pill">Neue Spiele in <b id="cd">${countdown()}</b></span>
-    <button type="button" class="pill banana${saved.bananas ? "" : " empty"}" id="bananaBtn">🍌 <b>${saved.bananas}</b> Joker${videoWait() ? "" : '<span class="vidready">🎬</span>'}</button>`));
+    <button type="button" class="pill banana${saved.bananas ? "" : " empty"}" id="bananaBtn">🍌 <b>${saved.bananas}</b> Joker${storeMode() && !videoWait() ? '<span class="vidready">🎬</span>' : ""}</button>`));
   app.querySelector("#bananaBtn").onclick = bananaInfo;
   countUp(app.querySelector(".score b"), total);
   app.append(h("div", "voyage", `<span class="trail"><i style="width:${played / all * 100}%"></i></span><span>${played} von ${all} gespielt</span>`));
@@ -1888,7 +1890,7 @@ function settingsPage() {
     test.querySelector("#tPro").onclick = () => { saved.pro = !saved.pro; persist(); toast(isPro() ? "Pro ist an" : "Pro ist aus"); settingsPage(); };
     test.querySelector("#tVid").onclick = () => { saved.adVideo = 0; persist(); toast("Video ist wieder verfügbar"); };
   }
-  app.append(prof, proCard, look, play, online, reset, ...(test ? [test] : []), about, note);
+  app.append(prof, ...(storeMode() ? [proCard] : []), look, play, online, reset, ...(test ? [test] : []), about, note);
   setNote(noteText);
 }
 function privacyInfo() {
@@ -2079,10 +2081,11 @@ function bananaInfo() {
     <ul class="steps"><li>Schaffst du an einem Tag <b>alle Spiele</b>, bekommst du eine Banane.</li>
     <li>Eine Banane ist ein <b>Joker</b>: Im Spiel auf „Joker einsetzen“ tippen, und die aktuelle Frage ist sofort richtig gelöst. Das gibt die vollen 100 Punkte.</li>
     <li>Bananen kannst du sammeln und einsetzen, wann du willst. Nur in Übungsrunden gibt es keine Joker.</li>
-    <li>Einmal am Tag kannst du ein kurzes <b>Video ansehen</b> und bekommst dafür eine Banane.</li></ul>
+    ${storeMode() ? "<li>Einmal am Tag kannst du ein kurzes <b>Video ansehen</b> und bekommst dafür eine Banane.</li>" : ""}</ul>
     <p class="have">Du hast gerade <b>${saved.bananas}</b> ${saved.bananas === 1 ? "Banane" : "Bananen"}.</p>
-    <button class="btn primary wide" type="button" id="adVid"></button>`);
+    ${storeMode() ? '<button class="btn primary wide" type="button" id="adVid"></button>' : ""}`);
   const b = document.getElementById("adVid");
+  if (!b) return;
   const paint = () => { const w = videoWait(); b.disabled = !!w; b.textContent = w ? `🎬 Nächstes Video in ${hms(w)}` : "🎬 Video ansehen: +1 Banane"; return w; };
   if (paint()) { const t = setInterval(() => { if (!b.isConnected || !paint()) clearInterval(t); }, 1000); }
   b.onclick = () => { document.querySelector(".modal-bg")?.remove(); rewardVideo(); };
