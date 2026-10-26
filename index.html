@@ -557,6 +557,8 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 .hbanana { width: min(80%, 300px); height: auto; overflow: visible; }
 .hbanana .bite, .hbanana .edge { transform: scale(0); transition: transform .3s cubic-bezier(.3,1.6,.5,1) .08s; }
 .hbanana .bite.on, .hbanana .edge.on { transform: scale(1); }
+.hbanana .bcover, .hbanana .edge.old { display: none; }
+.hbanana .bite.old .bcover { display: inline; }
 .hbanana .crumbs circle { transform-box: fill-box; transform-origin: center; animation: bancrumb .85s cubic-bezier(.3,.6,.6,1) forwards; }
 @keyframes bancrumb { 0% { transform: translate(0, 0) scale(.4); opacity: 0; } 15% { opacity: 1; } 40% { transform: translate(calc(var(--dx) * .5), var(--up)) scale(1) rotate(90deg); } 100% { transform: translate(var(--dx), 120px) scale(.7) rotate(240deg); opacity: 0; } }
 .bananabox.chomp .hbanana { animation: shake .45s; }
@@ -1140,24 +1142,28 @@ function genHang(r) {
 }
 // the banana picture (img/banana.webp); every mistake takes a bite out of it, starting at the tip (the stem stays)
 let banSeq = 0;
-const BAN_BITES = [[596, 246, 84], [515, 298, 80], [440, 338, 84], [362, 362, 86], [284, 366, 88], [196, 342, 98]];   // x, y, radius in picture pixels
+const BAN_BITES = [[596, 246, 84], [515, 298, 80], [440, 338, 84], [362, 362, 86], [284, 366, 88], [175, 330, 140]];   // x, y, radius in picture pixels (the last one leaves just the stem)
 function bananaSvg() {
   const id = "ban" + banSeq++;
-  // a bite = one big circle plus two small ones on the stem side, so the edge looks like tooth marks
-  const parts = ([x, y, r]) => { const k = 1 / Math.hypot(x - 120, y - 300), tx = (120 - x) * k, ty = (300 - y) * k;
-    return [[x, y, r], [x + tx * r * .78 - ty * r * .45, y + ty * r * .78 + tx * r * .45, r * .36], [x + tx * r * .78 + ty * r * .45, y + ty * r * .78 - tx * r * .45, r * .36]]; };
-  const bites = (grow, cls, extra = "") => BAN_BITES.map((b, i) => `<g class="${cls}" data-i="${i}" style="transform-origin:${b[0]}px ${b[1]}px">${parts(b).map(([x, y, r]) =>
-    `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(r + grow).toFixed(1)}"${extra}/>`).join("")}</g>`).join("");
+  // a bite = a circle whose edge is a row of small, slightly uneven scoops, like real tooth marks
+  const bitePath = ([x, y, r], i) => {
+    const n = Math.round(2 * Math.PI * r / 26), pts = [];
+    for (let k = 0; k < n; k++) { const a = 2 * Math.PI * (k + i * .37) / n, rr = r + ((k * 5 + i * 3) % 4 - 1.5) * 1.6; pts.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr]); }
+    return `M${pts.map(([px, py], k) => { const [qx, qy] = pts[(k + 1) % n], s = Math.hypot(qx - px, qy - py) * (.56 + ((k + i) % 3) * .06);
+      return `${k ? "" : `${px.toFixed(1)} ${py.toFixed(1)}`}A${s.toFixed(1)} ${s.toFixed(1)} 0 0 1 ${qx.toFixed(1)} ${qy.toFixed(1)}`; }).join("")}Z`;
+  };
+  // older bites also get a plain, slightly bigger circle, so no slivers stay between two bites
+  const bites = (cls, extra = "") => BAN_BITES.map((b, i) => `<g class="${cls}" data-i="${i}" style="transform-origin:${b[0]}px ${b[1]}px"><path d="${bitePath(b, i)}"${extra}/>${cls === "bite" ? `<circle class="bcover" cx="${b[0]}" cy="${b[1]}" r="${b[2] + 14}"/>` : ""}</g>`).join("");
   return `<svg class="hbanana" viewBox="0 70 600 400" aria-hidden="true">
     <defs>
-      <mask id="${id}m" maskUnits="userSpaceOnUse" x="0" y="0" width="600" height="529"><rect width="600" height="529" fill="#fff"/><g fill="#000">${bites(0, "bite")}</g></mask>
+      <mask id="${id}m" maskUnits="userSpaceOnUse" x="0" y="0" width="600" height="529"><rect width="600" height="529" fill="#fff"/><g fill="#000">${bites("bite")}</g></mask>
       <mask id="${id}s" maskUnits="userSpaceOnUse" x="0" y="0" width="600" height="529"><image href="img/banana-mask.png" width="600" height="529"/></mask>
     </defs>
     <ellipse cx="300" cy="455" rx="200" ry="11" fill="rgba(29,39,66,.1)"/>
     <image href="img/banana.webp" width="600" height="529" mask="url(#${id}m)"/>
     <g mask="url(#${id}s)"><g mask="url(#${id}m)" fill="none">
-      ${bites(6, "edge", ' stroke="#fff3c4" stroke-width="12"')}
-      ${bites(1.5, "edge", ' stroke="#3a2206" stroke-width="5"')}
+      ${bites("edge", ' stroke="#fff3c4" stroke-width="20"')}
+      ${bites("edge", ' stroke="#3a2206" stroke-width="7"')}
     </g></g>
     <g class="crumbs"></g>
   </svg>`;
@@ -1185,7 +1191,7 @@ function viewHang(q, host, answer) {
   const draw = () => {
     wordEl.innerHTML = word.split(" ").map(w => `<span class="hw">${[...w].map(ch => /[\p{L}]/u.test(ch)
       ? `<i class="${guessed.has(letterOf(ch)) || over ? "on" : ""}${over && !guessed.has(letterOf(ch)) ? " miss" : ""}">${guessed.has(letterOf(ch)) || over ? esc(ch.toUpperCase()) : ""}</i>` : `<i class="sep">${esc(ch)}</i>`).join("")}</span>`).join("");
-    ban.querySelectorAll(".bite, .edge").forEach(c => c.classList.toggle("on", +c.dataset.i < wrong));
+    ban.querySelectorAll(".bite, .edge").forEach(c => { c.classList.toggle("on", +c.dataset.i < wrong); c.classList.toggle("old", +c.dataset.i < wrong - 1); });
     ban.querySelector(".lives").textContent = `${HANG_LIVES - wrong} von ${HANG_LIVES} Bissen übrig`;
   };
   const finish = ok => {
