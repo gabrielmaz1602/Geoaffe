@@ -1755,8 +1755,9 @@ function settingsPage() {
     toggleRow("jokerAsk", "Joker-Nachfrage", "Vor dem Einsetzen einer Banane nachfragen"));
   play.append(h("div", "setlabel", "Entfernungen in"), segmented("units", [["km", "Kilometern"], ["mi", "Meilen"]]));
   const reset = h("div", "card", `<h2>Fortschritt</h2><p class="muted">Dein Spielstand ist nur auf diesem Gerät gespeichert.</p><div class="stack">
-    <button class="btn wide" type="button" id="rsToday">Heute neu spielen</button><button class="btn wide danger" type="button" id="rsAll">Alles löschen</button></div>`);
-  reset.querySelector("#rsToday").onclick = () => {
+    ${saved.settings.tester ? '<button class="btn wide" type="button" id="rsToday">Heute neu spielen</button>' : ""}<button class="btn wide danger" type="button" id="rsAll">Alles löschen</button></div>`);
+  // "Heute neu spielen" is only for testing: tap the version number 5 times to show or hide it
+  if (saved.settings.tester) reset.querySelector("#rsToday").onclick = () => {
     if (!confirm("Die heutigen Spiele zurücksetzen? Deine Punkte von heute werden gelöscht.")) return;
     delete saved.days[T()]; saved.prog = null; persist(); toast("Heute ist zurückgesetzt");
   };
@@ -1772,7 +1773,7 @@ function settingsPage() {
     if (!confirm("Online-Profil löschen? Deine Freunde und Ranglisten-Einträge werden entfernt. Dein Spielstand auf diesem Gerät bleibt.")) return;
     try { await cloudDelete(); toast("Online-Profil gelöscht"); settingsPage(); } catch (e) { toast(cloudMsg(e)); }
   };
-  const about = h("div", "card", `<h2>Über Geoaffe</h2><p class="muted">Version ${APP_VERSION} · Jeden Tag neue Geografie-Spiele, für alle gleich.</p>
+  const about = h("div", "card", `<h2>Über Geoaffe</h2><p class="muted"><span id="appVer">Version ${APP_VERSION}</span> · Jeden Tag neue Geografie-Spiele, für alle gleich.</p>
     <div class="stack"><button class="btn wide" type="button" id="privacy">Datenschutz</button>
     <button class="btn wide" type="button" id="helpAgain">Spielerklärungen wieder anzeigen</button></div>
     <details><summary>Quellen und Lizenzen</summary><ul>
@@ -1782,6 +1783,8 @@ function settingsPage() {
       <li>Kartenbibliotheken: D3 und TopoJSON, ISC-Lizenz</li>
       <li>Schriften: Fredoka und Nunito, SIL Open Font License</li></ul></details>`);
   about.querySelector("#privacy").onclick = privacyInfo;
+  let verTaps = 0;
+  about.querySelector("#appVer").onclick = () => { if (++verTaps < 5) return; saved.settings.tester = !saved.settings.tester; persist(); toast(saved.settings.tester ? "Testmodus an" : "Testmodus aus"); settingsPage(); };
   about.querySelector("#helpAgain").onclick = () => { saved.seen = {}; persist(); toast("Erklärungen kommen beim nächsten Öffnen wieder"); };
   const note = h("p", "note", ""); note.id = "note";
   app.append(prof, look, play, online, reset, about, note);

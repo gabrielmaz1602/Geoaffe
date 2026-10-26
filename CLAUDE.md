@@ -36,7 +36,7 @@ Tägliche Geografie-Spiele (wie Wordle): 8 Spiele à 5 Level, je Level bis 100 P
 ## Offene Punkte
 
 - Name + Kontaktadresse für Datenschutz („Verantwortlich: Angaben folgen“) und Impressum fehlen noch.
-- „Heute neu spielen“ vor dem Store-Launch verstecken.
+- „Heute neu spielen“ ist versteckt: 5× auf die Versionsnummer in den Einstellungen tippen schaltet den Testmodus an/aus.
 - Für den App Store: Entwicklerkonto (99 €/Jahr), Push-Benachrichtigungen, Abo (RevenueCat) + Werbung (AdMob), Offline nur für Pro, Exklusiv-Spiele für Pro, Store-Screenshots.
 - Pro-Spiele gebaut: Hangman + Länderjagd. Weitere Idee: Hauptstadt-Sprint (`IDEEN.md`).
 - **Android später (Gabriel: im Hinterkopf behalten):** Capacitor-Android-Projekt dazulegen, Google Play 25 $ einmalig; neue private Konten brauchen 14 Tage Test mit 12 Testern – früh einplanen. RevenueCat/AdMob/Supabase funktionieren auch dort.
