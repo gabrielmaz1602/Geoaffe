@@ -1142,7 +1142,7 @@ function genHang(r) {
 }
 // the banana picture (img/banana.webp); every mistake takes a bite out of it, starting at the tip (the stem stays)
 let banSeq = 0;
-const BAN_BITES = [[596, 246, 84], [515, 298, 80], [440, 338, 84], [362, 362, 86], [284, 366, 88], [175, 330, 140]];   // x, y, radius in picture pixels (the last one leaves just the stem)
+const BAN_BITES = [[596, 246, 84], [515, 298, 80], [440, 338, 84], [362, 362, 86], [284, 366, 88], [180, 400, 216]];   // x, y, radius in picture pixels (the last one leaves just the stem)
 function bananaSvg() {
   const id = "ban" + banSeq++;
   // a bite = a circle whose edge is a row of small, slightly uneven scoops, like real tooth marks
@@ -1170,7 +1170,7 @@ function bananaSvg() {
 }
 // little banana crumbs flying off a new bite
 function banCrumbs(svg, i) {
-  const [x, y] = BAN_BITES[i], g = svg.querySelector(".crumbs");
+  const [bx, by, r] = BAN_BITES[i], k = r * .85 / Math.hypot(80 - bx, 200 - by), x = bx + (80 - bx) * k, y = by + (200 - by) * k, g = svg.querySelector(".crumbs");   // start at the bite edge, stem side
   for (let k = 0; k < 7; k++) {
     const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 5 + Math.random() * 6);
