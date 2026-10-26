@@ -410,6 +410,9 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 .legal { text-align: left; font-size: 14px; color: var(--ink-2); display: flex; flex-direction: column; gap: 8px; max-height: 55vh; overflow: auto; }
 .legal p { margin: 0; }
 .legal b { color: var(--ink); }
+.legal h1 { font-size: 22px; margin: 0; color: var(--ink); }
+.legal h2 { font-size: 16px; margin: 6px 0 0; color: var(--ink); }
+.legal a { color: var(--sky, #2f7bff); }
 
 /* avatar */
 .avatar { display: block; width: 100%; height: 100%; border-radius: 50%; overflow: hidden; position: relative; }
@@ -1774,7 +1777,7 @@ function settingsPage() {
     try { await cloudDelete(); toast("Online-Profil gelöscht"); settingsPage(); } catch (e) { toast(cloudMsg(e)); }
   };
   const about = h("div", "card", `<h2>Über Geoaffe</h2><p class="muted"><span id="appVer">Version ${APP_VERSION}</span> · Jeden Tag neue Geografie-Spiele, für alle gleich.</p>
-    <div class="stack"><button class="btn wide" type="button" id="privacy">Datenschutz</button>
+    <div class="stack"><button class="btn wide" type="button" id="privacy">Datenschutz</button><button class="btn wide" type="button" id="imprint">Impressum</button>
     <button class="btn wide" type="button" id="helpAgain">Spielerklärungen wieder anzeigen</button></div>
     <details><summary>Quellen und Lizenzen</summary><ul>
       <li>Weltkarte und Grenzen: Natural Earth (gemeinfrei)</li>
@@ -1783,6 +1786,7 @@ function settingsPage() {
       <li>Kartenbibliotheken: D3 und TopoJSON, ISC-Lizenz</li>
       <li>Schriften: Fredoka und Nunito, SIL Open Font License</li></ul></details>`);
   about.querySelector("#privacy").onclick = privacyInfo;
+  about.querySelector("#imprint").onclick = () => legalInfo("support.html", "#impressum");
   let verTaps = 0;
   about.querySelector("#appVer").onclick = () => { if (++verTaps < 5) return; saved.settings.tester = !saved.settings.tester; persist(); toast(saved.settings.tester ? "Testmodus an" : "Testmodus aus"); settingsPage(); };
   about.querySelector("#helpAgain").onclick = () => { saved.seen = {}; persist(); toast("Erklärungen kommen beim nächsten Öffnen wieder"); };
@@ -1790,16 +1794,14 @@ function settingsPage() {
   app.append(prof, look, play, online, reset, about, note);
   setNote(noteText);
 }
-function privacyInfo() {
-  modal(`<h2>Datenschutz</h2><div class="legal">
-    <p><b>Kurz gesagt:</b> Geoaffe braucht kein Konto, setzt keine Tracker ein und zeigt keine Werbung. Online-Funktionen nutzt du nur, wenn du unter „Freunde“ auf „Mitmachen“ tippst.</p>
-    <p><b>Was auf deinem Gerät gespeichert wird:</b> deine Punkte, Statistik, Serie, Bananen, dein Avatar und deine Einstellungen. Diese Daten liegen nur im Speicher deines Browsers bzw. der App und werden nicht an uns übertragen. Du kannst sie jederzeit unter „Alles löschen“ entfernen.</p>
-    <p><b>Freunde und Rangliste (freiwillig):</b> Wenn du mitmachst, speichern wir eine zufällige Kennung, deinen gewählten Namen, deinen Avatar, deine Tagespunkte pro Spiel und deine Freundesliste. Name, Avatar und Punkte sehen deine Freunde; Name, Avatar und Gesamtpunkte erscheinen in der weltweiten Rangliste. Gespeichert wird bei Supabase auf Servern in Frankfurt (EU). Unter Einstellungen → „Online-Profil löschen“ entfernst du alles sofort.</p>
-    <p><b>Hosting:</b> Die App wird über Cloudflare ausgeliefert. Beim Laden verarbeitet der Anbieter technisch notwendige Daten wie deine IP-Adresse, um die Seite auszuliefern und vor Missbrauch zu schützen.</p>
-    <p><b>Keine Drittanbieter:</b> Schriften, Karten und Flaggen sind Teil der App und werden nicht von fremden Servern geladen.</p>
-    <p><b>Teilen:</b> Wenn du dein Ergebnis teilst, entscheidest du selbst, an wen das Bild geht. Geoaffe erhält davon nichts.</p>
-    <p><b>Verantwortlich:</b> Angaben folgen.</p></div>`, "Schließen");
+// legal texts live in datenschutz.html and support.html (also the App Store links), shown here in a pop-up
+async function legalInfo(file, sel) {
+  let html = "";
+  try { html = new DOMParser().parseFromString(await (await fetch(file)).text(), "text/html").querySelector(sel).innerHTML; }
+  catch { html = `<p>Konnte nicht geladen werden. Prüfe deine Verbindung.</p>`; }
+  modal(`<div class="legal">${html}</div>`, "Schließen");
 }
+function privacyInfo() { legalInfo("datenschutz.html", "main"); }
 
 /* ================= avatar ================= */
 // 16 illustrated monkeys (avatars/*.webp) on a background colour of the player's choice
