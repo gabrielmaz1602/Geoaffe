@@ -709,6 +709,30 @@ function rngFrom(seed) {
 function hashSeed(...xs) { let hsh = 2166136261; for (const ch of xs.join("|")) { hsh ^= ch.charCodeAt(0); hsh = Math.imul(hsh, 16777619); } return hsh >>> 0; }
 const pick = (r, a) => a[Math.floor(r() * a.length)];
 function shuffle(r, a) { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+/* "card deck" for the daily questions: each game splits its pool into two fixed halves and deals them in turns,
+   newly shuffled every round. So an item only comes back after the whole other half was used (no more Nordkap
+   two days in a row). Without a day (practice rounds) it simply deals at random. */
+const deckMemo = new Map();
+function deckDay(id, pool, day, per) {
+  if (day == null) return shuffle(Math.random, pool).slice(0, per);
+  const key = id + ":" + pool.length;
+  if (!deckMemo.has(key)) { const sh = shuffle(rngFrom(hashSeed(0, id, "split")), pool), m = Math.ceil(sh.length / 2); deckMemo.set(key, { halves: [sh.slice(0, m), sh.slice(m)], perms: new Map() }); }
+  const { halves: [A, B], perms } = deckMemo.get(key), L = A.length + B.length, out = [];
+  for (let i = day * per; out.length < per; i++) {
+    const round = Math.floor(i / L), at = i % L, part = at < A.length ? 0 : 1, half = part ? B : A;
+    const pk = round * 2 + part;
+    if (!perms.has(pk)) perms.set(pk, shuffle(rngFrom(hashSeed(pk, id, "deck")), half));
+    out.push(perms.get(pk)[part ? at - A.length : at]);
+  }
+  return out;
+}
+// what the deck deals on the days around this one: pair partners are taken from the rest, so they don't clash either
+function deckRecent(id, pool, day, per, days = 4) {
+  const s = new Set(); if (day == null) return s;
+  for (let k = -3; k <= days; k++) if (k) deckDay(id, pool, day - k, per).forEach(x => s.add(x));
+  return s;
+}
 const fmtInt = n => Math.round(n).toLocaleString("de-DE");
 const fmtDist = km => saved.settings.units === "mi" ? `${fmtInt(km / 1.609)} Meilen` : `${fmtInt(km)} km`;
 const fmtDeg = v => Math.abs(v).toFixed(2).replace(".", ",") + "°";
@@ -946,13 +970,15 @@ function compassSvg(dir) {
   return `<svg class="compass" viewBox="-4 -4 128 128" aria-hidden="true"><circle class="rim" cx="60" cy="60" r="58"/><circle class="face" cx="60" cy="60" r="50"/><g class="ticks">${ticks}</g>${letters}
     <g class="needle" style="--ang:${ang}deg"><path class="tip" d="M60 22 L68 60 L52 60 Z"/><path class="tail" d="M52 60 L68 60 L60 98 Z"/><circle cx="60" cy="60" r="6"/></g></svg>`;
 }
-function genNord(r) {
+function genNord(r, day) {
   const qs = [], used = new Set();
+  const today = deckDay("nord", PLACES, day, 12), recent = deckRecent("nord", PLACES, day, 12), fresh = PLACES.filter(p => !recent.has(p));
   let guard = 0;
   while (qs.length < 5 && guard++ < 200) {
     const dir = r() < 0.6 ? pick(r, ["N", "S"]) : pick(r, ["O", "W"]);
     for (let t = 0; t < 600; t++) {
-      const a = pick(r, PLACES), b = pick(r, PLACES);
+      // first place from today's deck cards, the partner from places not used in the last days
+      const a = pick(r, t < 400 ? today : t < 500 ? fresh : PLACES), b = pick(r, t < 200 ? today : t < 500 ? fresh : PLACES);
       if (a === b || a.cc === b.cc || used.has(a.n) || used.has(b.n)) continue;
       const ns = dir === "N" || dir === "S";
       const dd = ns ? Math.abs(a.lat - b.lat) : Math.abs(a.lon - b.lon);
@@ -997,9 +1023,9 @@ function viewNord(q, host, answer) {
 }
 
 /* --- Nadelwurf --- */
-function genPin(r) {
-  const cs = shuffle(r, FAMOUS).slice(0, 3).map(c => ({ n: c.n, tip: c.country, lat: c.lat, lon: c.lon }));
-  const ms = shuffle(r, FAMOUS_MARKS).slice(0, 2).map(m => ({ n: m.n, tip: m.country, lat: m.lat, lon: m.lon }));
+function genPin(r, day) {
+  const cs = deckDay("pin-c", FAMOUS, day, 3).map(c => ({ n: c.n, tip: c.country, lat: c.lat, lon: c.lon }));
+  const ms = deckDay("pin-m", FAMOUS_MARKS, day, 2).map(m => ({ n: m.n, tip: m.country, lat: m.lat, lon: m.lon }));
   return shuffle(r, [...cs, ...ms]);
 }
 const pinPoints = km => km <= 25 ? 100 : Math.round(100 * Math.exp(-(km - 25) / 1200));
@@ -1098,8 +1124,8 @@ const regionOf = iso => REGION_EXTRA[iso] || Object.keys(DATA.regions).find(r =>
 
 /* --- Umriss --- */
 const OUTLINE = "DE FR IT ES PT GB IE IS NO SE FI DK PL CZ AT CH GR TR UA HU RO HR NL BE BY RS BG US CA MX BR AR CL PE CO VE BO CU EC UY PY CN IN JP KR VN TH MN KZ IR SA IQ AF PK NP LK PH ID MY MM EG LY MA DZ ZA NG ET KE MG SO NA TZ SD AO CD ML NE TD AU NZ PG".split(" ");
-function genShape(r) {
-  return shuffle(r, OUTLINE).slice(0, 5).map(iso => {
+function genShape(r, day) {
+  return deckDay("shape", OUTLINE, day, 5).map(iso => {
     const reg = regionOf(iso);
     const near = OUTLINE.filter(c => c !== iso && (regionOf(c) === reg || (reg === "Ozeanien" && regionOf(c) === "Asien")));
     return { iso, opts: shuffle(r, [iso, ...shuffle(r, near).slice(0, 3)]) };
@@ -1148,12 +1174,12 @@ let sizePool = null;
 // only countries whose drawn shape matches the official area, so the size picture never contradicts the numbers
 const SIZE_POOL = () => sizePool || (sizePool = Object.keys(AREA).filter(c => CN[c] && FLAGS[c.toLowerCase()] && W50.some(f => f.key === c) && Math.abs(d3.geoArea(shapeOf(c).shape) * 6371.0088 ** 2 / AREA[c] - 1) <= 0.1));
 const fmtArea = km2 => { const mi = saved.settings.units === "mi", a = mi ? km2 / 2.59 : km2, u = mi ? "mi²" : "km²"; return a >= 1e6 ? `${(a / 1e6).toFixed(2).replace(".", ",")} Mio. ${u}` : `${fmtInt(Math.round(a / 1000) * 1000)} ${u}`; };
-function genSize(r) {
+function genSize(r, day) {
   const qs = [], used = new Set();
   let guard = 0;
-  const pool = SIZE_POOL();
+  const pool = SIZE_POOL(), today = deckDay("size", pool, day, 14), recent = deckRecent("size", pool, day, 14), fresh = pool.filter(c => !recent.has(c));
   while (qs.length < 5 && guard++ < 5000) {
-    const a = pick(r, pool), b = pick(r, pool);
+    const a = pick(r, guard < 2500 ? today : guard < 3500 ? fresh : pool), b = pick(r, guard < 1500 ? today : guard < 3500 ? fresh : pool);
     if (a === b || used.has(a) || used.has(b)) continue;
     const ratio = Math.max(AREA[a], AREA[b]) / Math.min(AREA[a], AREA[b]);
     if (ratio < 1.12 || ratio > 2) continue;   // clear winner, but close enough to be tricky
@@ -1231,9 +1257,11 @@ const HANG_COUNTRIES = OUTLINE.filter(c => CN[c] && nameOf(c).length >= 4);
 const HANG_CAPS = Object.keys(CAPITALS).filter(c => CN[c] && CAPITALS[c].length >= 4);
 const HANG_LIVES = 6;
 const letterOf = ch => norm(ch).toUpperCase();   // Ä → A, é → E: one key per base letter
-function genHang(r) {
-  const cs = shuffle(r, HANG_COUNTRIES).slice(0, 3).map(iso => ({ kind: "land", iso, word: nameOf(iso) }));
-  const caps = shuffle(r, HANG_CAPS.filter(c => !cs.some(x => x.iso === c))).slice(0, 2).map(iso => ({ kind: "stadt", iso, word: CAPITALS[iso] }));
+function genHang(r, day) {
+  const cs = deckDay("hang-l", HANG_COUNTRIES, day, 3).map(iso => ({ kind: "land", iso, word: nameOf(iso) }));
+  // capitals: the deck's two, skipping one whose country is already a word today
+  const capPick = deckDay("hang-c", HANG_CAPS, day, 4).filter(c => !cs.some(x => x.iso === c)).slice(0, 2);
+  const caps = capPick.map(iso => ({ kind: "stadt", iso, word: CAPITALS[iso] }));
   return shuffle(r, [...cs, ...caps]);
 }
 // the banana picture (img/banana.webp); every mistake takes a bite out of it, starting at the tip (the stem stays)
@@ -1320,7 +1348,7 @@ function bearing(a, b) {
 }
 const ARROWS = ["⬆️", "↗️", "➡️", "↘️", "⬇️", "↙️", "⬅️", "↖️"];
 const jagdPoints = n => n <= 2 ? 100 : Math.max(40, 100 - (n - 2) * 15);
-function genJagd(r) { return shuffle(r, JAGD_TARGETS).slice(0, 5).map(iso => ({ iso })); }
+function genJagd(r, day) { return shuffle(r, deckDay("wordle", JAGD_TARGETS, day, 5)).map(iso => ({ iso })); }
 function viewJagd(q, host, answer) {
   host.append(h("p", "q", "Welches <b>Land</b> wird gesucht?"));
   const rows = h("div", "jrows"); host.append(rows);
@@ -1379,17 +1407,20 @@ function bfsIn(start, allowed) {
   while (qu.length) { const c = qu.shift(); for (const n of ADJ[c] || []) if (!(n in dist) && allowed.has(n)) { dist[n] = dist[c] + 1; par[n] = c; qu.push(n); } }
   return { dist, par };
 }
-function genBorder(r) {
+function genBorder(r, day) {
   const out = [], used = new Set();
+  const all = [...KNOWN].filter(c => ADJ[c]).sort(), recent = deckRecent("border", all, day, 12, 5), today = new Set(deckDay("border", all, day, 12));
   // five routes: two in Europe, one each in Africa, Asia and the Americas, in random order
   const regionsFor = shuffle(r, ["Europa", "Europa", "Afrika", "Asien", "Amerika"]).map(reg => [reg, ...shuffle(r, ["Europa", "Afrika", "Asien"].filter(x => x !== reg))]);
   const allowed = new Set([...KNOWN].filter(c => c !== "RU"));
   for (const regs of regionsFor) {
     let done = false;
     for (const reg of regs) {
-      const pool = DATA.regions[reg].filter(c => ADJ[c] && KNOWN.has(c));
-      for (let t = 0; t < 600 && !done; t++) {
-        const s = pick(r, pool), e = pick(r, pool);
+      const pool = DATA.regions[reg].filter(c => ADJ[c] && KNOWN.has(c)), fresh = pool.filter(c => !recent.has(c)), mine = fresh.filter(c => today.has(c));
+      for (let t = 0; t < 900 && !done; t++) {
+        // prefer today's deck countries, then ones not used lately, only then anything
+        const src = t < 300 && mine.length ? mine : t < 700 && fresh.length > 1 ? fresh : pool;
+        const s = pick(r, src), e = pick(r, t < 700 && fresh.length > 1 ? fresh : pool);
         if (s === e || used.has(s) || used.has(e)) continue;
         const full = bfs(s).dist[e];
         if (!(full >= 4 && full <= 6)) continue;
@@ -1501,11 +1532,12 @@ const FLAG_KNOWN = "de at ch fr it es pt gb ie nl be lu dk no se fi is pl cz sk 
 const FCODES = Object.keys(FLAGS).filter(c => FLAG_KNOWN.includes(c));
 const twinsOf = c => new Set(DATA.flagTwins.filter(g => g.includes(c)).flat());
 function jacc(a, b) { const A = new Set(DATA.flagCols[a]), B = new Set(DATA.flagCols[b]); let i = 0; for (const x of A) if (B.has(x)) i++; return i / (A.size + B.size - i || 1); }
-function genFlag(r) {
+function genFlag(r, day) {
   const qs = [], used = new Set();
   let guard = 0;
+  const today = deckDay("flag", FCODES, day, 12), recent = deckRecent("flag", FCODES, day, 12), fresh = FCODES.filter(c => !recent.has(c));
   while (qs.length < 5 && guard++ < 5000) {
-    const a = pick(r, FCODES), b = pick(r, FCODES);
+    const a = pick(r, guard < 2500 ? today : guard < 3500 ? fresh : FCODES), b = pick(r, guard < 1200 ? today : guard < 3500 ? fresh : FCODES);
     if (a === b || used.has(a) || used.has(b) || twinsOf(a).has(b)) continue;
     used.add(a); used.add(b);
     const orient = r() < .55 ? "v" : "h";
@@ -2202,7 +2234,7 @@ function openGame(id, practice) {
   // the Pro trial: always the same single level, as often as you like, no points
   const g = demo ? { ...base, rounds: 1 } : base;
   const seed = practice ? Math.floor(Math.random() * 2 ** 31) : hashSeed(dayNo(today()), id, "kompass");
-  const qs = demo ? [DEMO_LEVEL[id]()] : g.gen(rngFrom(seed)).slice(0, g.rounds);
+  const qs = demo ? [DEMO_LEVEL[id]()] : g.gen(rngFrom(seed), practice ? null : dayNo(today())).slice(0, g.rounds);
   const p = practice ? { i: 0, pts: [], rev: [] } : (prog().g[id] || { i: 0, pts: [], rev: [] });
   const doneToday = !practice && (id in (saved.days[T()] || {}));
   run = { g, qs, i: doneToday ? g.rounds : p.i, pts: [...p.pts], rev: [...(p.rev || [])], practice: !!practice, demo };
