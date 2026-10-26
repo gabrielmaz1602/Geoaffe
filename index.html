@@ -604,9 +604,9 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 #splash .spl-affe { position: relative; width: 200px; height: 200px; opacity: 0; transform: translateY(36px) scale(.86); animation: splaffe .9s cubic-bezier(.16,1,.3,1) .1s forwards, splbob 2.4s ease-in-out 1s infinite; }
 #splash .spl-affe img { width: 100%; height: 100%; display: block; }
 /* dark mode: a copy of the picture with light swoosh lines, so they show on black */
-#splash .spl-d, :root[data-theme="dark"] #splash .spl-l { display: none; }
-:root[data-theme="dark"] #splash .spl-d { display: block; }
-@media (prefers-color-scheme: dark) { :root[data-theme="system"] #splash .spl-l { display: none; } :root[data-theme="system"] #splash .spl-d { display: block; } }
+#splash .spl-affe img.spl-d, :root[data-theme="dark"] #splash .spl-affe img.spl-l { display: none; }
+:root[data-theme="dark"] #splash .spl-affe img.spl-d { display: block; }
+@media (prefers-color-scheme: dark) { :root[data-theme="system"] #splash .spl-affe img.spl-l { display: none; } :root[data-theme="system"] #splash .spl-affe img.spl-d { display: block; } }
 /* sits exactly on the globe in img/affe.webp (centre 122.5/103 of 512 px, radius 80) */
 #splash .spl-globe { position: absolute; left: 8.3%; top: 4.49%; width: 31.25%; height: 31.25%; opacity: 0; transition: opacity .25s; }
 #splash .spl-globe.on { opacity: 1; }
