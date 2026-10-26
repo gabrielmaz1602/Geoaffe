@@ -106,20 +106,8 @@ as $$
 $$;
 
 -- Rangliste weltweit: die besten 50, dazu der eigene Platz
-create or replace function public.leaderboard_global(day_from int, day_to int)
-returns table (rank int, id uuid, name text, avatar jsonb, total int, is_me boolean)
-language sql stable security definer set search_path = public
-as $$
-  with totals as (
-    select r.user_id, sum(r.score)::int as total from results r where r.day between day_from and day_to group by r.user_id
-  ), ranked as (
-    select rank() over (order by t.total desc)::int as rank, t.user_id, t.total from totals t
-  )
-  select k.rank, p.id, p.name, p.avatar, k.total, p.id = auth.uid()
-  from ranked k join profiles p on p.id = k.user_id
-  where k.rank <= 50 or p.id = auth.uid()
-  order by k.rank, p.name
-$$;
+-- Die Weltrangliste wurde entfernt (Okt. 2026), nur noch Freunde-Ranglisten.
+drop function if exists public.leaderboard_global(int, int);
 
 -- Konto samt allen Daten löschen (Pflicht für Apps mit Konten im App Store)
 create or replace function public.delete_me() returns void
@@ -127,6 +115,6 @@ language sql security definer set search_path = public, auth
 as $$ delete from auth.users where id = auth.uid() $$;
 
 revoke all on function public.my_profile(), public.add_friend(text), public.remove_friend(uuid), public.leaderboard_friends(int, int),
-  public.leaderboard_global(int, int), public.delete_me() from public, anon;
+  public.delete_me() from public, anon;
 grant execute on function public.my_profile(), public.add_friend(text), public.remove_friend(uuid), public.leaderboard_friends(int, int),
-  public.leaderboard_global(int, int), public.delete_me(), public.geo_day() to authenticated;
+  public.delete_me(), public.geo_day() to authenticated;

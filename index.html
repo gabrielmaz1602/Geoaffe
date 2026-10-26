@@ -1644,7 +1644,7 @@ async function cloudDelete() {
   saved.cloud = null; persist();
 }
 
-let lbMode = { who: "friends", span: "day" }, pendingCode = "";
+let lbMode = { span: "day" }, pendingCode = "";
 function friendsPage() {
   run = null; clearMaps(); showTabs("friends");
   app.innerHTML = "";
@@ -1655,7 +1655,6 @@ function friendsPage() {
     <button class="btn primary wide sharebtn" type="button" id="fInvite">${ICONS.share}Code mit Freunden teilen</button>`);
   const add = h("div", "card", `<h2>Freund hinzufügen</h2><div class="guessrow"><input id="fCode" type="text" maxlength="6" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="Code, z. B. 7F3A9C" aria-label="Freundescode"><button class="btn dark" type="button" id="fAdd">+</button></div><div class="msg" id="fMsg"></div>`);
   const board = h("div", "card", `<div class="row between"><h2>Rangliste</h2><button class="help" type="button" id="lbReload" aria-label="Neu laden">↻</button></div>
-    <div class="seg" id="lbWho"><button data-v="friends">Freunde</button><button data-v="global">Weltweit</button></div>
     <div class="seg" id="lbSpan"><button data-v="day">Heute</button><button data-v="week">7 Tage</button></div><ol class="board" id="lbList"></ol>`);
   const share = h("div", "card", `<button class="btn wide sharebtn" type="button" id="fShare">${ICONS.share}Mein Ergebnis von heute teilen</button>`);
   app.append(me, add, board, share);
@@ -1671,14 +1670,14 @@ function friendsPage() {
   inp.oninput = () => { inp.value = inp.value.toUpperCase().replace(/[^0-9A-F]/g, ""); msg.textContent = ""; };
   const addFriend = async () => {
     const code = inp.value.trim(); if (code.length !== 6) { msg.textContent = "Ein Code hat 6 Zeichen."; msg.className = "msg err"; return; }
-    try { const d = await rpc("add_friend", { code }); inp.value = ""; msg.textContent = `✓ ${(d[0] && d[0].name) || "Freund"} ist jetzt dein Freund.`; msg.className = "msg"; sound("good"); lbMode.who = "friends"; loadBoard(); }
+    try { const d = await rpc("add_friend", { code }); inp.value = ""; msg.textContent = `✓ ${(d[0] && d[0].name) || "Freund"} ist jetzt dein Freund.`; msg.className = "msg"; sound("good"); loadBoard(); }
     catch (e) { msg.textContent = cloudMsg(e); msg.className = "msg err"; }
   };
   add.querySelector("#fAdd").onclick = addFriend;
   inp.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); addFriend(); } };
   const list = board.querySelector("#lbList");
-  const setSeg = () => { for (const [id, key] of [["#lbWho", "who"], ["#lbSpan", "span"]]) board.querySelectorAll(`${id} button`).forEach(b => b.classList.toggle("on", b.dataset.v === lbMode[key])); };
-  for (const [id, key] of [["#lbWho", "who"], ["#lbSpan", "span"]]) board.querySelectorAll(`${id} button`).forEach(b => { b.type = "button"; b.onclick = () => { lbMode[key] = b.dataset.v; loadBoard(); }; });
+  const setSeg = () => { for (const [id, key] of [["#lbSpan", "span"]]) board.querySelectorAll(`${id} button`).forEach(b => b.classList.toggle("on", b.dataset.v === lbMode[key])); };
+  for (const [id, key] of [["#lbSpan", "span"]]) board.querySelectorAll(`${id} button`).forEach(b => { b.type = "button"; b.onclick = () => { lbMode[key] = b.dataset.v; loadBoard(); }; });
   board.querySelector("#lbReload").onclick = () => loadBoard();
   async function loadBoard() {
     setSeg();
@@ -1686,18 +1685,17 @@ function friendsPage() {
     await cloudSync();
     const to = dayNo(today()), from = lbMode.span === "day" ? to : to - 6;
     try {
-      const rows = await rpc(lbMode.who === "friends" ? "leaderboard_friends" : "leaderboard_global", { day_from: from, day_to: to });
+      const rows = await rpc("leaderboard_friends", { day_from: from, day_to: to });
       const medal = r => r === 1 ? "🥇" : r === 2 ? "🥈" : r === 3 ? "🥉" : r;
       let last = null, rank = 0;
       list.innerHTML = rows.map((r, i) => {
         if (r.rank == null) { if (r.total !== last) rank = i + 1; last = r.total; } else rank = r.rank;
-        const sub = lbMode.who === "friends" && lbMode.span === "day" ? `${r.games} von ${GAMES.length} Spielen` : "";
+        const sub = lbMode.span === "day" ? `${r.games} von ${GAMES.length} Spielen` : "";
         return `<li class="${r.is_me ? "me" : ""}"><span class="rk">${medal(rank)}</span><span class="av">${avatarHtml({ ...DEFAULT_AVATAR, ...(r.avatar || {}) })}</span>
           <span class="nm"><b>${esc(r.name || "Geoaffe")}${r.is_me ? " <i>Du</i>" : ""}</b>${sub ? `<small>${sub}</small>` : ""}</span><span class="pt">${fmtInt(r.total)}</span>
-          ${lbMode.who === "friends" && !r.is_me ? `<button class="rm" type="button" data-id="${r.id}" data-name="${esc(r.name || "")}" aria-label="Freund entfernen">✕</button>` : ""}</li>`;
+          ${!r.is_me ? `<button class="rm" type="button" data-id="${r.id}" data-name="${esc(r.name || "")}" aria-label="Freund entfernen">✕</button>` : ""}</li>`;
       }).join("");
-      if (lbMode.who === "friends" && rows.length < 2) list.insertAdjacentHTML("beforeend", `<li class="empty">Noch keine Freunde. Teile deinen Code oder gib oben einen Code ein.</li>`);
-      if (!rows.length && lbMode.who === "global") list.innerHTML = `<li class="empty">Heute hat noch niemand gespielt. Sei die oder der Erste!</li>`;
+      if (rows.length < 2) list.insertAdjacentHTML("beforeend", `<li class="empty">Noch keine Freunde. Teile deinen Code oder gib oben einen Code ein.</li>`);
       list.querySelectorAll(".rm").forEach(b => b.onclick = async () => {
         if (!confirm(`${b.dataset.name || "Diesen Freund"} aus deiner Freundesliste entfernen?`)) return;
         try { await rpc("remove_friend", { fid: b.dataset.id }); loadBoard(); } catch (e) { toast(cloudMsg(e)); }
@@ -1708,7 +1706,7 @@ function friendsPage() {
 }
 function joinCard() {
   const card = h("div", "card hero", `<div class="avbox">${avatarHtml(saved.avatar)}</div><h2>Mit Freunden spielen</h2>
-    <p class="muted">Füge Freunde per Code hinzu, vergleicht eure Punkte jeden Tag und tretet in der weltweiten Rangliste an.</p>
+    <p class="muted">Füge Freunde per Code hinzu, und vergleicht eure Punkte jeden Tag.</p>
     <input class="avname" id="jName" type="text" maxlength="18" placeholder="Dein Name" autocomplete="off" value="${esc(saved.avatar.name || "")}">
     <button class="btn primary wide" type="button" id="jGo">Mitmachen</button><div class="msg" id="jMsg"></div>
     <p class="fine">Dafür werden dein Name, dein Avatar und deine Tagespunkte auf unserem Server gespeichert. Kein Konto, keine E-Mail. Du kannst alles jederzeit in den Einstellungen löschen.</p>`);
@@ -1794,7 +1792,7 @@ function privacyInfo() {
   modal(`<h2>Datenschutz</h2><div class="legal">
     <p><b>Kurz gesagt:</b> Geoaffe braucht kein Konto, setzt keine Tracker ein und zeigt keine Werbung. Online-Funktionen nutzt du nur, wenn du unter „Freunde“ auf „Mitmachen“ tippst.</p>
     <p><b>Was auf deinem Gerät gespeichert wird:</b> deine Punkte, Statistik, Serie, Bananen, dein Avatar und deine Einstellungen. Diese Daten liegen nur im Speicher deines Browsers bzw. der App und werden nicht an uns übertragen. Du kannst sie jederzeit unter „Alles löschen“ entfernen.</p>
-    <p><b>Freunde und Rangliste (freiwillig):</b> Wenn du mitmachst, speichern wir eine zufällige Kennung, deinen gewählten Namen, deinen Avatar, deine Tagespunkte pro Spiel und deine Freundesliste. Name, Avatar und Punkte sehen deine Freunde; Name, Avatar und Gesamtpunkte erscheinen in der weltweiten Rangliste. Gespeichert wird bei Supabase auf Servern in Frankfurt (EU). Unter Einstellungen → „Online-Profil löschen“ entfernst du alles sofort.</p>
+    <p><b>Freunde und Rangliste (freiwillig):</b> Wenn du mitmachst, speichern wir eine zufällige Kennung, deinen gewählten Namen, deinen Avatar, deine Tagespunkte pro Spiel und deine Freundesliste. Name, Avatar und Punkte sehen nur deine Freunde. Gespeichert wird bei Supabase auf Servern in Frankfurt (EU). Unter Einstellungen → „Online-Profil löschen“ entfernst du alles sofort.</p>
     <p><b>Hosting:</b> Die App wird über Cloudflare ausgeliefert. Beim Laden verarbeitet der Anbieter technisch notwendige Daten wie deine IP-Adresse, um die Seite auszuliefern und vor Missbrauch zu schützen.</p>
     <p><b>Keine Drittanbieter:</b> Schriften, Karten und Flaggen sind Teil der App und werden nicht von fremden Servern geladen.</p>
     <p><b>Teilen:</b> Wenn du dein Ergebnis teilst, entscheidest du selbst, an wen das Bild geht. Geoaffe erhält davon nichts.</p>
