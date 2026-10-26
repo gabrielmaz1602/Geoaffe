@@ -596,6 +596,31 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 .note { font-size: 12px; color: var(--ink-3); text-align: center; margin: 0; font-weight: 700; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
+
+/* Pro, ads */
+.gcard.locked .st { background: color-mix(in srgb, #ffd23f 85%, #fff); color: #3a2a00; }
+.pill.banana .vidready { margin-left: 2px; font-size: 13px; }
+.prohero { align-items: center; text-align: center; }
+.prohero .procrown { font-size: 54px; line-height: 1; }
+.prohero h2 { margin: 0; }
+.proplus { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; text-align: left; align-self: stretch; }
+.proplus li { position: relative; padding-left: 30px; font-size: 16px; color: var(--ink-2); }
+.proplus li::before { content: "✓"; position: absolute; left: 0; top: -1px; width: 22px; height: 22px; border-radius: 50%; background: var(--good); color: #fff; font-weight: 900; font-size: 13px; display: grid; place-items: center; }
+.proplans { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.proplan { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 18px 8px 12px; border-radius: 18px; border: 3px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; font: inherit; }
+.proplan.on { border-color: var(--wax); background: color-mix(in srgb, var(--wax) 8%, var(--card)); }
+.proplan b { font-family: var(--f-head); font-size: 18px; }
+.proplan span { font-weight: 800; }
+.proplan small { color: var(--ink-3); font-size: 12px; }
+.protag { position: absolute; top: -11px; background: linear-gradient(135deg, #ffe066, #ffb703); color: #3a2a00; border-radius: 999px; padding: 1px 10px; font-size: 11px !important; font-weight: 900; }
+.linkbtn { background: none; border: 0; color: var(--wax); font: inherit; font-weight: 800; cursor: pointer; padding: 4px; }
+.adover { position: fixed; inset: 0; z-index: 900; background: #111; color: #fff; display: grid; place-items: center; padding: 24px; }
+.adbox { text-align: center; display: flex; flex-direction: column; gap: 8px; max-width: 300px; }
+.adbox small { letter-spacing: .12em; text-transform: uppercase; color: #aaa; font-weight: 800; }
+.adbox b { font-family: var(--f-head); font-size: 26px; }
+.adbox p { color: #888; margin: 0; }
+.adclose { position: absolute; top: calc(16px + env(safe-area-inset-top, 0px)); right: 16px; min-width: 44px; height: 44px; border-radius: 999px; border: 0; background: rgba(255,255,255,.18); color: #fff; font: 800 16px var(--f-body); padding: 0 14px; cursor: pointer; }
+.adclose:disabled { opacity: .7; cursor: default; }
 /* start animation (see #splash) */
 #splash { position: fixed; inset: 0; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: var(--paper); animation: splout .5s cubic-bezier(.4,0,.2,1) 2.1s forwards; }
 #splash .spl-sun { position: absolute; width: 320px; height: 320px; top: calc(50% - 205px); border-radius: 50%; opacity: 0;
@@ -1540,7 +1565,10 @@ const GAMES = [
   { id: "hang", name: "Hangman", hue: "--teal", pro: true, desc: "Land oder Hauptstadt Buchstabe für Buchstabe erraten, bevor die Banane aufgegessen ist.", rounds: 5, per: 100, gen: genHang, view: viewHang },
   { id: "wordle", name: "Länderjagd", hue: "--cherry", pro: true, desc: "Finde das gesuchte Land in sechs Versuchen, mit Entfernung und Richtung als Hinweis.", rounds: 5, per: 100, gen: genJagd, view: viewJagd },
 ];
-const MAX_DAY = GAMES.length * 500;
+// Pro: later set by the App Store purchase (RevenueCat); for now only via the test switch
+const isPro = () => !!saved.pro;
+const myGames = () => GAMES.filter(g => !g.pro || isPro());   // the games this player has today
+const maxDay = () => myGames().length * 500;
 const HOWTO = {
   pin: ["Du bekommst eine Stadt oder Sehenswürdigkeit genannt, dazu als Tipp das Land.", "Tippe auf die Weltkarte, wo der Ort liegt, und bestätige mit „Nadel setzen“.", "Je näher du dran bist, desto mehr Punkte. Zoomen geht mit zwei Fingern oder mit + und −."],
   border: ["Start- und Zielland stehen fest. Finde einen Weg über Landgrenzen dorthin.", "Tippe nacheinander Länder ein, die an deinen bisherigen Weg grenzen.", "Der kürzeste Weg bringt 100 Punkte, jedes Land zu viel kostet 25."],
@@ -1563,7 +1591,7 @@ function prog() {
   return saved.prog;
 }
 function normalize(d) {
-  const s = { days: {}, prog: null, bananas: 0, bananaDay: null, seen: {}, settings: { ...DEFAULT_SETTINGS }, avatar: { ...DEFAULT_AVATAR }, cloud: null };
+  const s = { days: {}, prog: null, bananas: 0, bananaDay: null, seen: {}, settings: { ...DEFAULT_SETTINGS }, avatar: { ...DEFAULT_AVATAR }, cloud: null, pro: false, adVideo: 0 };
   if (!d) return s;
   s.bananas = Math.max(0, d.bananas | 0); s.bananaDay = d.bananaDay || null; s.seen = { ...(d.seen || {}) }; s.settings = { ...DEFAULT_SETTINGS, ...(d.settings || {}) };
   // earlier versions stored "system" without the player picking it
@@ -1571,6 +1599,7 @@ function normalize(d) {
   const av = d.avatar || {}; s.avatar = { pick: av.pick || DEFAULT_AVATAR.pick, bg: av.bg | 0, name: av.name || "" };
   if (!AVATARS.some(x => x[0] === s.avatar.pick)) s.avatar.pick = DEFAULT_AVATAR.pick;   // older builder avatars
   s.cloud = d.cloud && d.cloud.refresh ? { ...d.cloud } : null;
+  s.pro = !!d.pro; s.adVideo = +d.adVideo || 0;
   for (const k in d.days || {}) s.days[k] = { ...d.days[k] };
   if (d.prog && d.prog.date) { s.prog = { date: d.prog.date, g: {} }; for (const k in d.prog.g || {}) s.prog.g[k] = { i: d.prog.g[k].i || 0, pts: [...(d.prog.g[k].pts || [])], rev: [...(d.prog.g[k].rev || [])] }; }
   return s;
@@ -1597,31 +1626,32 @@ function hub() {
   run = null; clearMaps(); showTabs("play");
   const t = today(), no = dayNo(t), day = saved.days[T()] || {};
   const total = GAMES.reduce((a, g) => a + (day[g.id] || 0), 0);
-  const played = GAMES.filter(g => g.id in day).length;
+  const played = myGames().filter(g => g.id in day).length, all = myGames().length;
   app.innerHTML = "";
   const head = h("header", "brand", `${ICONS.rose}<div><h1>Geoaffe</h1><p>Nr. ${no} · ${esc(t.toLocaleDateString("de-DE", { weekday: "short", day: "numeric", month: "long" }))}</p></div>
     ${scoreRing(total)}`);
   app.append(head);
   if (awardBanana()) toast("Alle Spiele geschafft: eine Banane für dich! 🍌");
   app.append(h("div", "daybar", `<span class="pill">Neue Spiele in <b id="cd">${countdown()}</b></span>
-    <button type="button" class="pill banana${saved.bananas ? "" : " empty"}" id="bananaBtn">🍌 <b>${saved.bananas}</b> Joker</button>`));
+    <button type="button" class="pill banana${saved.bananas ? "" : " empty"}" id="bananaBtn">🍌 <b>${saved.bananas}</b> Joker${videoWait() ? "" : '<span class="vidready">🎬</span>'}</button>`));
   app.querySelector("#bananaBtn").onclick = bananaInfo;
   countUp(app.querySelector(".score b"), total);
-  app.append(h("div", "voyage", `<span class="trail"><i style="width:${played / GAMES.length * 100}%"></i></span><span>${played} von ${GAMES.length} gespielt</span>`));
+  app.append(h("div", "voyage", `<span class="trail"><i style="width:${played / all * 100}%"></i></span><span>${played} von ${all} gespielt</span>`));
   const grid = h("div", "grid");
   for (const g of GAMES) {
     const p = prog().g[g.id], done = g.id in day;
     const max = g.rounds * g.per, score = day[g.id] || 0;
     const stars = done ? `<span class="stars" aria-label="${score >= max * .9 ? 3 : score >= max * .6 ? 2 : score > 0 ? 1 : 0} von 3 Sternen">${[0.01, .6, .9].map(f => `<i class="${score >= max * f ? "on" : ""}">★</i>`).join("")}</span>` : "";
-    const st = done ? `<b>${fmtInt(score)}</b> Punkte` : p && p.i ? `Weiter · <b>${p.i}/${g.rounds}</b>` : "▶ Spielen";
-    const c = h("button", "gcard" + (done ? " done" : "") + (g.dark ? " dark-text" : ""), `${g.pro ? '<span class="pro">PRO</span>' : ""}<span class="ic">${ICONS[g.id]}</span><h3>${esc(g.name)}</h3>${stars}<span class="st">${st}</span>`);
+    const locked = g.pro && !isPro();
+    const st = done ? `<b>${fmtInt(score)}</b> Punkte` : locked ? "🔒 Pro" : p && p.i ? `Weiter · <b>${p.i}/${g.rounds}</b>` : "▶ Spielen";
+    const c = h("button", "gcard" + (done ? " done" : "") + (locked ? " locked" : "") + (g.dark ? " dark-text" : ""), `${g.pro ? '<span class="pro">PRO</span>' : ""}<span class="ic">${ICONS[g.id]}</span><h3>${esc(g.name)}</h3>${stars}<span class="st">${st}</span>`);
     c.style.setProperty("--hue", `var(${g.hue})`);
-    c.type = "button"; c.onclick = () => openGame(g.id, false);
+    c.type = "button"; c.onclick = () => locked ? proPage(g.id) : openGame(g.id, false);
     grid.append(c);
   }
   app.append(grid);
-  if (played === GAMES.length) {
-    const sc = h("div", "card done-card", `<span class="big-ic gold">${ICONS.trophy}</span><div><h2>Alle Spiele geschafft!</h2><p class="muted">${fmtInt(total)} von ${fmtInt(MAX_DAY)} Punkten · neue Spiele ab Mitternacht</p></div>
+  if (played === all) {
+    const sc = h("div", "card done-card", `<span class="big-ic gold">${ICONS.trophy}</span><div><h2>Alle Spiele geschafft!</h2><p class="muted">${fmtInt(total)} von ${fmtInt(maxDay())} Punkten · neue Spiele ab Mitternacht</p></div>
       <button class="btn primary sharebtn" type="button">${ICONS.share}Teilen</button>`);
     sc.querySelector(".sharebtn").onclick = shareImage;
     app.append(sc);
@@ -1843,7 +1873,17 @@ function settingsPage() {
   about.querySelector("#appVer").onclick = () => { if (++verTaps < 5) return; saved.settings.tester = !saved.settings.tester; persist(); toast(saved.settings.tester ? "Testmodus an" : "Testmodus aus"); settingsPage(); };
   about.querySelector("#helpAgain").onclick = () => { saved.seen = {}; persist(); toast("Erklärungen kommen beim nächsten Öffnen wieder"); };
   const note = h("p", "note", ""); note.id = "note";
-  app.append(prof, look, play, online, reset, about, note);
+  const proCard = h("div", "card", isPro() ? `<h2>Geoaffe Pro 👑</h2><p class="muted">Pro ist aktiv. Danke für deine Unterstützung!</p>`
+    : `<h2>Geoaffe Pro 👑</h2><p class="muted">Keine Werbung, Hangman und Länderjagd, offline spielen.</p><button class="btn primary wide" type="button" id="toPro">Pro ansehen</button>`);
+  if (!isPro()) proCard.querySelector("#toPro").onclick = () => proPage();
+  let test = null;
+  if (saved.settings.tester) {
+    test = h("div", "card", `<h2>Testmodus</h2><div class="stack"><button class="btn wide" type="button" id="tPro">Pro ${isPro() ? "ausschalten" : "einschalten"}</button>
+      <button class="btn wide" type="button" id="tVid">Video-Timer zurücksetzen</button></div>`);
+    test.querySelector("#tPro").onclick = () => { saved.pro = !saved.pro; persist(); toast(isPro() ? "Pro ist an" : "Pro ist aus"); settingsPage(); };
+    test.querySelector("#tVid").onclick = () => { saved.adVideo = 0; persist(); toast("Video ist wieder verfügbar"); };
+  }
+  app.append(prof, proCard, look, play, online, reset, ...(test ? [test] : []), about, note);
   setNote(noteText);
 }
 function privacyInfo() {
@@ -1927,9 +1967,9 @@ async function shareImage() {
   x.lineWidth = 36; x.lineCap = "round";
   x.strokeStyle = "#ffffff"; x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.stroke();
   const grad = x.createLinearGradient(cx - R, cy - R, cx + R, cy + R); grad.addColorStop(0, "#ffc21a"); grad.addColorStop(1, "#ff6a1f");
-  if (total > 0) { x.strokeStyle = grad; x.beginPath(); x.arc(cx, cy, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.min(1, total / MAX_DAY)); x.stroke(); }
+  if (total > 0) { x.strokeStyle = grad; x.beginPath(); x.arc(cx, cy, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.min(1, total / maxDay())); x.stroke(); }
   x.textAlign = "center"; x.fillStyle = "#db6d06"; x.font = `700 ${total >= 1000 ? 86 : 104}px Fredoka, sans-serif`; x.fillText(fmtInt(total), cx, cy + 26);
-  x.fillStyle = "#97a3bb"; x.font = "800 36px Nunito, sans-serif"; x.fillText(`von ${fmtInt(MAX_DAY)}`, cx, cy + 82);
+  x.fillStyle = "#97a3bb"; x.font = "800 36px Nunito, sans-serif"; x.fillText(`von ${fmtInt(maxDay())}`, cx, cy + 82);
   // one row per game
   GAMES.forEach((g, i) => {
     const y = 650 + i * 116, hue = css(g.hue), done = g.id in day, sc = day[g.id] || 0, max = g.rounds * g.per;
@@ -1945,7 +1985,7 @@ async function shareImage() {
   x.textAlign = "center"; x.fillStyle = "#5a6885"; x.font = "800 34px Nunito, sans-serif"; x.fillText(`Spiel mit: ${/^https?:$/.test(location.protocol) ? location.host : "geoaffe.gabrielmaz1602.workers.dev"}`, cx, H - 52);
   const blob = await new Promise(res => c.toBlob(res, "image/png"));
   const file = new File([blob], `geoaffe-${dayNo(today())}.png`, { type: "image/png" });
-  const text = `Geoaffe Nr. ${dayNo(today())}: ${fmtInt(total)} von ${fmtInt(MAX_DAY)} Punkten 🐒 ${location.origin + location.pathname}`;
+  const text = `Geoaffe Nr. ${dayNo(today())}: ${fmtInt(total)} von ${fmtInt(maxDay())} Punkten 🐒 ${location.origin + location.pathname}`;
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try { await navigator.share({ files: [file], text }); } catch {}
     return;
@@ -2009,10 +2049,10 @@ function confetti(n = 150) {
 
 // daily score as a ring that fills up
 function scoreRing(total) {
-  const r = 34, len = 2 * Math.PI * r, f = Math.min(1, total / MAX_DAY);
+  const r = 34, len = 2 * Math.PI * r, f = Math.min(1, total / maxDay());
   return `<div class="score" title="Punkte heute"><svg viewBox="0 0 80 80" aria-hidden="true"><defs><linearGradient id="ringG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc21a"/><stop offset="1" stop-color="#ff6a1f"/></linearGradient></defs>
     <circle class="bg" cx="40" cy="40" r="${r}"/><circle class="fg" cx="40" cy="40" r="${r}" stroke-dasharray="${len}" stroke-dashoffset="${len}" style="--off:${len * (1 - f)}"/></svg>
-    <div><b>0</b><span>von ${fmtInt(MAX_DAY)}</span></div></div>`;
+    <div><b>0</b><span>von ${fmtInt(maxDay())}</span></div></div>`;
 }
 function countUp(el, to) {
   if (!el) return;
@@ -2033,9 +2073,18 @@ function bananaInfo() {
   modal(`<span class="big-emoji">🍌</span><h2>Bananen-Joker</h2>
     <ul class="steps"><li>Schaffst du an einem Tag <b>alle Spiele</b>, bekommst du eine Banane.</li>
     <li>Eine Banane ist ein <b>Joker</b>: Im Spiel auf „Joker einsetzen“ tippen, und die aktuelle Frage ist sofort richtig gelöst. Das gibt die vollen 100 Punkte.</li>
-    <li>Bananen kannst du sammeln und einsetzen, wann du willst. Nur in Übungsrunden gibt es keine Joker.</li></ul>
-    <p class="have">Du hast gerade <b>${saved.bananas}</b> ${saved.bananas === 1 ? "Banane" : "Bananen"}.</p>`);
+    <li>Bananen kannst du sammeln und einsetzen, wann du willst. Nur in Übungsrunden gibt es keine Joker.</li>
+    <li>Einmal am Tag kannst du ein kurzes <b>Video ansehen</b> und bekommst dafür eine Banane.</li></ul>
+    <p class="have">Du hast gerade <b>${saved.bananas}</b> ${saved.bananas === 1 ? "Banane" : "Bananen"}.</p>
+    <button class="btn primary wide" type="button" id="adVid"></button>`);
+  const b = document.getElementById("adVid");
+  const paint = () => { const w = videoWait(); b.disabled = !!w; b.textContent = w ? `🎬 Nächstes Video in ${hms(w)}` : "🎬 Video ansehen: +1 Banane"; return w; };
+  if (paint()) { const t = setInterval(() => { if (!b.isConnected || !paint()) clearInterval(t); }, 1000); }
+  b.onclick = () => { document.querySelector(".modal-bg")?.remove(); rewardVideo(); };
 }
+// one ad video per 24 hours gives a banana (free and Pro alike)
+const videoWait = () => Math.max(0, saved.adVideo + 864e5 - Date.now());
+const hms = ms => { const sec = Math.ceil(ms / 1000); return `${pad(Math.floor(sec / 3600))}:${pad(Math.floor(sec / 60) % 60)}:${pad(sec % 60)}`; };
 function howTo(g) {
   modal(`<span class="big-ic" style="--hue:var(${g.hue})">${ICONS[g.id]}</span><h2>So geht ${esc(g.name)}</h2>
     <ul class="steps">${HOWTO[g.id].map(t => `<li>${esc(t)}</li>`).join("")}</ul><p class="have">5 Level, jedes bringt bis zu 100 Punkte.</p>`, "Los geht's");
@@ -2044,7 +2093,7 @@ function howTo(g) {
 // one banana per day for finishing all six games
 function awardBanana() {
   const day = saved.days[T()] || {};
-  if (!GAMES.every(g => g.id in day) || saved.bananaDay === T()) return false;
+  if (!myGames().every(g => g.id in day) || saved.bananaDay === T()) return false;
   saved.bananas++; saved.bananaDay = T(); persist();
   return true;
 }
@@ -2068,13 +2117,74 @@ function statsCard() {
     <div><b>${fmtInt(best)}</b><span>Bester Tag</span></div><div><b style="font-size:14px;line-height:1.9">${esc(strongest)}</b><span>Stärkstes Spiel</span></div></div>`);
 }
 
+/* ================= Pro, ads ================= */
+function proPage(focus) {
+  run = null; clearMaps(); showTabs(null); app.innerHTML = "";
+  const bar = h("div", "topbar", `<button class="back" type="button" aria-label="Zurück">${ICONS.back}</button><h2>Geoaffe Pro</h2>`);
+  bar.querySelector(".back").onclick = hub;
+  const pro = isPro();
+  const hero = h("div", "card prohero", `<span class="procrown">👑</span><h2>${pro ? "Du hast Pro. Danke!" : "Hol dir Geoaffe Pro"}</h2>
+    <ul class="proplus"><li><b>Keine Werbung</b></li><li><b>Hangman</b> und <b>Länderjagd</b> jeden Tag</li><li><b>Offline spielen</b>, auch ohne Internet</li><li>Bis zu <b>4.000 Punkte</b> am Tag statt 3.000</li></ul>`);
+  app.append(bar, hero);
+  if (!pro) {
+    let plan = "year";
+    const buy = h("div", "card", `<div class="proplans">
+      <button class="proplan on" type="button" data-p="year"><span class="protag">Beliebt</span><b>Jährlich</b><span>19,99 € im Jahr</span><small>nur 1,67 € im Monat</small></button>
+      <button class="proplan" type="button" data-p="month"><b>Monatlich</b><span>2,99 € im Monat</span><small>monatlich kündbar</small></button></div>
+      <button class="btn primary wide" type="button" id="proBuy">Pro holen</button>
+      <button class="linkbtn" type="button" id="proRestore">Käufe wiederherstellen</button>
+      <p class="fine">Das Abo verlängert sich automatisch und lässt sich jederzeit in den Einstellungen deines Apple-Kontos kündigen.</p>`);
+    buy.querySelectorAll(".proplan").forEach(b => b.onclick = () => { plan = b.dataset.p; buy.querySelectorAll(".proplan").forEach(x => x.classList.toggle("on", x === b)); });
+    buy.querySelector("#proBuy").onclick = () => buyPro(plan);
+    buy.querySelector("#proRestore").onclick = () => toast("Käufe wiederherstellen ist bald möglich.");
+    const ids = GAMES.filter(g => g.pro).map(g => g.id).sort((a, b) => (b === focus) - (a === focus));
+    const demo = h("div", "card", `<h2>Erst mal reinschnuppern?</h2><p class="muted">Spiel ein Probelevel, so oft du willst. Es zählt nicht für die Punkte.</p><div class="stack">
+      ${ids.map(id => { const g = GAMES.find(x => x.id === id); return `<button class="btn wide" type="button" data-id="${id}">${esc(g.name)}: Probelevel</button>`; }).join("")}</div>`);
+    demo.querySelectorAll("[data-id]").forEach(b => b.onclick = () => openGame(b.dataset.id, "demo"));
+    app.append(buy, demo);
+  }
+  window.scrollTo(0, 0);
+}
+function buyPro(plan) {
+  // the real purchase comes with the App Store (RevenueCat); in test mode it just switches Pro on
+  if (!saved.settings.tester) return toast("Der Kauf ist bald möglich.");
+  saved.pro = true; persist(); toast(`Testmodus: Pro (${plan === "year" ? "jährlich" : "monatlich"}) ist an`); proPage();
+}
+function offlineInfo() {
+  modal(`<span class="big-emoji">📡</span><h2>Du bist offline</h2><p class="muted">Offline spielen gehört zu Geoaffe Pro. Verbinde dich mit dem Internet oder hol dir Pro.</p>
+    <button class="btn primary wide" type="button" id="offPro">👑 Pro ansehen</button>`, "Schließen");
+  document.getElementById("offPro").onclick = () => { document.querySelector(".modal-bg")?.remove(); proPage(); };
+}
+// full-screen ad after each finished game (not for Pro). Placeholder until Google AdMob is set up.
+function showAd(next) {
+  if (isPro()) return next();
+  adOverlay("Anzeige", "Hier läuft später eine Werbung", 5, "✕", next);
+}
+function rewardVideo() {
+  adOverlay("Werbevideo", "Hier läuft später ein kurzes Werbevideo", 5, "🍌 +1 Banane", () => {
+    saved.bananas++; saved.adVideo = Date.now(); persist(); sound("good"); toast("Danke! Du hast eine Banane bekommen 🍌");
+    if (!run) hub();
+  });
+}
+function adOverlay(label, text, secs, closeText, done) {
+  const ov = h("div", "adover", `<div class="adbox"><small>${label}</small><b>${text}</b><p>(Platzhalter für Google AdMob)</p></div><button class="adclose" type="button" disabled>${secs}</button>`);
+  document.body.append(ov);
+  const b = ov.querySelector(".adclose"); let n = secs;
+  const t = setInterval(() => { if (--n > 0) b.textContent = n; else { clearInterval(t); b.disabled = false; b.textContent = closeText; } }, 1000);
+  b.onclick = () => { ov.remove(); done(); };
+}
+
 function openGame(id, practice) {
-  const g = GAMES.find(x => x.id === id);
-  const seed = practice ? Math.floor(Math.random() * 2 ** 31) : hashSeed(dayNo(today()), id, "kompass");
-  const qs = g.gen(rngFrom(seed));
+  const demo = practice === "demo", base = GAMES.find(x => x.id === id);
+  if (base.pro && !isPro() && !demo) return proPage(id);
+  if (!navigator.onLine && !isPro()) return offlineInfo();
+  // the Pro trial: always the same single level, as often as you like, no points
+  const g = demo ? { ...base, rounds: 1 } : base;
+  const seed = demo ? hashSeed(1, id, "probe") : practice ? Math.floor(Math.random() * 2 ** 31) : hashSeed(dayNo(today()), id, "kompass");
+  const qs = g.gen(rngFrom(seed)).slice(0, g.rounds);
   const p = practice ? { i: 0, pts: [], rev: [] } : (prog().g[id] || { i: 0, pts: [], rev: [] });
   const doneToday = !practice && (id in (saved.days[T()] || {}));
-  run = { g, qs, i: doneToday ? g.rounds : p.i, pts: [...p.pts], rev: [...(p.rev || [])], practice };
+  run = { g, qs, i: doneToday ? g.rounds : p.i, pts: [...p.pts], rev: [...(p.rev || [])], practice: !!practice, demo };
   if (run.i >= g.rounds) endScreen(); else question();
   if (!saved.seen[id]) { saved.seen[id] = true; persist(); howTo(g); }
   window.scrollTo(0, 0);
@@ -2082,7 +2192,7 @@ function openGame(id, practice) {
 
 function topbar() {
   const { g, i, pts } = run;
-  const bar = h("div", "topbar", `<button class="back" type="button" aria-label="Zur Übersicht">${ICONS.back}</button><h2>${esc(g.name)}${run.practice ? ' <span class="chip soft">Übung</span>' : ""}</h2><button class="help" type="button" aria-label="So geht das Spiel">?</button><span class="sc">${fmtInt(pts.reduce((a, b) => a + b, 0))}</span>`);
+  const bar = h("div", "topbar", `<button class="back" type="button" aria-label="Zur Übersicht">${ICONS.back}</button><h2>${esc(g.name)}${run.demo ? ' <span class="chip soft">Probe</span>' : run.practice ? ' <span class="chip soft">Übung</span>' : ""}</h2><button class="help" type="button" aria-label="So geht das Spiel">?</button><span class="sc">${fmtInt(pts.reduce((a, b) => a + b, 0))}</span>`);
   bar.querySelector(".back").onclick = hub;
   bar.querySelector(".help").onclick = () => howTo(g);
   const dots = h("div", "dots");
@@ -2129,7 +2239,7 @@ function question() {
     if (fbNode) fb.append(fbNode);
     const last = run.i + 1 >= run.g.rounds;
     const nx = h("button", "btn dark wide", last ? "Ergebnis ansehen" : "Weiter"); nx.type = "button";
-    nx.onclick = () => { run.i++; if (run.i >= run.g.rounds) endScreen(); else { question(); window.scrollTo(0, 0); } };
+    nx.onclick = () => { run.i++; if (run.i >= run.g.rounds) { if (run.practice) endScreen(); else showAd(endScreen); } else { question(); window.scrollTo(0, 0); } };
     fb.append(nx);
     host.append(fb);
     if (after) requestAnimationFrame(after);
@@ -2142,6 +2252,18 @@ function endScreen() {
   clearMaps(); showTabs(null);
   const { g, practice } = run;
   const total = run.pts.reduce((a, b) => a + b, 0);
+  if (run.demo) {
+    app.innerHTML = "";
+    const [bar, dots] = topbar(); app.append(bar, dots);
+    const box = h("div", "card", `<div class="end"><span class="label">Probelevel</span><div class="big">${fmtInt(total)}</div><span class="muted mono">von ${g.per}</span>
+      <h3>Lust auf mehr?</h3><p class="muted">Mit Pro spielst du ${esc(g.name)} jeden Tag mit 5 neuen Leveln.</p></div>`);
+    const b1 = h("button", "btn primary wide", "👑 Pro holen"); b1.type = "button"; b1.onclick = () => proPage(g.id);
+    const row = h("div", "row"); row.style.justifyContent = "center";
+    const b2 = h("button", "btn", "Nochmal spielen"); b2.type = "button"; b2.onclick = () => openGame(g.id, "demo");
+    const b3 = h("button", "btn dark", "Zur Übersicht"); b3.type = "button"; b3.onclick = hub;
+    row.append(b3, b2); box.append(b1, row); app.append(box);
+    window.scrollTo(0, 0); return;
+  }
   if (!practice && !(g.id in (saved.days[T()] || {}))) {
     saved.days[T()] = { ...(saved.days[T()] || {}), [g.id]: total };
     persist(); cloudSync();
@@ -2157,11 +2279,11 @@ function endScreen() {
   const b2 = h("button", "btn", "Übungsrunde"); b2.type = "button"; b2.onclick = () => openGame(g.id, true);
   row.append(b1, b2); box.append(row);
   if (!practice) {
-    const next = GAMES.find(x => !(x.id in (saved.days[T()] || {})));
+    const next = myGames().find(x => !(x.id in (saved.days[T()] || {})));
     if (next) { const b3 = h("button", "btn primary wide", `Weiter mit ${next.name}`); b3.type = "button"; b3.onclick = () => openGame(next.id, false); box.append(b3); }
   }
   if (earned) box.append(h("p", "intro", `🍌 Alle Spiele geschafft! Du bekommst eine Banane als Joker. Du hast jetzt ${saved.bananas}.`));
-  if (!practice && GAMES.every(x => x.id in (saved.days[T()] || {}))) {
+  if (!practice && myGames().every(x => x.id in (saved.days[T()] || {}))) {
     const sb = h("button", "btn primary wide sharebtn", `${ICONS.share}Tagesergebnis teilen`); sb.type = "button"; sb.onclick = shareImage; box.append(sb);
   }
   if (earned) setTimeout(() => { confetti(220); sound("win"); }, 250); else if (shown >= max * .9) setTimeout(() => { confetti(140); sound("win"); }, 250);
