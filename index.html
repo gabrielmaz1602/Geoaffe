@@ -675,7 +675,7 @@ const WORLD_ASPECT = (() => { const p = d3.geoMercator(); const a = p([-180, MAP
 const MAP_FEATURES = W50.filter(f => f.properties.name !== "Antarctica");
 
 class GeoMap {
-  constructor(host, { detail = false, aspect = WORLD_ASPECT, onTap = null, hint = "" } = {}) {
+  constructor(host, { detail = false, aspect = WORLD_ASPECT, onTap = null, onTapUndo = null, hint = "" } = {}) {
     this.box = h("div", "mapbox");
     this.canvas = document.createElement("canvas");
     this.box.append(this.canvas);
@@ -684,7 +684,7 @@ class GeoMap {
     if (hint) this.box.append(h("div", "maphint", esc(hint)));
     host.append(this.box);
     this.features = MAP_FEATURES;
-    this.aspect = aspect; this.onTap = onTap;
+    this.aspect = aspect; this.onTap = onTap; this.onTapUndo = onTapUndo;
     this.fills = new Map(); this.pins = []; this.lines = []; this.labels = [];
     this.projection = d3.geoMercator();
     this.t = d3.zoomIdentity;
@@ -692,14 +692,23 @@ class GeoMap {
     this.sel = d3.select(this.canvas).call(this.zoom).on("dblclick.zoom", null);
     zb.children[0].onclick = () => this.sel.transition().duration(250).call(this.zoom.scaleBy, 1.8);
     zb.children[1].onclick = () => this.sel.transition().duration(250).call(this.zoom.scaleBy, 1 / 1.8);
-    let down = null;
+    let down = null, lastTap = null;
     this.canvas.addEventListener("pointerdown", e => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; });
     this.canvas.addEventListener("pointerup", e => {
-      if (!down || !this.onTap) return;
+      if (!down) return;
       const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y), dt = performance.now() - down.t;
       down = null;
       if (moved > 7 || dt > 600) return;
-      const r = this.canvas.getBoundingClientRect();
+      const r = this.canvas.getBoundingClientRect(), now = performance.now();
+      // double tap: zoom in on that spot (and take back what the first tap did)
+      if (lastTap && now - lastTap.t < 320 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 30) {
+        lastTap = null;
+        if (this.onTapUndo) this.onTapUndo();
+        this.sel.transition().duration(300).call(this.zoom.scaleBy, 2.2, [e.clientX - r.left, e.clientY - r.top]);
+        return;
+      }
+      lastTap = { x: e.clientX, y: e.clientY, t: now };
+      if (!this.onTap) return;
       const px = (e.clientX - r.left - this.t.x) / this.t.k, py = (e.clientY - r.top - this.t.y) / this.t.k;
       const ll = this.projection.invert([px, py]);
       if (ll && isFinite(ll[0]) && isFinite(ll[1]) && ll[1] < 85 && ll[1] > -85) this.onTap(ll);
@@ -910,11 +919,12 @@ const pinPoints = km => km <= 25 ? 100 : Math.round(100 * Math.exp(-(km - 25) / 
 function viewPin(q, host, answer) {
   host.append(h("p", "q", `Wo liegt <b>${esc(q.n)}</b>?`));
   host.append(h("p", "tip", `💡 Tipp: <b>${esc(q.tip || q.sub || "")}</b>`));
-  let guess = null, locked = false;
+  let guess = null, locked = false, before = null;
   const btn = h("button", "btn primary wide", "Nadel setzen"); btn.type = "button"; btn.disabled = true;
   const m = new GeoMap(host, {
     aspect: 0.7, hint: "Tippen zum Setzen · ziehen & zoomen zum Suchen",
-    onTap: ll => { if (locked) return; guess = ll; m.pins = [{ ll, color: css("--wax") }]; m.draw(); btn.disabled = false; },
+    onTap: ll => { if (locked) return; before = { guess, pins: m.pins }; guess = ll; m.pins = [{ ll, color: css("--wax") }]; m.draw(); btn.disabled = false; },
+    onTapUndo: () => { if (locked || !before) return; ({ guess } = before); m.pins = before.pins; before = null; m.draw(); btn.disabled = !guess; },
   });
   host.append(btn);
   btn.onclick = () => {
