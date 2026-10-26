@@ -599,9 +599,9 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 
 /* Pro, ads */
 /* locked Pro game: its own colour, darkened, a big lock in front; only the PRO badge stays bright */
-.gcard.locked::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: rgba(20, 24, 40, .42); z-index: 1; pointer-events: none; }
+.gcard.locked::after { content: ""; position: absolute; inset: 0 0 -6px; border-radius: inherit; background: rgba(20, 24, 40, .42); z-index: 1; pointer-events: none; }
 .gcard.locked .pro { z-index: 3; }
-.gcard.locked .st { position: relative; z-index: 2; background: #ffc531; color: #3a2a00; }
+.gcard.locked .st { position: relative; z-index: 2; background: #fff; color: var(--ink); }
 .gcard .lockbig { position: absolute; left: 50%; top: 44%; width: 62px; height: 72px; transform: translate(-50%, -50%) rotate(-6deg); filter: drop-shadow(0 4px 0 rgba(0,0,0,.25)); pointer-events: none; z-index: 2; }
 .pill.banana .vidready { margin-left: 2px; font-size: 13px; }
 .prohero { align-items: center; text-align: center; }
@@ -1646,14 +1646,14 @@ function hub() {
   app.append(h("div", "voyage", `<span class="trail"><i style="width:${played / all * 100}%"></i></span><span>${played} von ${all} gespielt</span>`));
   const grid = h("div", "grid");
   for (const g of GAMES) {
-    const p = prog().g[g.id], done = g.id in day;
+    const locked = g.pro && !isPro();
+    const p = prog().g[g.id], done = !locked && g.id in day;
     const max = g.rounds * g.per, score = day[g.id] || 0;
     const stars = done ? `<span class="stars" aria-label="${score >= max * .9 ? 3 : score >= max * .6 ? 2 : score > 0 ? 1 : 0} von 3 Sternen">${[0.01, .6, .9].map(f => `<i class="${score >= max * f ? "on" : ""}">★</i>`).join("")}</span>` : "";
-    const locked = g.pro && !isPro();
-    const st = done ? `<b>${fmtInt(score)}</b> Punkte` : locked ? "Pro freischalten" : p && p.i ? `Weiter · <b>${p.i}/${g.rounds}</b>` : "▶ Spielen";
+    const st = done ? `<b>${fmtInt(score)}</b> Punkte` : locked ? "▶ Testen" : p && p.i ? `Weiter · <b>${p.i}/${g.rounds}</b>` : "▶ Spielen";
     const c = h("button", "gcard" + (done ? " done" : "") + (locked ? " locked" : "") + (g.dark ? " dark-text" : ""), `${g.pro ? '<span class="pro">PRO</span>' : ""}${locked ? LOCK_SVG : ""}<span class="ic">${ICONS[g.id]}</span><h3>${esc(g.name)}</h3>${stars}<span class="st">${st}</span>`);
     c.style.setProperty("--hue", `var(${g.hue})`);
-    c.type = "button"; c.onclick = () => locked ? proPage(g.id) : openGame(g.id, false);
+    c.type = "button"; c.onclick = e => { remember(hub); locked ? proPage(e.target.closest(".st") ? "demo" : g.id) : openGame(g.id, false); };
     grid.append(c);
   }
   app.append(grid);
@@ -1678,6 +1678,7 @@ function applyTheme() {
 const tabbar = document.getElementById("tabbar");
 function showTabs(cur) {
   tabbar.hidden = !cur; document.body.classList.toggle("has-tabs", !!cur);
+  if (cur) backStack = [];   // back on a tab page is the end of the trail
   if (!cur) return;
   const tabs = [["play", "Spielen", ICONS.tabPlay, hub], ["friends", "Freunde", ICONS.tabFriends, friendsPage], ["settings", "Einstellungen", ICONS.tabGear, settingsPage]];
   tabbar.replaceChildren(...tabs.map(([id, label, icon, open]) => {
@@ -1838,7 +1839,7 @@ function settingsPage() {
   app.append(pageHead("Einstellungen"));
   const prof = h("div", "card profile", `<div class="avbox">${avatarHtml(saved.avatar)}</div><div><h2>${esc(saved.avatar.name || "Dein Avatar")}</h2><p class="muted">Such dir deinen Geoaffen aus.</p></div>
     <button class="btn dark wide" type="button">Avatar bearbeiten</button>`);
-  prof.querySelector("button").onclick = avatarEditor;
+  prof.querySelector("button").onclick = () => { remember(settingsPage); avatarEditor(); };
   const look = h("div", "card", `<h2>Darstellung</h2>`);
   look.append(segmented("theme", [["light", "☀️ Hell"], ["dark", "🌙 Dunkel"], ["system", "📱 System"]], () => { saved.settings.themeChosen = true; persist(); applyTheme(); }));
   const play = h("div", "card", `<h2>Spiel</h2>`);
@@ -1882,7 +1883,7 @@ function settingsPage() {
   const note = h("p", "note", ""); note.id = "note";
   const proCard = h("div", "card", isPro() ? `<h2>Geoaffe Pro 👑</h2><p class="muted">Pro ist aktiv. Danke für deine Unterstützung!</p>`
     : `<h2>Geoaffe Pro 👑</h2><p class="muted">Keine Werbung, Hangman und Länderradar, offline spielen.</p><button class="btn primary wide" type="button" id="toPro">Pro ansehen</button>`);
-  if (!isPro()) proCard.querySelector("#toPro").onclick = () => proPage();
+  if (!isPro()) proCard.querySelector("#toPro").onclick = () => { remember(settingsPage); proPage(); };
   let test = null;
   if (saved.settings.tester) {
     test = h("div", "card", `<h2>Testmodus</h2><div class="stack"><button class="btn wide" type="button" id="tPro">Pro ${isPro() ? "ausschalten" : "einschalten"}</button>
@@ -1940,7 +1941,7 @@ function avatarEditor() {
     }));
   };
   name.oninput = () => { draft.name = name.value.trim(); };
-  bar.querySelector(".back").onclick = settingsPage;
+  bar.querySelector(".back").onclick = goBack;
   bar.querySelector(".dice").onclick = () => { draft.pick = AVATARS[Math.floor(Math.random() * AVATARS.length)][0]; draft.bg = Math.floor(Math.random() * (AV_BG.length - 1)); draw(); };
   save.onclick = () => { saved.avatar = { ...draft, name: name.value.trim() }; persist(); cloudProfileUpdate(); toast("Avatar gespeichert"); settingsPage(); };
   draw();
@@ -2125,11 +2126,22 @@ function statsCard() {
     <div><b>${fmtInt(best)}</b><span>Bester Tag</span></div><div><b style="font-size:14px;line-height:1.9">${esc(strongest)}</b><span>Stärkstes Spiel</span></div></div>`);
 }
 
+/* ================= back navigation ================= */
+// sub-pages (games, Pro, avatar) remember the tab page and scroll position they were opened from
+let backStack = [];
+function remember(fn) { backStack.push({ fn, y: window.scrollY }); }
+function goBack() {
+  const r = backStack.pop() || { fn: hub, y: 0 };
+  r.fn(); requestAnimationFrame(() => window.scrollTo(0, r.y));
+}
+
 /* ================= Pro, ads ================= */
+// the Pro trial levels: always the same question
+const DEMO_LEVEL = { hang: () => ({ kind: "stadt", iso: "CO", word: CAPITALS.CO }), wordle: () => ({ iso: "TH" }) };
 function proPage(focus) {
   run = null; clearMaps(); showTabs(null); app.innerHTML = "";
   const bar = h("div", "topbar", `<button class="back" type="button" aria-label="Zurück">${ICONS.back}</button><h2>Geoaffe Pro</h2>`);
-  bar.querySelector(".back").onclick = hub;
+  bar.querySelector(".back").onclick = goBack;
   const pro = isPro();
   const hero = h("div", "card prohero", `<span class="procrown">👑</span><h2>${pro ? "Du hast Pro. Danke!" : "Hol dir Geoaffe Pro"}</h2>
     <ul class="proplus"><li><b>Keine Werbung</b></li><li><b>Hangman</b> und <b>Länderradar</b> jeden Tag</li><li><b>Offline spielen</b>, auch ohne Internet</li><li>Bis zu <b>4.000 Punkte</b> am Tag statt 3.000</li></ul>`);
@@ -2145,11 +2157,12 @@ function proPage(focus) {
     buy.querySelectorAll(".proplan").forEach(b => b.onclick = () => { plan = b.dataset.p; buy.querySelectorAll(".proplan").forEach(x => x.classList.toggle("on", x === b)); });
     buy.querySelector("#proBuy").onclick = () => buyPro(plan);
     buy.querySelector("#proRestore").onclick = () => toast("Käufe wiederherstellen ist bald möglich.");
-    const ids = GAMES.filter(g => g.pro).map(g => g.id).sort((a, b) => (b === focus) - (a === focus));
-    const demo = h("div", "card", `<h2>Erst mal reinschnuppern?</h2><p class="muted">Spiel ein Probelevel, so oft du willst. Es zählt nicht für die Punkte.</p><div class="stack">
+    const ids = GAMES.filter(g => g.pro).map(g => g.id);
+    const demo = h("div", "card", `<h2 id="proDemo">Erst mal reinschnuppern?</h2><p class="muted">Spiel ein Probelevel, so oft du willst. Es zählt nicht für die Punkte.</p><div class="stack">
       ${ids.map(id => { const g = GAMES.find(x => x.id === id); return `<button class="btn wide" type="button" data-id="${id}">${esc(g.name)}: Probelevel</button>`; }).join("")}</div>`);
-    demo.querySelectorAll("[data-id]").forEach(b => b.onclick = () => openGame(b.dataset.id, "demo"));
+    demo.querySelectorAll("[data-id]").forEach(b => b.onclick = () => { remember(() => proPage("demo")); openGame(b.dataset.id, "demo"); });
     app.append(buy, demo);
+    if (focus === "demo") { requestAnimationFrame(() => demo.scrollIntoView({ block: "start" })); return; }
   }
   window.scrollTo(0, 0);
 }
@@ -2169,7 +2182,7 @@ function showAd(next) {
   adOverlay("Anzeige", "Hier läuft später eine Werbung", 5, "✕", next);
 }
 function rewardVideo() {
-  adOverlay("Werbevideo", "Hier läuft später ein kurzes Werbevideo", 5, "🍌 +1 Banane", () => {
+  adOverlay("Werbevideo", "Hier läuft später ein kurzes Werbevideo", 20, "🍌 +1 Banane", () => {
     saved.bananas++; saved.adVideo = Date.now(); persist(); sound("good"); toast("Danke! Du hast eine Banane bekommen 🍌");
     if (!run) hub();
   });
@@ -2188,8 +2201,8 @@ function openGame(id, practice) {
   if (!navigator.onLine && !isPro()) return offlineInfo();
   // the Pro trial: always the same single level, as often as you like, no points
   const g = demo ? { ...base, rounds: 1 } : base;
-  const seed = demo ? hashSeed(1, id, "probe") : practice ? Math.floor(Math.random() * 2 ** 31) : hashSeed(dayNo(today()), id, "kompass");
-  const qs = g.gen(rngFrom(seed)).slice(0, g.rounds);
+  const seed = practice ? Math.floor(Math.random() * 2 ** 31) : hashSeed(dayNo(today()), id, "kompass");
+  const qs = demo ? [DEMO_LEVEL[id]()] : g.gen(rngFrom(seed)).slice(0, g.rounds);
   const p = practice ? { i: 0, pts: [], rev: [] } : (prog().g[id] || { i: 0, pts: [], rev: [] });
   const doneToday = !practice && (id in (saved.days[T()] || {}));
   run = { g, qs, i: doneToday ? g.rounds : p.i, pts: [...p.pts], rev: [...(p.rev || [])], practice: !!practice, demo };
@@ -2201,7 +2214,7 @@ function openGame(id, practice) {
 function topbar() {
   const { g, i, pts } = run;
   const bar = h("div", "topbar", `<button class="back" type="button" aria-label="Zur Übersicht">${ICONS.back}</button><h2>${esc(g.name)}${run.demo ? ' <span class="chip soft">Probe</span>' : run.practice ? ' <span class="chip soft">Übung</span>' : ""}</h2><button class="help" type="button" aria-label="So geht das Spiel">?</button><span class="sc">${fmtInt(pts.reduce((a, b) => a + b, 0))}</span>`);
-  bar.querySelector(".back").onclick = hub;
+  bar.querySelector(".back").onclick = goBack;
   bar.querySelector(".help").onclick = () => howTo(g);
   const dots = h("div", "dots");
   for (let k = 0; k < g.rounds; k++) {
@@ -2268,7 +2281,7 @@ function endScreen() {
     const b1 = h("button", "btn primary wide", "👑 Pro holen"); b1.type = "button"; b1.onclick = () => proPage(g.id);
     const row = h("div", "row"); row.style.justifyContent = "center";
     const b2 = h("button", "btn", "Nochmal spielen"); b2.type = "button"; b2.onclick = () => openGame(g.id, "demo");
-    const b3 = h("button", "btn dark", "Zur Übersicht"); b3.type = "button"; b3.onclick = hub;
+    const b3 = h("button", "btn dark", "Zurück"); b3.type = "button"; b3.onclick = goBack;
     row.append(b3, b2); box.append(b1, row); app.append(box);
     window.scrollTo(0, 0); return;
   }
@@ -2283,7 +2296,7 @@ function endScreen() {
   const max = g.rounds * g.per, verdict = shown >= max * .9 ? "Weltklasse" : shown >= max * .7 ? "Sehr stark" : shown >= max * .5 ? "Solide" : shown >= max * .3 ? "Ausbaufähig" : "Morgen wird's besser";
   const box = h("div", "card", `<div class="end"><span class="label">${practice ? "Übungsrunde" : "Heutiges Ergebnis"}</span><div class="big">${fmtInt(shown)}</div><span class="muted mono">von ${fmtInt(max)}</span><h3>${verdict}</h3></div>`);
   const row = h("div", "row"); row.style.justifyContent = "center";
-  const b1 = h("button", "btn dark", "Zur Übersicht"); b1.type = "button"; b1.onclick = hub;
+  const b1 = h("button", "btn dark", "Zur Übersicht"); b1.type = "button"; b1.onclick = goBack;
   const b2 = h("button", "btn", "Übungsrunde"); b2.type = "button"; b2.onclick = () => openGame(g.id, true);
   row.append(b1, b2); box.append(row);
   if (!practice) {
