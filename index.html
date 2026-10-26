@@ -598,10 +598,11 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 
 
 /* Pro, ads */
-.gcard.locked { --hue: #a9b1bf !important; }
-.gcard.locked .ic { filter: grayscale(1); opacity: .5; }
-.gcard.locked .st { display: none; }
-.gcard .lockbig { position: absolute; left: 50%; top: 44%; width: 74px; height: 86px; transform: translate(-50%, -50%) rotate(-6deg); filter: drop-shadow(0 4px 0 rgba(0,0,0,.18)); pointer-events: none; z-index: 2; }
+/* locked Pro game: its own colour, darkened, a big lock in front; only the PRO badge stays bright */
+.gcard.locked::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: rgba(20, 24, 40, .42); z-index: 1; pointer-events: none; }
+.gcard.locked .pro { z-index: 3; }
+.gcard.locked .st { position: relative; z-index: 2; background: #ffc531; color: #3a2a00; }
+.gcard .lockbig { position: absolute; left: 50%; top: 44%; width: 62px; height: 72px; transform: translate(-50%, -50%) rotate(-6deg); filter: drop-shadow(0 4px 0 rgba(0,0,0,.25)); pointer-events: none; z-index: 2; }
 .pill.banana .vidready { margin-left: 2px; font-size: 13px; }
 .prohero { align-items: center; text-align: center; }
 .prohero .procrown { font-size: 54px; line-height: 1; }
@@ -1647,7 +1648,7 @@ function hub() {
     const max = g.rounds * g.per, score = day[g.id] || 0;
     const stars = done ? `<span class="stars" aria-label="${score >= max * .9 ? 3 : score >= max * .6 ? 2 : score > 0 ? 1 : 0} von 3 Sternen">${[0.01, .6, .9].map(f => `<i class="${score >= max * f ? "on" : ""}">★</i>`).join("")}</span>` : "";
     const locked = g.pro && !isPro();
-    const st = done ? `<b>${fmtInt(score)}</b> Punkte` : locked ? "🔒 Pro" : p && p.i ? `Weiter · <b>${p.i}/${g.rounds}</b>` : "▶ Spielen";
+    const st = done ? `<b>${fmtInt(score)}</b> Punkte` : locked ? "Pro freischalten" : p && p.i ? `Weiter · <b>${p.i}/${g.rounds}</b>` : "▶ Spielen";
     const c = h("button", "gcard" + (done ? " done" : "") + (locked ? " locked" : "") + (g.dark ? " dark-text" : ""), `${g.pro ? '<span class="pro">PRO</span>' : ""}${locked ? LOCK_SVG : ""}<span class="ic">${ICONS[g.id]}</span><h3>${esc(g.name)}</h3>${stars}<span class="st">${st}</span>`);
     c.style.setProperty("--hue", `var(${g.hue})`);
     c.type = "button"; c.onclick = () => locked ? proPage(g.id) : openGame(g.id, false);
