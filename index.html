@@ -559,8 +559,6 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 .hbanana .bite.on, .hbanana .edge.on { transform: scale(1); }
 .hbanana .bcover, .hbanana .edge.old { display: none; }
 .hbanana .bite.old .bcover { display: inline; }
-.hbanana .crumbs > * { transform-box: fill-box; transform-origin: center; }
-.hbanana .happs { font-family: var(--f-head); font-weight: 700; font-size: 46px; fill: #fff; stroke: #3a2206; stroke-width: 9px; paint-order: stroke; stroke-linejoin: round; }
 .bananabox.chomp .hbanana { animation: banchomp .55s ease-out; transform-origin: 12% 20%; }
 @keyframes banchomp { 0% { transform: none; } 18% { transform: translateX(6px) rotate(4deg) scale(1.04, .96); } 40% { transform: translateX(-3px) rotate(-3deg) scale(.98, 1.02); } 65% { transform: rotate(1.5deg); } 100% { transform: none; } }
 .lives { font-size: 13px; font-weight: 800; color: var(--ink-2); }
@@ -1166,34 +1164,7 @@ function bananaSvg() {
       ${bites("edge", ' stroke="#fff3c4" stroke-width="20"')}
       ${bites("edge", ' stroke="#3a2206" stroke-width="7"')}
     </g></g>
-    <g class="crumbs"></g>
   </svg>`;
-}
-// little banana crumbs flying off a new bite
-function banCrumbs(svg, i) {
-  const [bx, by, r] = BAN_BITES[i], k = r * .85 / Math.hypot(80 - bx, 200 - by), x = bx + (80 - bx) * k, y = by + (200 - by) * k, g = svg.querySelector(".crumbs");   // start at the bite edge, stem side
-  const ns = "http://www.w3.org/2000/svg", fly = (el, dx, up, spin, ms, delay) => {   // throw up, then fall with gravity
-    const frames = [...Array(9)].map((_, n) => { const t = n / 8; return { transform: `translate(${dx * t}px, ${-up * 4 * t * (1 - t) + 140 * t * t}px) rotate(${spin * t}deg)`, opacity: t > .75 ? (1 - t) * 4 : 1 }; });
-    el.style.opacity = 0;   // hidden until the bite has snapped shut
-    el.animate(frames, { duration: ms, delay, easing: "linear", fill: "forwards" }).onfinish = () => el.remove();
-  };
-  // the bitten-off chunk
-  const chunk = document.createElementNS(ns, "path");
-  chunk.setAttribute("d", `M${x - 16} ${y - 4}q6 -16 20 -12q14 2 14 16q-2 14 -16 14q-16 -2 -18 -18z`);
-  chunk.setAttribute("fill", "#ffd21f"); chunk.setAttribute("stroke", "#3a2206"); chunk.setAttribute("stroke-width", 4);
-  g.append(chunk); fly(chunk, 70 + Math.random() * 40, 70, 260, 800, 140);
-  for (let n = 0; n < 10; n++) {
-    const c = document.createElementNS(ns, "circle");
-    c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 3 + Math.random() * 5);
-    c.setAttribute("fill", n % 3 ? "#fff3c4" : "#ffd21f"); c.setAttribute("stroke", "#3a2206"); c.setAttribute("stroke-width", 2);
-    g.append(c); fly(c, (Math.random() - .25) * 190, 30 + Math.random() * 70, Math.random() * 300, 650 + Math.random() * 300, 120 + Math.random() * 80);
-  }
-  // a comic "Happs!" above the bite
-  const t = document.createElementNS(ns, "text");
-  t.setAttribute("x", Math.min(Math.max(x + 60, 230), 480)); t.setAttribute("y", Math.max(y - 60, 130)); t.setAttribute("text-anchor", "middle"); t.setAttribute("class", "happs"); t.textContent = "Happs!";
-  g.append(t);
-  t.animate([{ transform: "scale(0) rotate(-12deg)", opacity: 0 }, { transform: "scale(1.2) rotate(-6deg)", opacity: 1, offset: .2 }, { transform: "scale(1) rotate(-6deg)", opacity: 1, offset: .35 },
-    { transform: "translateY(-24px) scale(1) rotate(-6deg)", opacity: 0 }], { duration: 900, easing: "ease-out", fill: "both" }).onfinish = () => t.remove();
 }
 function viewHang(q, host, answer) {
   const word = q.word, letters = new Set([...word].filter(ch => /[\p{L}]/u.test(ch)).map(letterOf));
@@ -1221,7 +1192,7 @@ function viewHang(q, host, answer) {
     guessed.add(L);
     const key = kb.querySelector(`[data-l="${L}"]`), hit = letters.has(L);
     key.classList.add(hit ? "hit" : "miss"); key.disabled = true;
-    if (!hit) { wrong++; haptic("bad"); ban.classList.remove("chomp"); void ban.offsetWidth; ban.classList.add("chomp"); banCrumbs(ban.querySelector("svg"), wrong - 1); }
+    if (!hit) { wrong++; haptic("bad"); ban.classList.remove("chomp"); void ban.offsetWidth; ban.classList.add("chomp"); }
     draw();
     if ([...letters].every(x => guessed.has(x))) finish(true);
     else if (wrong >= HANG_LIVES) finish(false);
