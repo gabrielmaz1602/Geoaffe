@@ -1653,7 +1653,7 @@ function hub() {
     const st = done ? `<b>${fmtInt(score)}</b> Punkte` : locked ? "▶ Testen" : p && p.i ? `Weiter · <b>${p.i}/${g.rounds}</b>` : "▶ Spielen";
     const c = h("button", "gcard" + (done ? " done" : "") + (locked ? " locked" : "") + (g.dark ? " dark-text" : ""), `${g.pro ? '<span class="pro">PRO</span>' : ""}${locked ? LOCK_SVG : ""}<span class="ic">${ICONS[g.id]}</span><h3>${esc(g.name)}</h3>${stars}<span class="st">${st}</span>`);
     c.style.setProperty("--hue", `var(${g.hue})`);
-    c.type = "button"; c.onclick = e => { remember(hub); locked ? proPage(e.target.closest(".st") ? "demo" : g.id) : openGame(g.id, false); };
+    c.type = "button"; c.onclick = e => { remember(hub); locked ? (e.target.closest(".st") ? openGame(g.id, "demo") : proPage(g.id)) : openGame(g.id, false); };   // "Testen" starts the trial level right away
     grid.append(c);
   }
   app.append(grid);
