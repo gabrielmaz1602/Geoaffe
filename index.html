@@ -1225,9 +1225,11 @@ function centerOf(iso) {
   if (!centerCache[iso]) { const f = W50.filter(x => x.key === iso).sort((a, b) => d3.geoArea(b) - d3.geoArea(a))[0]; centerCache[iso] = d3.geoCentroid(mainland(f)); }
   return centerCache[iso];
 }
-function bearing([lon1, lat1], [lon2, lat2]) {
-  const r = Math.PI / 180, y = Math.sin((lon2 - lon1) * r) * Math.cos(lat2 * r), x = Math.cos(lat1 * r) * Math.sin(lat2 * r) - Math.sin(lat1 * r) * Math.cos(lat2 * r) * Math.cos((lon2 - lon1) * r);
-  return (Math.atan2(y, x) / r + 360) % 360;
+// direction as seen on the flat world map (not the great-circle course, which can point "down" from Chile to Asia)
+const MERC = d3.geoMercator();
+function bearing(a, b) {
+  const [x1, y1] = MERC(a), [x2, y2] = MERC(b);
+  return (Math.atan2(x2 - x1, y1 - y2) * 180 / Math.PI + 360) % 360;
 }
 const ARROWS = ["⬆️", "↗️", "➡️", "↘️", "⬇️", "↙️", "⬅️", "↖️"];
 const jagdPoints = n => n <= 2 ? 100 : Math.max(40, 100 - (n - 2) * 15);
