@@ -12,7 +12,7 @@ Tägliche Geografie-Spiele (wie Wordle): 8 Spiele à 5 Level, je Level bis 100 P
 ## Aufbau
 
 - `index.html`: die ganze App (CSS, Spiele, Screens) in einer Datei, kein Build-Schritt. `data.js`: Städte, Länder, Nachbarn, Flaggen, Weltkarte (sehr groß, nur gezielt lesen).
-- Spiele (`GAMES` in index.html): Nadelwurf `pin`, Grenzgänger `border`, Flaggen-Mix `flag`, Kompass `nord`, Umriss `shape` (Insel auf Wasser, danach mit Flagge gefüllt), Flächenduell `size` (Quartett-Karten), dazu die Pro-Spiele (Abzeichen PRO, vorerst für alle) Hangman `hang` (Banane `img/banana.webp` von ChatGPT, Bisse per SVG-Maske mit kleinen Zahnabdrücken, die Banane zuckt bei jedem Biss; Biss-Positionen in `BAN_BITES`, der letzte lässt nur den Stiel) und Länderjagd `wordle` (Geo-Wordle). Neue Spiel-IDs auch in `supabase/schema.sql` (results_game_check) erlauben.
+- Spiele (`GAMES` in index.html): Nadelwurf `pin`, Grenzgänger `border`, Flaggen-Mix `flag`, Kompass `nord`, Umriss `shape` (Insel auf Wasser, danach mit Flagge gefüllt), Flächenduell `size` (Quartett-Karten), dazu die Pro-Spiele (Abzeichen PRO, vorerst für alle) Hangman `hang` (Banane `img/banana.webp` von ChatGPT, Bisse per SVG-Maske mit kleinen Zahnabdrücken, die Banane zuckt bei jedem Biss; Biss-Positionen in `BAN_BITES`, der letzte lässt nur den Stiel) und Länderradar `wordle` (Geo-Wordle). Neue Spiel-IDs auch in `supabase/schema.sql` (results_game_check) erlauben.
 - CSS-Klassen eindeutig benennen: mehrfach ist es passiert, dass neue Klassen alte (`back`, `card`, `banana`) überschrieben haben.
 - Spielstand nur im Browser (`localStorage`, Schlüssel `kompass-v1`): Punkte, Bananen-Joker, Einstellungen, Avatar.
 - Freunde & Rangliste nur unter Freunden (Weltrangliste im Okt. 2026 entfernt, freiwillig): Supabase, Projekt `fienrzyyzmontvwudaqj` (Frankfurt), anonyme Anmeldung. Datenbank + Regeln in `supabase/schema.sql`. In der App steht nur der öffentliche publishable Key.
@@ -38,6 +38,6 @@ Tägliche Geografie-Spiele (wie Wordle): 8 Spiele à 5 Level, je Level bis 100 P
 - Name + Kontaktadresse für Datenschutz („Verantwortlich: Angaben folgen“) und Impressum fehlen noch.
 - „Heute neu spielen“ ist versteckt: 5× auf die Versionsnummer in den Einstellungen tippen schaltet den Testmodus an/aus.
 - Für den App Store: Entwicklerkonto (99 €/Jahr), Push-Benachrichtigungen, Abo (RevenueCat) + Werbung (AdMob), Offline nur für Pro, Exklusiv-Spiele für Pro, Store-Screenshots.
-- Pro-Spiele gebaut: Hangman + Länderjagd. Weitere Idee: Hauptstadt-Sprint (`IDEEN.md`).
+- Pro-Spiele gebaut: Hangman + Länderradar. Weitere Idee: Hauptstadt-Sprint (`IDEEN.md`).
 - **Android später (Gabriel: im Hinterkopf behalten):** Capacitor-Android-Projekt dazulegen, Google Play 25 $ einmalig; neue private Konten brauchen 14 Tage Test mit 12 Testern – früh einplanen. RevenueCat/AdMob/Supabase funktionieren auch dort.
 - Name „Geoaffe“ auf Markenrechte prüfen.
