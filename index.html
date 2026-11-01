@@ -564,10 +564,10 @@ a.btn { text-decoration: none; text-align: center; color: var(--ink); }
 .lives { font-size: 13px; font-weight: 800; color: var(--ink-2); }
 .hword { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; padding: 4px 0; }
 .hw { display: flex; gap: 5px; }
-.hword i { width: 26px; height: 36px; display: grid; place-items: center; font-style: normal; font-family: var(--f-head); font-weight: 700; font-size: 22px; border-bottom: 4px solid var(--ink-3); color: var(--ink); }
+.hword i { width: var(--hs, 26px); height: calc(var(--hs, 26px) * 1.4); display: grid; place-items: center; font-style: normal; font-family: var(--f-head); font-weight: 700; font-size: calc(var(--hs, 26px) * .85); border-bottom: 4px solid var(--ink-3); color: var(--ink); }
 .hword i.on { border-bottom-color: var(--teal); animation: pop .3s cubic-bezier(.2,1.5,.4,1); }
 .hword i.miss { color: var(--bad); border-bottom-color: var(--bad); }
-.hword i.sep { border-bottom: 0; width: 10px; }
+.hword i.sep { border-bottom: 0; width: calc(var(--hs, 26px) * .4); }
 .keys { display: flex; flex-direction: column; gap: 7px; }
 .krow { display: flex; justify-content: center; gap: 5px; }
 .krow button { flex: 1; max-width: 38px; height: 46px; border: 2px solid var(--line); background: var(--card); border-radius: 10px; font-family: var(--f-head); font-weight: 700; font-size: 18px; color: var(--ink); box-shadow: 0 3px 0 var(--edge); cursor: pointer; padding: 0; }
@@ -962,6 +962,9 @@ const DIRS = { N: "nördlicher", S: "südlicher", O: "östlicher", W: "westliche
 // a flag picture for a country code, or a globe when we have no flag
 // places without their own flag image use the flag of the country shown with them (Hongkong is labelled "China")
 const FLAG_ALIAS = { hk: "cn" };
+// two flags missing in the flag set: Somalia, and a simplified Papua New Guinea
+if (!FLAGS.so) FLAGS.so = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgNDgwIj48cGF0aCBmaWxsPSIjNDE4OWRkIiBkPSJNMCAwaDY0MHY0ODBIMHoiLz48cGF0aCBmaWxsPSIjZmZmIiBkPSJtMzIwIDEzNSAyMi42IDY5LjZoNzMuMmwtNTkuMiA0MyAyMi42IDY5LjYtNTkuMi00My01OS4yIDQzIDIyLjYtNjkuNi01OS4yLTQzaDczLjJ6Ii8+PC9zdmc+";
+if (!FLAGS.pg) FLAGS.pg = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgNDgwIj48cGF0aCBmaWxsPSIjMDAwIiBkPSJNMCAwaDY0MHY0ODBIMHoiLz48cGF0aCBmaWxsPSIjY2UxMTI2IiBkPSJNMCAwaDY0MHY0ODB6Ii8+PHBhdGggZmlsbD0iI2ZmZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTUwIDI2MCkgc2NhbGUoMzApIiBkPSJNMC0xIC4yMi0uMzEuOTUtLjMxLjM2LjEyLjU5LjgxIDAgLjM4LS41OS44MS0uMzYuMTItLjk1LS4zMS0uMjItLjMxeiIvPjxwYXRoIGZpbGw9IiNmZmYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIxMCAzMzApIHNjYWxlKDI2KSIgZD0iTTAtMSAuMjItLjMxLjk1LS4zMS4zNi4xMi41OS44MSAwIC4zOC0uNTkuODEtLjM2LjEyLS45NS0uMzEtLjIyLS4zMXoiLz48cGF0aCBmaWxsPSIjZmZmIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNTAgNDAwKSBzY2FsZSgzMCkiIGQ9Ik0wLTEgLjIyLS4zMS45NS0uMzEuMzYuMTIuNTkuODEgMCAuMzgtLjU5LjgxLS4zNi4xMi0uOTUtLjMxLS4yMi0uMzF6Ii8+PHBhdGggZmlsbD0iI2ZmZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoOTUgMzMwKSBzY2FsZSgyNikiIGQ9Ik0wLTEgLjIyLS4zMS45NS0uMzEuMzYuMTIuNTkuODEgMCAuMzgtLjU5LjgxLS4zNi4xMi0uOTUtLjMxLS4yMi0uMzF6Ii8+PHBhdGggZmlsbD0iI2ZmZiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTYwIDM0NSkgc2NhbGUoMTQpIiBkPSJNMC0xIC4yMi0uMzEuOTUtLjMxLjM2LjEyLjU5LjgxIDAgLjM4LS41OS44MS0uMzYuMTItLjk1LS4zMS0uMjItLjMxeiIvPjxnIGZpbGw9IiNmY2QxMTYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDQ4NSAxNjUpIHNjYWxlKC43MikgdHJhbnNsYXRlKC00NjUgLTI1MCkiPjxwYXRoIGQ9Ik0zNzAgMTQwYzQwLTMwIDEwMC0zNSAxNTAtMTUtMzAgMC01NSAxMC03MCAyNSAzMC01IDYwIDAgODUgMTUtMzUtNS02NSAwLTg1IDE1IDIwIDUgMzUgMTUgNDUgMzAtMzAtMTUtNjAtMTUtODUtNSAxNSAzNSA1IDcwLTIwIDk1IDUtMzUtNS02NS0zMC04MC0yNSAxMC00NSAzMC01NSA1NS01LTQwIDE1LTcwIDQ1LTg1LTI1LTUtNDUgMC02MCAxNSAxMC0zMCA0MC00NSA3MC00NS0xMC0xMC0yNS0xNS00NS0xNXoiLz48cGF0aCBkPSJNNDU1IDI1NWMxMCA0MCAwIDgwLTI1IDExMCAzMC0xNSA1MC00NSA1NS04MHpNNDMwIDI2MGMtNSA0NS0yNSA4MC01NSAxMDAgMzUtNSA2MC0zNSA3MC03NXoiLz48L2c+PC9zdmc+";
 const flagImg = cc => { const k = FLAG_ALIAS[String(cc).toLowerCase()] || String(cc).toLowerCase(); return FLAGS[k] ? `<img src="${FLAGS[k]}" alt="">` : `<span class="noflag">🌍</span>`; };
 function compassSvg(dir) {
   const pos = { N: [60, 15], O: [105, 60], S: [60, 105], W: [15, 60] }, ang = { N: 0, O: 90, S: 180, W: 270 }[dir];
@@ -1297,10 +1300,13 @@ function viewHang(q, host, answer) {
   host.append(h("p", "tip", q.kind === "land" ? `💡 Tipp: <b>${esc(regionOf(q.iso) || "")}</b>` : `💡 Tipp: <b>${esc(nameOf(q.iso))}</b>`));
   const ban = h("div", "bananabox", `${bananaSvg()}<span class="lives"></span>`); host.append(ban);
   const wordEl = h("div", "hword"); host.append(wordEl);
+  // long names may wrap after a hyphen ("Papua-" / "Neuguinea"), and the tiles shrink until the longest part fits the screen
+  const chunks = word.split(" ").flatMap(w => w.split(/(?<=-)/)), longest = Math.max(...chunks.map(c => [...c].length));
+  const fit = () => { const avail = wordEl.clientWidth || 340; wordEl.style.setProperty("--hs", `${Math.min(26, Math.floor((avail - (longest - 1) * 5) / longest))}px`); };
   const kb = h("div", "keys"); host.append(kb);
   const guessed = new Set(); let wrong = 0, over = false;
   const draw = () => {
-    wordEl.innerHTML = word.split(" ").map(w => `<span class="hw">${[...w].map(ch => /[\p{L}]/u.test(ch)
+    wordEl.innerHTML = chunks.map(w => `<span class="hw">${[...w].map(ch => /[\p{L}]/u.test(ch)
       ? `<i class="${guessed.has(letterOf(ch)) || over ? "on" : ""}${over && !guessed.has(letterOf(ch)) ? " miss" : ""}">${guessed.has(letterOf(ch)) || over ? esc(ch.toUpperCase()) : ""}</i>` : `<i class="sep">${esc(ch)}</i>`).join("")}</span>`).join("");
     ban.querySelectorAll(".bite, .edge").forEach(c => { c.classList.toggle("on", +c.dataset.i < wrong); c.classList.toggle("old", +c.dataset.i < wrong - 1); });
     ban.querySelector(".lives").textContent = `${HANG_LIVES - wrong} von ${HANG_LIVES} Bissen übrig`;
@@ -1327,7 +1333,7 @@ function viewHang(q, host, answer) {
     for (const L of row) { const b = h("button", "", L); b.type = "button"; b.dataset.l = L; b.onclick = () => press(L); r.append(b); }
     kb.append(r);
   }
-  draw();
+  fit(); draw();
   host.joker = () => { if (over) return; letters.forEach(L => guessed.add(L)); finish(true); };
 }
 
